@@ -1,20 +1,19 @@
-const CACHE_NAME = 'caldaiafix-v6';
+const CACHE_NAME = 'caldaiafix-v7';
 const ASSETS = [
   './',
   './index.html',
-  './style.css?v=4',
+  './style.css',
   './db.js',
   './app.js',
   './manifest.json'
 ];
 
+// Installazione Service Worker
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
   self.skipWaiting();
 });
 
+// Attivazione e pulizia vecchie cache
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -28,10 +27,17 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
+// Strategia NETWORK-FIRST: cerca prima sul web per avere l'ultimo aggiornamento, se offline usa la cache
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
-    })
+    fetch(e.request)
+      .then((response) => {
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(e.request, resClone);
+        });
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
