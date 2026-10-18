@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3.0">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#0e131f">
 </head>
 <body>
 
-    <!-- BANNER INSTALLAZIONE PWA (ANDROID / CHROME) -->
+    <!-- BANNER INSTALLAZIONE PWA -->
     <div id="pwa-install-banner" class="pwa-banner" style="display:none;">
         <div class="pwa-banner-text">
             <strong>📲 Installa CaldaiaFix PRO</strong>
@@ -20,70 +20,77 @@
         <button class="btn-pwa-close" onclick="chiudiPwaBanner()">✕</button>
     </div>
 
-    <!-- BANNER INSTALLAZIONE PWA (IOS / SAFARI) -->
     <div id="ios-install-banner" class="pwa-banner" style="display:none;">
         <div class="pwa-banner-text">
             <strong>📲 Installa su iPhone</strong>
-            <small>Premi il tasto Condividi ⎘ e poi "Aggiungi a Schermata Home".</small>
+            <small>Premi Condividi ⎘ e poi "Aggiungi a Schermata Home".</small>
         </div>
         <button class="btn-pwa-close" onclick="chiudiIosBanner()">✕</button>
     </div>
 
-    <!-- INTESTAZIONE ORIGINALE -->
+    <!-- INTESTAZIONE SCURA CON LOGO E AREA TECNICA VIOLA -->
     <header class="header">
         <div class="header-top">
-            <h1 class="logo" onclick="tornaHome()">🔥 CaldaiaFix <span class="badge-pro">PRO</span></h1>
-            <span id="netStatus" class="net-badge online">🟢 Online</span>
+            <div class="header-brand" onclick="tornaHome()">
+                <div class="logo-icon-box">🔥</div>
+                <div>
+                    <h1 class="logo">CaldaiaFix <span class="badge-pro">PRO</span></h1>
+                    <p class="logo-sub">DB SOLUTION • Assistenza Tecnica</p>
+                </div>
+            </div>
+            <button class="btn-area-tecnica" onclick="apriPin()">
+                <span>⚙️ Area Tecnica</span>
+            </button>
         </div>
-        <p id="sub-header-count" class="sub-header">Diagnostica & Parametri HVAC (306 Guasti)</p>
     </header>
 
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
         
-        <!-- BARRA RICERCA CON MICROFONO INTEGRATO -->
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Cerca codice o descrizione..." oninput="filtraErrori(false)">
-            <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()" title="Ricerca Vocale">🎙️</button>
+        <!-- CARD CONTENITORE RICERCA E FILTRI -->
+        <div class="filter-card">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Cerca guasto, modello o LED (es. E01, F28)..." oninput="filtraErrori(false)">
+                <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()" title="Ricerca Vocale">🎙️</button>
+            </div>
+
+            <div class="filter-row">
+                <select id="brandFilter" class="brand-select" onchange="filtraErrori(false)">
+                    <option value="">Tutte le Marche</option>
+                    <option value="Baxi">Baxi</option>
+                    <option value="Vaillant">Vaillant</option>
+                    <option value="Immergas">Immergas</option>
+                    <option value="Ariston">Ariston</option>
+                    <option value="Beretta">Beretta</option>
+                    <option value="Ferroli">Ferroli</option>
+                    <option value="Hermann Saunier Duval">Hermann Saunier Duval</option>
+                    <option value="Riello">Riello</option>
+                    <option value="Bosch">Bosch / Junkers</option>
+                    <option value="Biasi">Biasi</option>
+                    <option value="Cosmogas">Cosmogas</option>
+                    <option value="Unical">Unical</option>
+                    <option value="Viessmann">Viessmann</option>
+                    <option value="Sime">Sime</option>
+                    <option value="Italtherm">Italtherm</option>
+                    <option value="Chaffoteaux">Chaffoteaux</option>
+                    <option value="Lamborghini">Lamborghini</option>
+                    <option value="Buderus">Buderus</option>
+                    <option value="Wolf">Wolf</option>
+                    <option value="Silber">Silber</option>
+                    <option value="Climatizzatori">Climatizzatori</option>
+                </select>
+
+                <div class="tabs">
+                    <button id="btn-all" class="tab-btn active" onclick="filtraTipo('all')">Tutti</button>
+                    <button id="btn-dig" class="tab-btn" onclick="filtraTipo('digital')">Dig.</button>
+                    <button id="btn-led" class="tab-btn" onclick="filtraTipo('led')">LED</button>
+                    <button id="btn-fav" class="tab-btn" onclick="filtraTipo('fav')">★</button>
+                </div>
+            </div>
         </div>
 
-        <!-- FILTRO MARCA -->
-        <div class="filter-box">
-            <select id="brandFilter" onchange="filtraErrori(false)">
-                <option value="">Tutte le marche</option>
-                <option value="Baxi">Baxi</option>
-                <option value="Vaillant">Vaillant</option>
-                <option value="Immergas">Immergas</option>
-                <option value="Ariston">Ariston</option>
-                <option value="Beretta">Beretta</option>
-                <option value="Ferroli">Ferroli</option>
-                <option value="Hermann Saunier Duval">Hermann Saunier Duval</option>
-                <option value="Riello">Riello</option>
-                <option value="Bosch">Bosch / Junkers</option>
-                <option value="Biasi">Biasi</option>
-                <option value="Cosmogas">Cosmogas</option>
-                <option value="Unical">Unical</option>
-                <option value="Viessmann">Viessmann</option>
-                <option value="Sime">Sime</option>
-                <option value="Italtherm">Italtherm</option>
-                <option value="Chaffoteaux">Chaffoteaux</option>
-                <option value="Lamborghini">Lamborghini</option>
-                <option value="Buderus">Buderus</option>
-                <option value="Wolf">Wolf</option>
-                <option value="Silber">Silber</option>
-                <option value="Climatizzatori">Climatizzatori</option>
-            </select>
-        </div>
-
-        <!-- TAB FILTRI TIPO -->
-        <div class="tabs">
-            <button id="btn-all" class="tab-btn active" onclick="filtraTipo('all')">Tutti</button>
-            <button id="btn-dig" class="tab-btn" onclick="filtraTipo('digital')">Digitali</button>
-            <button id="btn-led" class="tab-btn" onclick="filtraTipo('led')">LED</button>
-            <button id="btn-fav" class="tab-btn" onclick="filtraTipo('fav')">★ Preferiti</button>
-        </div>
-
-        <div id="resultsCount" class="results-count">306 GUASTI TROVATI</div>
+        <div id="resultsCount" class="results-count">306 GUASTI PRESENTI NEL DATABASE</div>
 
         <!-- LISTA ERRORI -->
         <div id="errors-list" class="errors-container"></div>
@@ -149,17 +156,17 @@
             <h2>⚙️ Impostazioni</h2>
         </div>
         <div class="card">
-            <label style="font-weight:700; font-size:15px;">Nome Ditta per Rapporti WhatsApp:</label>
+            <label style="font-weight:700; font-size:15px; color:var(--text-main);">Nome Ditta per Rapporti WhatsApp:</label>
             <input type="text" id="settingCompany" placeholder="Es. DB Solution" oninput="salvaImpostazioniDitta()">
             
-            <label style="margin-top:15px; display:flex; align-items:center; gap:10px; font-size:16px;">
+            <label style="margin-top:15px; display:flex; align-items:center; gap:10px; font-size:16px; color:var(--text-main);">
                 <input type="checkbox" id="settingVibration" onchange="salvaImpostazioniVibrazione()" checked style="width:22px; height:22px;">
                 Vibrazione al tocco (Feedback)
             </label>
         </div>
 
         <div class="card" style="margin-top:15px;">
-            <button class="btn-action" style="width:100%; font-size:16px; padding:14px;" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
+            <button class="btn-action" style="width:100%; font-size:16px; padding:14px; background:linear-gradient(135deg, #7c3aed, #4c1d95);" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
             <div id="installer-content" style="display:none; margin-top:15px;"></div>
         </div>
     </section>
@@ -169,7 +176,7 @@
     <div id="dropup-menu" class="dropup-menu">
         <div class="dropup-header">
             <span>🛠️ Strumenti Rapidi</span>
-            <button onclick="toggleMenuTendina()" style="background:none; border:none; font-size:22px; font-weight:bold; padding:5px;">✕</button>
+            <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
         <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe</button>
@@ -178,7 +185,7 @@
         <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
     </div>
 
-    <!-- BARRA NAVIGAZIONE IN BASSO -->
+    <!-- BARRA NAVIGAZIONE SCURA IN BASSO -->
     <nav class="bottom-nav">
         <button id="nav-home" class="nav-item active" onclick="tornaHome()">
             <span class="nav-icon">🔍</span>
@@ -249,7 +256,7 @@
             <h3>🔑 Codice Sblocco Tecnico</h3>
             <p style="font-size:14px; color:var(--text-sub);">Inserisci il PIN (predefinito: 1234):</p>
             <input type="password" id="pinInput" placeholder="1234" style="font-size:22px; text-align:center;">
-            <p id="pinError" style="color:red; font-size:14px; display:none; font-weight:bold;">PIN Errato!</p>
+            <p id="pinError" style="color:#ef4444; font-size:14px; display:none; font-weight:bold;">PIN Errato!</p>
 
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-action" onclick="verificaPin()">Entra</button>
@@ -258,9 +265,9 @@
         </div>
     </div>
 
-    <!-- CARICAMENTO SCRIPT -->
-    <script src="db.js"></script>
-    <script src="app.js"></script>
+    <!-- CARICAMENTO SCRIPT CON VERSIONING ?v=3.0 -->
+    <script src="db.js?v=3.0"></script>
+    <script src="app.js?v=3.0"></script>
 
 </body>
 </html>
