@@ -228,11 +228,17 @@ function mostraDettaglio(id) {
         htmlCauses = '<ul style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.causes.map(c => `<li style="margin-bottom:4px;">${c}</li>`).join('') + '</ul>';
     }
 
-    // ATTREZZI CONSIGLIATI
+    // ATTREZZI CONSIGLIATI TRASFORMATI IN LINK AMAZON AFFILIATI
     const listaAttrezzi = ottieniAttrezziGuasto(item);
-    const htmlAttrezzi = listaAttrezzi.map(a => `<span class="tool-tag">${a}</span>`).join('');
+    const htmlAttrezzi = listaAttrezzi.map(attrezzo => {
+        // Rimuoviamo gli emoji per creare una query pulita per Amazon
+        const cleanToolName = attrezzo.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+        const toolSearchQuery = encodeURIComponent(cleanToolName);
+        const toolAmazonUrl = `https://www.amazon.it/s?k=${toolSearchQuery}&tag=dbsolution-21`;
+        return `<a href="${toolAmazonUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" onclick="event.stopPropagation();">${attrezzo} ↗</a>`;
+    }).join('');
 
-    // LINK AFFILIAZIONE AMAZON
+    // LINK AFFILIAZIONE AMAZON PER RICAMBIO CALDAIA
     const searchQuery = encodeURIComponent(`${item.brand} ${item.partName || item.code} ricambio caldaia`);
     const amazonAffiliateUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=dbsolution-21`;
 
@@ -259,9 +265,9 @@ function mostraDettaglio(id) {
                 ${htmlSteps}
             </div>
 
-            <!-- SEZIONE ATTREZZI NECESSARI -->
+            <!-- SEZIONE ATTREZZI NECESSARI (CON LINK AMAZON) -->
             <div class="tools-box">
-                <div style="font-size:12px; font-weight:900; color:#cbd5e1; text-transform:uppercase;">🧰 Attrezzatura Consigliata per l'Intervento:</div>
+                <div style="font-size:12px; font-weight:900; color:#cbd5e1; text-transform:uppercase;">🧰 Attrezzatura Consigliata (Clicca per acquistare su Amazon):</div>
                 <div class="tools-list">
                     ${htmlAttrezzi}
                 </div>
@@ -277,7 +283,7 @@ function mostraDettaglio(id) {
 
             <!-- PULSANTE AFFILIAZIONE AMAZON -->
             <a href="${amazonAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon">
-                🛒 Cerca Ricambio e Attrezzatura su Amazon
+                🛒 Cerca Ricambio Principale su Amazon
             </a>
 
             ${item.gasParams && item.gasParams !== '-' ? `
