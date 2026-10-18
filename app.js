@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, STATISTICHE & FORZA CACHE PWA
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, RENDIMENTO COMBUSTIONE & SCADENZARIO
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -240,7 +240,6 @@ function calcolaEDisegnaStatistiche() {
     const container = document.getElementById('stats-container');
     if (!container) return;
 
-    let totalTarghe = 0;
     const totalConsultazioni = historyGuasti.length;
     
     let brandMap = {};
@@ -909,7 +908,7 @@ function ripristinaBackupJSON(event) {
     event.target.value = '';
 }
 
-// ARCHIVIO TARGHE & INDEXED DB
+// ARCHIVIO TARGHE, INDEXED DB & SCADENZARIO
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -938,7 +937,7 @@ function apriTargaModal() {
 function chiudiTargaModal() {
     const modal = document.getElementById('targa-modal');
     if (modal) modal.style.display = 'none';
-    ['tagClient', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes'].forEach(id => {
+    ['tagClient', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -972,6 +971,7 @@ function salvaSchedaTarga() {
     const boiler = document.getElementById('tagBoiler')?.value.trim() || '';
     const serial = document.getElementById('tagSerial')?.value.trim() || '';
     const notes = document.getElementById('tagNotes')?.value.trim() || '';
+    const nextMaint = document.getElementById('tagNextMaintenance')?.value || '';
     const imgEl = document.getElementById('tagImgPreview');
     const imgSrc = imgEl ? imgEl.src : '';
 
@@ -986,6 +986,7 @@ function salvaSchedaTarga() {
         boiler: boiler,
         serial: serial,
         notes: notes,
+        nextMaintenance: nextMaint,
         image: (imgSrc && imgSrc.startsWith('data:image')) ? imgSrc : null,
         date: new Date().toLocaleDateString('it-IT')
     };
@@ -1028,8 +1029,26 @@ function caricaTarghe() {
             return;
         }
 
+        const oggi = new Date();
+        oggi.setHours(0,0,0,0);
+
         let html = '';
         items.reverse().forEach(item => {
+            let statusBadge = '';
+            if (item.nextMaintenance) {
+                const dataScad = new Date(item.nextMaintenance);
+                const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
+                const dateFormatted = dataScad.toLocaleDateString('it-IT');
+
+                if (diffDays < 0) {
+                    statusBadge = `<div class="maint-badge maint-alert">🔴 Manutenzione Scaduta (${dateFormatted})</div>`;
+                } else if (diffDays <= 30) {
+                    statusBadge = `<div class="maint-badge maint-warn">🟡 In Scadenza (Mancano ${diffDays} gg)</div>`;
+                } else {
+                    statusBadge = `<div class="maint-badge maint-ok">🟢 Regolare (Scade il ${dateFormatted})</div>`;
+                }
+            }
+
             html += `
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -1043,7 +1062,8 @@ function caricaTarghe() {
                     <div style="margin-top:10px; font-size:14px; color:#ffffff;">
                         <div>🔥 Caldaia: <strong>${item.boiler || '-'}</strong></div>
                         <div>🏷️ Matricola: <strong>${item.serial || '-'}</strong></div>
-                        ${item.notes ? `<div style="margin-top:4px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
+                        ${statusBadge}
+                        ${item.notes ? `<div style="margin-top:6px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
                     </div>
 
                     ${item.image ? `<img src="${item.image}" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; margin-top:10px;" alt="Targa">` : ''}
@@ -1083,11 +1103,55 @@ function richiediSvuotaTarghe() {
     };
 }
 
-// CALCOLATORI TECNICI
+// CALCOLATORI TECNICI & RENDIMENTO COMBUSTIONE (UNI 10389-1)
 function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
     cambiaVista('calc-view');
+}
+
+function calcolaRendimentoCombustione() {
+    const tfEl = document.getElementById('tempFumi');
+    const taEl = document.getElementById('tempAmbiente');
+    const co2El = document.getElementById('valoreCO2');
+    const fuelEl = document.getElementById('tipoCombustibile');
+    const resBox = document.getElementById('rendimentoResult');
+
+    if (!tfEl || !taEl || !co2El || !resBox) return;
+
+    const Tf = parseFloat(tfEl.value);
+    const Ta = parseFloat(taEl.value) || 20;
+    const CO2 = parseFloat(co2El.value);
+    const fuel = fuelEl ? fuelEl.value : 'metano';
+
+    if (isNaN(Tf) || isNaN(CO2) || CO2 <= 0 || Tf <= Ta) {
+        resBox.textContent = 'Rendimento \u03B7: -- % | Perdita qA: -- %';
+        resBox.style.color = '#93c5fd';
+        return;
+    }
+
+    // Parametri Siegert / UNI 10389-1
+    let A2 = 0.37;
+    let B = 0.009;
+
+    if (fuel === 'gpl') {
+        A2 = 0.42;
+        B = 0.008;
+    }
+
+    const qA = (Tf - Ta) * ((A2 / CO2) + B);
+    const eta = 100 - qA;
+
+    const etaFormatted = eta.toFixed(1);
+    const qAFormatted = qA.toFixed(1);
+
+    if (eta >= 90) {
+        resBox.textContent = `Rendimento \u03B7: ${etaFormatted}% (CONFORME) | Perdita qA: ${qAFormatted}%`;
+        resBox.style.color = '#86efac';
+    } else {
+        resBox.textContent = `Rendimento \u03B7: ${etaFormatted}% (NON CONFORME <90%) | Perdita qA: ${qAFormatted}%`;
+        resBox.style.color = '#fca5a5';
+    }
 }
 
 function calcolaPortataGas() {
