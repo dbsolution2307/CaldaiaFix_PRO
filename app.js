@@ -871,3 +871,14 @@ function tornaHome() {
     impostaTabNav('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// GESTIONE MENU A TENDINA
+function toggleMenuTendina() {
+    vibrate(15);
+    var menu = document.getElementById('dropup-menu');
+    var overlay = document.getElementById('dropup-overlay');
+    if (menu && overlay) {
+        menu.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+}
