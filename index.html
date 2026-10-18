@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.6">
+    <link rel="stylesheet" href="style.css?v=3.7">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
@@ -112,6 +112,15 @@
             <p>Banca dati e algoritmi di diagnostica protetti da copyright.</p>
         </footer>
     </main>
+
+    <!-- VISTA DASHBOARD STATISTICHE -->
+    <section id="stats-view" class="view">
+        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
+        <div class="view-header">
+            <h2>📊 Dashboard Statistiche Interventi</h2>
+        </div>
+        <div id="stats-container"></div>
+    </section>
 
     <!-- VISTA AREA TECNICA DEDICATA -->
     <section id="area-tecnica-view" class="view">
@@ -231,6 +240,12 @@
         </div>
 
         <div class="card" style="margin-top:15px;">
+            <h3>🔄 Aggiornamento App & Cache</h3>
+            <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Se non vedi le ultime modifiche apportate al sito, forza il ricaricamento pulito:</p>
+            <button class="btn-action" style="width:100%; background:linear-gradient(135deg, #0284c7, #0369a1);" onclick="forzaAggiornamentoCache()">🔄 Forza Aggiornamento Cache PWA</button>
+        </div>
+
+        <div class="card" style="margin-top:15px;">
             <h3>💾 Gestione Dati & Backup</h3>
             <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Salva o ripristina le targhe dei clienti in un file esterno:</p>
             <div style="display:flex; gap:10px;">
@@ -245,7 +260,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 3.6</p>
+            <p>© 2026 CaldaiaFix PRO - Version 3.7</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -257,6 +272,7 @@
             <span>🛠️ Strumenti Rapidi</span>
             <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
+        <button class="dropup-item" onclick="mostraStatistiche(); toggleMenuTendina();">📊 Dashboard Statistiche Interventi</button>
         <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Quick-Viewer Morsettiere TA/Bus</button>
         <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
@@ -346,9 +362,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=3.6 -->
-    <script src="db.js?v=3.6"></script>
-    <script src="app.js?v=3.6"></script>
+    <!-- SCRIPT CON VERSIONING ?v=3.7 -->
+    <script src="db.js?v=3.7"></script>
+    <script src="app.js?v=3.7"></script>
 
 </body>
 </html>
