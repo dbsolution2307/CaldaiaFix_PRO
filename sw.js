@@ -1,4 +1,4 @@
-const CACHE_NAME = 'caldaiafix-v2';
+const CACHE_NAME = 'caldaiafix-v3';
 const ASSETS = [
   './',
   './index.html',
