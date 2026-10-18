@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - TEMA DARK SLATE CON WIZARD DIAGNOSI & BACKUP JSON
+   CALDAIAFIX PRO - TEMA DARK SLATE CON MORSETTIERE & GENERATORE PDF
    ========================================================================== */
 
 :root {
@@ -376,7 +376,54 @@ body {
     font-weight: bold;
 }
 
-/* WIZARD CARD & PASSI */
+/* MORSETTIERE CARDS & PINS */
+.terminal-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.terminal-pin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.terminal-pin-box {
+    background: var(--background);
+    border: 1px solid #3b82f6;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+}
+
+.pin-num {
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.pin-func {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.pin-note {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 2px;
+}
+
+/* WIZARD CARD */
 .wizard-card {
     background: var(--surface-card);
     border: 1px solid var(--border);
