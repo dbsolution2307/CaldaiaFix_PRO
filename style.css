@@ -195,7 +195,7 @@ li { margin-bottom: 6px; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleUp { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes pulse { 0% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.15); } 100% { transform: translateY(-50%) scale(1); } }
-/* STILI MENU A TENDINA (DROPUP MENU) */
+/* STILI MENU A TENDINA (DROPUP MENU) - REVISIONATO */
 .dropup-overlay {
     position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4);
     backdrop-filter: blur(8px); z-index: 998; display: none; opacity: 0;
@@ -206,7 +206,12 @@ li { margin-bottom: 6px; }
 .dropup-menu {
     position: fixed; bottom: -100%; left: 0; right: 0;
     background: #ffffff; border-top-left-radius: 28px; border-top-right-radius: 28px;
-    padding: 20px; z-index: 999; box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    padding: 20px; 
+    padding-bottom: 95px; /* Spazio extra in basso per mostrare interamente l'ultimo tasto */
+    max-height: 80vh; /* Impedisce al menu di uscire dallo schermo in altezza */
+    overflow-y: auto; /* Abilita lo scorrimento verticale se lo schermo è piccolo */
+    -webkit-overflow-scrolling: touch; /* Scorrimento fluido su iPhone/iOS */
+    z-index: 999; box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
     transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     max-width: 500px; margin: 0 auto; border: 1px solid var(--border); border-bottom: none;
 }
