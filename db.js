@@ -1,4 +1,4 @@
-// DATABASE COMPLETO DI 200 ERRORI HVAC (ESATTI 200 ELEMENTI)
+// DATABASE COMPLETO DI 230 ERRORI HVAC (INCLUSO LAMBORGHINI CALORECLIMA)
 const errori = [
     // BAXI (1-25)
     { id: 1, brand: "Baxi", model: "Luna / Eco / Duo-Tec", code: "E01", type: "digital", chamber: "C/F", desc: "Mancata accensione / Rilevazione fiamma", causes: ["Mancanza gas", "Valvola gas SIT guasta (~2.8kΩ)", "Elettrodo ionizzazione a massa", "Fase/Neutro invertiti"], steps: ["1. Misurare tensione 230V alla valvola.", "2. Carteggiare elettrodo (3-4mm).", "3. Invertire spina."], partName: "Elettrodo Rilevazione", partCode: "8422570", gasParams: "Min 2.0 mbar - Max 11.2 mbar" },
@@ -200,7 +200,7 @@ const errori = [
     { id: 179, brand: "Chaffoteaux", model: "Pigma / Alixia", code: "101", type: "digital", chamber: "F", desc: "Sovratemperatura scambiatore primario", causes: ["Circolatore bloccato o filtri occlusi"], steps: ["1. Sbloccare pompa.", "2. Spurgare aria."], partName: "Termostato 105°C", partCode: "60000885", gasParams: "-" },
     { id: 180, brand: "Chaffoteaux", model: "Mira C", code: "501", type: "digital", chamber: "F", desc: "Mancata accensione bruciatore", causes: ["Valvola gas non alimentata o spina invertita"], steps: ["1. Invertire fase e neutro.", "2. Verificare tensione."], partName: "Elettrodo Chaffoteaux", partCode: "60000895", gasParams: "-" },
 
-    // CLIMATIZZATORI & EXTRA (181-200)
+    // CLIMATIZZATORI (181-200)
     { id: 181, brand: "Climatizzatori", model: "Daikin Inverter", code: "U4 / E7", type: "digital", chamber: "F", desc: "Errore trasmissione unità interna/esterna", causes: ["Interruzione cavo 4 fili", "Scheda esterna non alimentata"], steps: ["1. Verificare continuità morsettiera 1-2-3-Terra."], partName: "Scheda Inverter Daikin", partCode: "DAI-U4", gasParams: "-" },
     { id: 182, brand: "Climatizzatori", model: "Daikin Inverter", code: "A1", type: "digital", chamber: "F", desc: "Anomalia scheda elettronica unità interna", causes: ["Guasto microprocessore unità interna"], steps: ["1. Sostituire scheda split interno."], partName: "Scheda Split Daikin", partCode: "DAI-A1", gasParams: "-" },
     { id: 183, brand: "Climatizzatori", model: "Daikin Inverter", code: "A5", type: "digital", chamber: "F", desc: "Protezione alta pressione o congelamento batteria", causes: ["Filtri aria interni sporchi di polvere"], steps: ["1. Lavare i filtri dello split con acqua."], partName: "Filtri Aria Split", partCode: "DAI-A5", gasParams: "-" },
@@ -220,14 +220,9 @@ const errori = [
     { id: 197, brand: "Climatizzatori", model: "Fujitsu General", code: "E:01 / E:02", type: "digital", chamber: "F", desc: "Errore comunicazione comando a filo o tra schede", causes: ["Cavi segnale interrotti"], steps: ["1. Misurare la tensione 12V DC sui comandi."], partName: "Scheda Fujitsu", partCode: "FUJ-E01", gasParams: "-" },
     { id: 198, brand: "Climatizzatori", model: "Fujitsu General", code: "E:09", type: "digital", chamber: "F", desc: "Anomalia motore ventilatore tangenziale interno", causes: ["Motore hall rovinato"], steps: ["1. Sostituire motore ventilatore split."], partName: "Motore Fan Split", partCode: "FUJ-E09", gasParams: "-" },
     { id: 199, brand: "Climatizzatori", model: "Samsung WindFree", code: "E101 / E102", type: "digital", chamber: "F", desc: "Errore comunicazione interna/esterna", causes: ["Fase e neutro invertiti sulla morsettiera"], steps: ["1. Rispettare la polarità L-N-F485."], partName: "Scheda Samsung", partCode: "SAM-E101", gasParams: "-" },
-    { id: 200, brand: "Climatizzatori", model: "Samsung WindFree", code: "E464", type: "digital", chamber: "F", desc: "Protezione da sovracorrente modulo inverter IPM", causes: ["Modulo IPM bruciato da sbalzo di tensione"], steps: ["1. Sostituire il modulo di potenza IPM."], partName: "Modulo Potenza IPM", partCode: "SAM-E464", gasParams: "-" }
-];
+    { id: 200, brand: "Climatizzatori", model: "Samsung WindFree", code: "E464", type: "digital", chamber: "F", desc: "Protezione da sovracorrente modulo inverter IPM", causes: ["Modulo IPM bruciato da sbalzo di tensione"], steps: ["1. Sostituire il modulo di potenza IPM."], partName: "Modulo Potenza IPM", partCode: "SAM-E464", gasParams: "-" },
 
-const installerMenus = [
-    { brand: "Baxi", model: "Luna 3 / Eco 5 / Duo-Tec", sequence: "Premere 'Menu/i' e '-' per 5 secondi per accedere al parametro P01.", notes: "P01 = Potenza Massima. P02 = Tipo Gas." },
-    { brand: "Vaillant", model: "ecoTEC / turboTEC", sequence: "Tenere premuti 'i' e '+' per 3 sec fino a visualizzare 'd.00'. Inserire '17'.", notes: "d.00 = Potenza Max. d.40 = Temp Mandata." },
-    { brand: "Ariston", model: "Genus ONE", sequence: "Premere 'ESC' e 'OK' per 5 sec. Inserire codice tecnico '234'.", notes: "Menu 2.2 = Parametri Combustione." }
-// LAMBORGHINI CALORECLIMA (201-224)
+    // LAMBORGHINI CALORECLIMA (201-224)
     { id: 201, brand: "Lamborghini", model: "Ninfa / Taura / Alhena", code: "A01", type: "digital", chamber: "F", desc: "Mancata accensione bruciatore / Blocco fiamma", causes: ["Mancanza di gas", "Elettrodo di accensione/rilevazione sporco", "Valvola gas difettosa", "Pressione gas insufficiente"], steps: ["1. Verificare apertura rubinetto gas.", "2. Pulire/carteggiare l'elettrodo.", "3. Effettuare Reset."], partName: "Elettrodo Accensione/Rilevazione", partCode: "LAM-39812170", gasParams: "Pressione min 2.0 mbar - Max 12.0 mbar" },
     { id: 202, brand: "Lamborghini", model: "Ninfa / Ixos / FL", code: "A02", type: "digital", chamber: "F", desc: "Segnale fiamma presente con bruciatore spento", causes: ["Elettrodo a massa o umidità sulla ceramica", "Anomalia scheda elettronica"], steps: ["1. Pulire ed asciugare l'elettrodo.", "2. Verificare scheda madre."], partName: "Elettrodo Ionizzazione", partCode: "LAM-39812170", gasParams: "-" },
     { id: 203, brand: "Lamborghini", model: "Taura / Alhena / FL", code: "A03", type: "digital", chamber: "C/F", desc: "Intervento protezione sovratemperatura (105°C)", causes: ["Circolatore bloccato", "Aria nel circuito idraulico", "Sensore riscaldamento danneggiato"], steps: ["1. Sbloccare alberetto pompa.", "2. Spurgare aria dall'impianto.", "3. Premere Reset."], partName: "Termostato Sicurezza 105°C", partCode: "LAM-39806330", gasParams: "-" },
@@ -253,11 +248,18 @@ const installerMenus = [
     { id: 223, brand: "Lamborghini", model: "Idola 3.2 (Pompa di Calore)", code: "P1", type: "digital", chamber: "F", desc: "Protezione alta pressione ciclo frigorifero (Pressostato HP)", causes: ["Scambio termico insufficiente", "Eccesso di gas refrigerante R32"], steps: ["1. Verificare pulizia scambiatore ed aerazione."], partName: "Pressostato Alta Pressione", partCode: "LAM-ID3003", gasParams: "Refrigerante R32" },
     { id: 224, brand: "Lamborghini", model: "Idola 3.2 (Pompa di Calore)", code: "P2", type: "digital", chamber: "F", desc: "Protezione bassa pressione / Perdita refrigerante (Pressostato LP)", causes: ["Perdita di gas R32 nel circuito frigorifero"], steps: ["1. Ricerca fughe con cercafughe R32."], partName: "Pressostato Bassa Pressione", partCode: "LAM-ID3004", gasParams: "Refrigerante R32" },
 
-    // BUDERUS, WOLF & GREE - ESTENSIONE GLOBALE (225-230)
+    // BUDERUS, WOLF & GREE (225-230)
     { id: 225, brand: "Buderus", model: "Logamax Plus", code: "3C / 227", type: "digital", chamber: "F", desc: "Anomalia pressostato fumi / Ventilatore", causes: ["Ventilatore rallentato o condotto fumi intasato"], steps: ["1. Pulire condotto fumi.", "2. Verificare ventilatore."], partName: "Ventilatore Buderus", partCode: "BUD-871860001", gasParams: "-" },
     { id: 226, brand: "Buderus", model: "Logamax Plus", code: "4C / 224", type: "digital", chamber: "C/F", desc: "Limitatore di temperatura scattato (Sovratemperatura)", causes: ["Circolazione insufficiente o aria nel corpo caldaia"], steps: ["1. Sbloccare circolatore.", "2. Sfiato aria."], partName: "Limitatore 105°C", partCode: "BUD-871860002", gasParams: "-" },
     { id: 227, brand: "Wolf", model: "CGB / CGB-2", code: "004", type: "digital", chamber: "F", desc: "Mancata rilevazione fiamma dopo accensione", causes: ["Elettrodo ionizzazione sporco", "Valvola gas difettosa"], steps: ["1. Pulire elettrodo.", "2. Verificare pressione gas."], partName: "Elettrodo Wolf", partCode: "WOL-2744100", gasParams: "-" },
-    { id: 228, brand: "Wolf", model: "CGB / CGB-2", code: "007", type: "digital", chamber: "F", desc: "Temperatura fumi oltre i limiti consentiti", causes: ["Scambiatore di calore sporco di fuliggine"], steps: ["1. Pulizia meccano-chimica scambiatore."], partName: "NTC Fumi Wolf", partCode: "WOL-2744105", gasParams: "-" },
+    { id: 228, brand: "Wolf", model: "CGB / CGB-2", code: "007", type: "digital", chamber: "F", desc: "Temperatura fumi oltre i limits consentiti", causes: ["Scambiatore di calore sporco di fuliggine"], steps: ["1. Pulizia meccano-chimica scambiatore."], partName: "NTC Fumi Wolf", partCode: "WOL-2744105", gasParams: "-" },
     { id: 229, brand: "Climatizzatori", model: "Gree Inverter", code: "E6", type: "digital", chamber: "F", desc: "Errore comunicazione tra unità interna ed esterna", causes: ["Cavo segnale interrotto o morsettiera allentata"], steps: ["1. Verificare continuità cavo bus 1-2-3."], partName: "Scheda Esterna Gree", partCode: "GRE-E6", gasParams: "-" },
     { id: 230, brand: "Climatizzatori", model: "Gree Inverter", code: "H6", type: "digital", chamber: "F", desc: "Motore ventilatore interno bloccato o privo di segnale", causes: ["Fan motore bruciato o spina staccata"], steps: ["1. Ricollegare spinotto tachimetro.", "2. Sostituire motore."], partName: "Motore Fan Gree", partCode: "GRE-H6", gasParams: "-" }
+];
+
+const installerMenus = [
+    { brand: "Baxi", model: "Luna 3 / Eco 5 / Duo-Tec", sequence: "Premere 'Menu/i' e '-' per 5 secondi per accedere al parametro P01.", notes: "P01 = Potenza Massima. P02 = Tipo Gas." },
+    { brand: "Vaillant", model: "ecoTEC / turboTEC", sequence: "Tenere premuti 'i' e '+' per 3 sec fino a visualizzare 'd.00'. Inserire '17'.", notes: "d.00 = Potenza Max. d.40 = Temp Mandata." },
+    { brand: "Ariston", model: "Genus ONE", sequence: "Premere 'ESC' e 'OK' per 5 sec. Inserire codice tecnico '234'.", notes: "Menu 2.2 = Parametri Combustione." },
+    { brand: "Lamborghini", model: "Ninfa / Taura / Alhena", sequence: "Tenere premuti per 5 sec 'Reset' e 'Modalità'. Inserire parametro b01.", notes: "b01 = Tipo Gas (0 = Metano, 1 = GPL). b02 = Potenza." }
 ];
