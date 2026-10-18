@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.4">
+    <link rel="stylesheet" href="style.css?v=3.5">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
@@ -53,7 +53,7 @@
             <div class="wizard-banner-icon">🩺</div>
             <div class="wizard-banner-text">
                 <strong>Diagnosi da Sintomo (Senza Codice Errore)</strong>
-                <small>Nessun codice sul display? Trova la causa guidata paso-passo.</small>
+                <small>Nessun codice sul display? Trova la causa guidata passo-passo.</small>
             </div>
             <div class="wizard-banner-arrow">›</div>
         </div>
@@ -122,6 +122,29 @@
         <div id="wizard-container"></div>
     </section>
 
+    <!-- VISTA QUICK-VIEWER MORSETTIERE -->
+    <section id="morsettiere-view" class="view">
+        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
+        <div class="view-header">
+            <h2>🔌 Quick-Viewer Morsettiere TA / Bus</h2>
+        </div>
+        
+        <div class="filter-card" style="margin-bottom:16px;">
+            <label style="font-size:14px; font-weight:700; color:var(--text-sub);">Seleziona Marca Caldaia:</label>
+            <select id="morsettiereBrandFilter" class="brand-select" style="width:100%; margin-top:6px;" onchange="renderMorsettieraBrand(this.value)">
+                <option value="Baxi">Baxi (Luna / Duo-Tec / Eco)</option>
+                <option value="Vaillant">Vaillant (ecoTEC / AtmoTEC)</option>
+                <option value="Immergas">Immergas (Victrix / Avio)</option>
+                <option value="Ariston">Ariston (Clas / Genus / Cares)</option>
+                <option value="Beretta">Beretta (Mynute / Ciao / Paros)</option>
+                <option value="Ferroli">Ferroli (Bluehelix / Divacondens)</option>
+                <option value="Hermann Saunier Duval">Hermann Saunier Duval (Thema / Saunier)</option>
+            </select>
+        </div>
+
+        <div id="morsettiere-container"></div>
+    </section>
+
     <!-- VISTA DETTAGLIO GUASTO -->
     <section id="detail-view" class="view">
         <button class="back-btn" onclick="tornaHome()">⬅ Torna alla ricerca</button>
@@ -144,7 +167,6 @@
             <button class="btn-action" onclick="apriTargaModal()">+ Nuova Targa</button>
         </div>
 
-        <!-- BARRA BACKUP TARGHE -->
         <div class="backup-bar">
             <button class="btn-backup" onclick="esportaBackupJSON()">💾 Esporta Backup (JSON)</button>
             <button class="btn-restore" onclick="document.getElementById('importJsonInput').click()">📥 Ripristina Backup</button>
@@ -190,7 +212,7 @@
             <h2>⚙️ Impostazioni</h2>
         </div>
         <div class="card">
-            <label style="font-weight:700; font-size:15px; color:var(--text-main);">Nome Ditta per Rapporti WhatsApp:</label>
+            <label style="font-weight:700; font-size:15px; color:var(--text-main);">Nome Ditta per Rapporti WhatsApp & PDF:</label>
             <input type="text" id="settingCompany" placeholder="Es. Mario Rossi Termoidraulica" oninput="salvaImpostazioniDitta()">
             
             <label style="margin-top:15px; display:flex; align-items:center; gap:10px; font-size:16px; color:var(--text-main);">
@@ -215,7 +237,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 3.4</p>
+            <p>© 2026 CaldaiaFix PRO - Version 3.5</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -227,6 +249,7 @@
             <span>🛠️ Strumenti Rapidi</span>
             <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
+        <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Quick-Viewer Morsettiere TA/Bus</button>
         <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
         <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe & Backup</button>
@@ -292,8 +315,9 @@
             <textarea id="repWork" placeholder="Lavoro svolto / Ricambi sostituiti..."></textarea>
             <input type="text" id="repPrice" placeholder="Importo Totale (€)">
 
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn-whatsapp" onclick="inviaRapportoWhatsApp()">Invia WhatsApp</button>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                <button class="btn-whatsapp" onclick="inviaRapportoWhatsApp()">💬 Invia WhatsApp</button>
+                <button class="btn-action" style="background:#0284c7;" onclick="stampaReportPDF()">📄 Genera & Stampa PDF</button>
                 <button class="btn-clear" onclick="chiudiReportModal()">Annulla</button>
             </div>
         </div>
@@ -313,9 +337,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=3.4 -->
-    <script src="db.js?v=3.4"></script>
-    <script src="app.js?v=3.4"></script>
+    <!-- SCRIPT CON VERSIONING ?v=3.5 -->
+    <script src="db.js?v=3.5"></script>
+    <script src="app.js?v=3.5"></script>
 
 </body>
 </html>
