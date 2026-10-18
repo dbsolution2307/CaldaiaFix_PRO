@@ -22,9 +22,9 @@
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
         
-        <!-- BARRA RICERCA CON MICROFONO INTEGRATO DENTRO -->
+        <!-- BARRA RICERCA CON MICROFONO INTEGRATO ALL'INTERNO -->
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Cerca codice o guasto..." oninput="filtraErrori(false)">
+            <input type="text" id="searchInput" placeholder="Cerca codice o descrizione guasto..." oninput="filtraErrori(false)">
             <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()" title="Ricerca Vocale">🎙️</button>
         </div>
 
@@ -56,7 +56,7 @@
             </select>
         </div>
 
-        <!-- TAB FILTRI -->
+        <!-- TAB FILTRI TIPO -->
         <div class="tabs">
             <button id="btn-all" class="tab-btn active" onclick="filtraTipo('all')">Tutti</button>
             <button id="btn-dig" class="tab-btn" onclick="filtraTipo('digital')">Digitali</button>
@@ -133,14 +133,14 @@
             <label><strong>Nome Ditta per Rapporti WhatsApp:</strong></label>
             <input type="text" id="settingCompany" placeholder="Es. DB Solution" oninput="salvaImpostazioniDitta()">
             
-            <label style="margin-top:15px; display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="settingVibration" onchange="salvaImpostazioniVibrazione()" checked>
+            <label style="margin-top:15px; display:flex; align-items:center; gap:10px; font-size:16px;">
+                <input type="checkbox" id="settingVibration" onchange="salvaImpostazioniVibrazione()" checked style="width:22px; height:22px;">
                 Vibrazione al tocco (Feedback)
             </label>
         </div>
 
         <div class="card" style="margin-top:15px;">
-            <button class="btn-action" style="width:100%; font-size:16px; padding:12px;" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
+            <button class="btn-action" style="width:100%; font-size:16px; padding:14px;" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
             <div id="installer-content" style="display:none; margin-top:15px;"></div>
         </div>
     </section>
@@ -150,7 +150,7 @@
     <div id="dropup-menu" class="dropup-menu">
         <div class="dropup-header">
             <span>🛠️ Strumenti Rapidi</span>
-            <button onclick="toggleMenuTendina()" style="background:none; border:none; font-size:20px; font-weight:bold;">✕</button>
+            <button onclick="toggleMenuTendina()" style="background:none; border:none; font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
         <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe</button>
@@ -159,7 +159,7 @@
         <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
     </div>
 
-    <!-- BARRA NAVIGAZIONE IN BASSO - AD ALTA LEGGIBILITÀ -->
+    <!-- BARRA NAVIGAZIONE IN BASSO AD ALTA LEGGIBILITÀ -->
     <nav class="bottom-nav">
         <button id="nav-home" class="nav-item active" onclick="tornaHome()">
             <span class="nav-icon">🔍</span>
@@ -183,7 +183,7 @@
         </button>
     </nav>
 
-    <!-- MODALI -->
+    <!-- MODALE NUOVA TARGA -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>📑 Scheda Targa Impianto</h3>
@@ -206,6 +206,7 @@
         </div>
     </div>
 
+    <!-- MODALE RAPPORTO WHATSAPP -->
     <div id="report-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>💬 Crea Rapporto Cliente</h3>
@@ -223,11 +224,12 @@
         </div>
     </div>
 
+    <!-- MODALE PIN TECNICO -->
     <div id="pin-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>🔑 Codice Sblocco Tecnico</h3>
             <p style="font-size:14px; color:var(--text-sub);">Inserisci il PIN (predefinito: 1234):</p>
-            <input type="password" id="pinInput" placeholder="1234" style="font-size:20px; text-align:center;">
+            <input type="password" id="pinInput" placeholder="1234" style="font-size:22px; text-align:center;">
             <p id="pinError" style="color:red; font-size:14px; display:none; font-weight:bold;">PIN Errato!</p>
 
             <div style="display:flex; gap:10px; margin-top:15px;">
@@ -237,6 +239,7 @@
         </div>
     </div>
 
+    <!-- CARICAMENTO SCRIPT ORDINATO -->
     <script src="db.js"></script>
     <script src="app.js"></script>
 
