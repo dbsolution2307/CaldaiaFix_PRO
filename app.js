@@ -76,10 +76,10 @@ function verificaStatoRete() {
 
 // 2. CONTATORE INTESTAZIONE
 function aggiornaContatoreHeader() {
-    const subHeader = document.getElementById('sub-header-count');
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
-    if (subHeader) {
-        subHeader.textContent = `Diagnostica & Parametri HVAC (${dbData.length} Guasti)`;
+    const countBox = document.getElementById('resultsCount');
+    if (countBox) {
+        countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
     }
 }
 
@@ -126,14 +126,14 @@ function renderListaErrori(lista) {
     const countBox = document.getElementById('resultsCount');
 
     if (!container) return;
-    if (countBox) countBox.textContent = `${lista.length} GUASTI TROVATI`;
+    if (countBox) countBox.textContent = `${lista.length} GUASTI PRESENTI NEL DATABASE`;
 
     if (!lista || lista.length === 0) {
         container.innerHTML = `
             <div class="card" style="text-align:center; padding:30px 15px;">
                 <div style="font-size:32px; margin-bottom:8px;">🔍</div>
-                <div style="font-weight:800; font-size:15px; color:var(--text-main);">Nessun guasto trovato</div>
-                <div style="font-size:13px; color:var(--text-sub); margin-top:4px;">Prova a cambiare la ricerca o i filtri selezionati.</div>
+                <div style="font-weight:800; font-size:16px; color:#ffffff;">Nessun guasto trovato</div>
+                <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">Prova a cambiare la ricerca o i filtri.</div>
             </div>
         `;
         return;
@@ -142,21 +142,24 @@ function renderListaErrori(lista) {
     let html = '';
     lista.forEach(item => {
         const isFav = favorites.includes(item.id);
-        const badgeClass = (item.chamber && item.chamber.includes('F')) ? 'b-code' : 'b-cham';
-        
+        const chamberText = item.chamber || 'C/F';
+
         html += `
             <div class="error-item" onclick="mostraDettaglio(${item.id})">
-                <div style="flex:1; padding-right:12px;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span class="badge ${badgeClass}">${item.brand}</span>
-                        <span class="badge b-code" style="font-size:12px;">${item.code}</span>
-                    </div>
-                    <div class="error-title">${item.desc}</div>
-                    <div class="error-model">Modelli: ${item.model}</div>
-                </div>
-                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(${item.id}, event)">
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(${item.id}, event)" title="Preferito">
                     ${isFav ? '★' : '☆'}
                 </button>
+
+                <div class="error-main-info">
+                    <div class="error-badges-row">
+                        <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                        <span class="error-model-text">${item.model}</span>
+                        <span class="badge-chamber">${chamberText}</span>
+                    </div>
+                    <div class="error-title">${item.desc}</div>
+                </div>
+
+                <div class="error-chevron">›</div>
             </div>
         `;
     });
@@ -208,40 +211,35 @@ function mostraDettaglio(id) {
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
                 <div>
-                    <span class="badge b-code">${item.brand}</span>
-                    <h2 style="font-size:21px; font-weight:800; color:var(--text-main); margin-top:6px;">Errore ${item.code}</h2>
-                    <p style="font-size:13px; color:var(--text-sub); font-weight:600;">Modelli: ${item.model}</p>
+                    <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                    <h2 style="font-size:22px; font-weight:800; color:#ffffff; margin-top:8px;">${item.desc}</h2>
+                    <p style="font-size:14px; color:var(--text-sub); font-weight:600; margin-top:2px;">Modelli: ${item.model}</p>
                 </div>
-                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:30px;" onclick="toggleFav(${item.id}, event); mostraDettaglio(${item.id});">
+                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:32px;" onclick="toggleFav(${item.id}, event); mostraDettaglio(${item.id});">
                     ${isFav ? '★' : '☆'}
                 </button>
             </div>
 
-            <div style="background:var(--surface-secondary); border:1px solid var(--border); padding:12px; border-radius:14px; margin-bottom:14px;">
-                <div style="font-size:11px; font-weight:800; color:var(--text-sub); text-transform:uppercase;">Descrizione Guasto:</div>
-                <div style="font-size:15px; font-weight:700; color:var(--text-main); margin-top:2px;">${item.desc}</div>
-            </div>
-
-            <div style="margin-bottom:14px;">
-                <h3 style="font-size:13px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:6px;">⚠️ Possibili Cause:</h3>
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:6px;">⚠️ Possibili Cause:</h3>
                 ${htmlCauses}
             </div>
 
-            <div style="margin-bottom:14px;">
-                <h3 style="font-size:13px; font-weight:800; color:#10b981; text-transform:uppercase; margin-bottom:6px;">🛠️ Procedura di Risoluzione:</h3>
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:800; color:#22c55e; text-transform:uppercase; margin-bottom:6px;">🛠️ Procedura di Risoluzione:</h3>
                 ${htmlSteps}
             </div>
 
             ${item.partName ? `
-                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:12px; margin-bottom:14px;">
-                    <div style="font-size:11px; font-weight:800; color:#166534; text-transform:uppercase;">Ricambio Consigliato:</div>
-                    <div style="font-size:15px; font-weight:700; color:var(--text-main);">${item.partName}</div>
-                    <div style="font-size:13px; color:var(--primary); font-family:monospace; margin-top:2px;">Codice: ${item.partCode}</div>
+                <div style="background:#064e3b; border:1px solid #059669; padding:14px; border-radius:14px; margin-bottom:16px;">
+                    <div style="font-size:12px; font-weight:800; color:#a7f3d0; text-transform:uppercase;">Ricambio Consigliato:</div>
+                    <div style="font-size:16px; font-weight:800; color:#ffffff; margin-top:2px;">${item.partName}</div>
+                    <div style="font-size:14px; color:#6ee7b7; font-family:monospace; margin-top:2px;">Codice: ${item.partCode}</div>
                 </div>
             ` : ''}
 
             ${item.gasParams && item.gasParams !== '-' ? `
-                <div style="background:#fff7ed; border:1px solid #fed7aa; padding:12px; border-radius:12px; margin-bottom:14px; font-size:14px; color:#9a3412;">
+                <div style="background:#451a03; border:1px solid #f97316; padding:14px; border-radius:14px; margin-bottom:16px; font-size:15px; color:#ffedd5;">
                     🔥 Parametri Combustione / Gas: <br>
                     <strong>${item.gasParams}</strong>
                 </div>
@@ -282,8 +280,8 @@ function mostraStorico() {
         historyGuasti.forEach(item => {
             html += `
                 <div class="error-item" onclick="mostraDettaglio(${item.id})">
-                    <div>
-                        <span class="badge b-code">${item.brand} ${item.code}</span>
+                    <div class="error-main-info">
+                        <span class="badge-brand-code">${item.brand} - ${item.code}</span>
                         <div class="error-title">${item.desc}</div>
                     </div>
                     <span style="font-size:12px; color:var(--text-sub); font-weight:600;">${item.timestamp}</span>
@@ -480,13 +478,13 @@ function caricaTarghe() {
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <div style="font-size:16px; font-weight:800; color:var(--text-main);">${item.client}</div>
+                            <div style="font-size:17px; font-weight:800; color:#ffffff;">${item.client}</div>
                             <div style="font-size:13px; color:var(--text-sub); font-weight:600;">📍 ${item.address || 'Nessun indirizzo'}</div>
                         </div>
                         <button style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;" onclick="eliminaTarga(${item.id})">🗑️</button>
                     </div>
 
-                    <div style="margin-top:10px; font-size:14px; color:var(--text-main);">
+                    <div style="margin-top:10px; font-size:14px; color:#ffffff;">
                         <div>🔥 Caldaia: <strong>${item.boiler || '-'}</strong></div>
                         <div>🏷️ Matricola: <strong>${item.serial || '-'}</strong></div>
                         ${item.notes ? `<div style="margin-top:4px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
@@ -662,15 +660,15 @@ function renderAreaTecnica() {
     const menus = (typeof installerMenus !== 'undefined' && Array.isArray(installerMenus)) ? installerMenus : [];
 
     let html = `
-        <div class="card" style="background:#f3e8ff; border-color:#d8b4fe;">
-            <h3 style="color:#6d28d9; font-size:14px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">🔑 Parametri Tecnici & Menu Segreti</h3>
+        <div class="card" style="background:#2e1065; border-color:#7c3aed;">
+            <h3 style="color:#d8b4fe; font-size:14px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">🔑 Parametri Tecnici & Menu Segreti</h3>
     `;
 
     menus.forEach(m => {
         html += `
-            <div style="background:#ffffff; border:1px solid #e9d5ff; padding:12px; border-radius:12px; margin-bottom:8px;">
-                <div style="font-size:14px; font-weight:800; color:#581c87;">${m.brand} (${m.model})</div>
-                <div style="font-size:13px; color:var(--text-main); margin-top:4px;"><strong>Procedura:</strong> ${m.sequence}</div>
+            <div style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:12px; margin-bottom:8px;">
+                <div style="font-size:14px; font-weight:800; color:#c084fc;">${m.brand} (${m.model})</div>
+                <div style="font-size:13px; color:#ffffff; margin-top:4px;"><strong>Procedura:</strong> ${m.sequence}</div>
                 <div style="font-size:12px; color:var(--text-sub); margin-top:2px;"><em>${m.notes}</em></div>
             </div>
         `;
@@ -739,7 +737,7 @@ function toggleTorch() {
             .then(() => {
                 isTorchOn = true;
                 const btn = document.getElementById('menu-torch-btn');
-                if (btn) btn.style.color = '#f59e0b';
+                if (btn) btn.style.color = '#f97316';
             })
             .catch(err => {
                 alert("Torcia non disponibile o permessi negati.");
