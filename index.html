@@ -6,28 +6,29 @@
     <title>CaldaiaFix PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#1e40af">
 </head>
 <body>
 
-    <!-- INTESTAZIONE -->
+    <!-- INTESTAZIONE AD ALTA VISIBILITÀ -->
     <header class="header">
         <div class="header-top">
             <h1 class="logo" onclick="tornaHome()">🔥 CaldaiaFix <span class="badge-pro">PRO</span></h1>
             <span id="netStatus" class="net-badge online">🟢 Online</span>
         </div>
-        <p id="sub-header-count" class="sub-header">Diagnostica & Parametri HVAC (Caricamento...)</p>
+        <p id="sub-header-count" class="sub-header">Diagnostica & Parametri HVAC (306 Guasti)</p>
     </header>
 
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
-        <!-- BARRA RICERCA & VOCALE -->
+        
+        <!-- BARRA RICERCA CON MICROFONO INTEGRATO DENTRO -->
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Cerca codice o descrizione..." oninput="filtraErrori(false)">
-            <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()">🎙️</button>
+            <input type="text" id="searchInput" placeholder="Cerca codice o guasto..." oninput="filtraErrori(false)">
+            <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()" title="Ricerca Vocale">🎙️</button>
         </div>
 
-        <!-- FILTRO MARCA -->
+        <!-- FILTRO MARCA A TESTO GRANDE -->
         <div class="filter-box">
             <select id="brandFilter" onchange="filtraErrori(false)">
                 <option value="">Tutte le marche</option>
@@ -55,7 +56,7 @@
             </select>
         </div>
 
-        <!-- TAB FILTRI TIPO -->
+        <!-- TAB FILTRI -->
         <div class="tabs">
             <button id="btn-all" class="tab-btn active" onclick="filtraTipo('all')">Tutti</button>
             <button id="btn-dig" class="tab-btn" onclick="filtraTipo('digital')">Digitali</button>
@@ -63,7 +64,7 @@
             <button id="btn-fav" class="tab-btn" onclick="filtraTipo('fav')">★ Preferiti</button>
         </div>
 
-        <div id="resultsCount" class="results-count">0 GUASTI TROVATI</div>
+        <div id="resultsCount" class="results-count">306 GUASTI TROVATI</div>
 
         <!-- LISTA ERRORI -->
         <div id="errors-list" class="errors-container"></div>
@@ -75,7 +76,7 @@
         <div id="detail-content"></div>
     </section>
 
-    <!-- VISTA STORICO CONSULTAZIONI -->
+    <!-- VISTA STORICO -->
     <section id="history-view" class="view">
         <div class="view-header">
             <h2>📜 Storico Recenti</h2>
@@ -94,21 +95,19 @@
         <button class="btn-clear" style="margin-top:20px; width:100%;" onclick="richiediSvuotaTarghe()">Cancella Tutto l'Archivio</button>
     </section>
 
-    <!-- VISTA CALCOLATORI TECNICI -->
+    <!-- VISTA CALCOLATORI -->
     <section id="calc-view" class="view">
         <div class="view-header">
             <h2>🧮 Calcolatori Tecnici HVAC</h2>
         </div>
 
-        <!-- CALCOLO PORTATA GAS -->
         <div class="card">
             <h3>🔥 Calcolo Portata Gas (kW)</h3>
-            <p>Inserisci i litri contati sul contatore in 60 secondi:</p>
+            <p>Litri contati sul contatore in 60 secondi:</p>
             <input type="number" id="gasLiters" placeholder="Litri in 60 sec (es. 40)" oninput="calcolaPortataGas()">
             <div id="gasResult" class="calc-result">0.0 kW Termici</div>
         </div>
 
-        <!-- CALCOLO VASO ESPANSIONE -->
         <div class="card">
             <h3>🪠 Vaso Espansione & Precarica</h3>
             <input type="number" id="waterVolume" placeholder="Litri acqua impianto (es. 100)" oninput="calcolaVasoEspansione()">
@@ -116,7 +115,6 @@
             <div id="vasoResult" class="calc-result">Vaso Minimo: 0 L | Precarica: 1.0 bar</div>
         </div>
 
-        <!-- CONVERTITORE PRESSIONE -->
         <div class="card">
             <h3>⚖️ Conversione mbar / Pascal</h3>
             <div style="display:flex; gap:10px;">
@@ -132,7 +130,7 @@
             <h2>⚙️ Impostazioni</h2>
         </div>
         <div class="card">
-            <label>Nome Ditta per Rapporti WhatsApp:</label>
+            <label><strong>Nome Ditta per Rapporti WhatsApp:</strong></label>
             <input type="text" id="settingCompany" placeholder="Es. DB Solution" oninput="salvaImpostazioniDitta()">
             
             <label style="margin-top:15px; display:flex; align-items:center; gap:10px;">
@@ -142,36 +140,50 @@
         </div>
 
         <div class="card" style="margin-top:15px;">
-            <button class="btn-action" style="width:100%;" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
+            <button class="btn-action" style="width:100%; font-size:16px; padding:12px;" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
             <div id="installer-content" style="display:none; margin-top:15px;"></div>
         </div>
     </section>
 
-    <!-- BARRA DI NAVIGAZIONE IN BASSO -->
+    <!-- OVERLAY & MENU A TENDINA STRUMENTI -->
+    <div id="dropup-overlay" class="dropup-overlay" onclick="toggleMenuTendina()"></div>
+    <div id="dropup-menu" class="dropup-menu">
+        <div class="dropup-header">
+            <span>🛠️ Strumenti Rapidi</span>
+            <button onclick="toggleMenuTendina()" style="background:none; border:none; font-size:20px; font-weight:bold;">✕</button>
+        </div>
+        <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
+        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe</button>
+        <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
+        <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
+        <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
+    </div>
+
+    <!-- BARRA NAVIGAZIONE IN BASSO - AD ALTA LEGGIBILITÀ -->
     <nav class="bottom-nav">
         <button id="nav-home" class="nav-item active" onclick="tornaHome()">
-            <span>🔍</span>
-            <small>Guasti</small>
+            <span class="nav-icon">🔍</span>
+            <span class="nav-label">Guasti</span>
         </button>
         <button id="nav-targhe" class="nav-item" onclick="mostraTarghe()">
-            <span>📑</span>
-            <small>Targhe</small>
+            <span class="nav-icon">📑</span>
+            <span class="nav-label">Targhe</span>
         </button>
         <button id="nav-calc" class="nav-item" onclick="mostraCalcolatori()">
-            <span>🧮</span>
-            <small>Calcoli</small>
+            <span class="nav-icon">🧮</span>
+            <span class="nav-label">Calcoli</span>
         </button>
         <button id="nav-history" class="nav-item" onclick="mostraStorico()">
-            <span>📜</span>
-            <small>Storico</small>
+            <span class="nav-icon">📜</span>
+            <span class="nav-label">Storico</span>
         </button>
-        <button id="nav-settings" class="nav-item" onclick="mostraImpostazioni()">
-            <span>⚙️</span>
-            <small>Menu</small>
+        <button id="nav-menu" class="nav-item" onclick="toggleMenuTendina()">
+            <span class="nav-icon">☰</span>
+            <span class="nav-label">Menu</span>
         </button>
     </nav>
 
-    <!-- MODALE NUOVA TARGA -->
+    <!-- MODALI -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>📑 Scheda Targa Impianto</h3>
@@ -179,7 +191,7 @@
             <input type="text" id="tagAddress" placeholder="Indirizzo">
             <input type="text" id="tagBoiler" placeholder="Marca e Modello Caldaia">
             <input type="text" id="tagSerial" placeholder="Numero Matricola">
-            <textarea id="tagNotes" placeholder="Note tecniche / Note cliente..."></textarea>
+            <textarea id="tagNotes" placeholder="Note tecniche..."></textarea>
             
             <label class="btn-file">
                 📷 Scatta/Carica Foto Targa
@@ -194,7 +206,6 @@
         </div>
     </div>
 
-    <!-- MODALE RAPPORTO WHATSAPP -->
     <div id="report-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>💬 Crea Rapporto Cliente</h3>
@@ -212,13 +223,12 @@
         </div>
     </div>
 
-    <!-- MODALE PIN TECNICO -->
     <div id="pin-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>🔑 Codice Sblocco Tecnico</h3>
-            <p style="font-size:12px; color:var(--text-sub);">Inserisci il PIN (predefinito: 1234):</p>
-            <input type="password" id="pinInput" placeholder="1234">
-            <p id="pinError" style="color:red; font-size:12px; display:none;">PIN Errato!</p>
+            <p style="font-size:14px; color:var(--text-sub);">Inserisci il PIN (predefinito: 1234):</p>
+            <input type="password" id="pinInput" placeholder="1234" style="font-size:20px; text-align:center;">
+            <p id="pinError" style="color:red; font-size:14px; display:none; font-weight:bold;">PIN Errato!</p>
 
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-action" onclick="verificaPin()">Entra</button>
@@ -227,7 +237,6 @@
         </div>
     </div>
 
-    <!-- SCRIPT ORDINATI CORRETTAMENTE (db.js PRIMA DI app.js) -->
     <script src="db.js"></script>
     <script src="app.js"></script>
 
