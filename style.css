@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - TEMA DARK SLATE CON MORSETTIERE & GENERATORE PDF
+   CALDAIAFIX PRO - TEMA DARK SLATE CON STATISTICHE & RESET CACHE PWA
    ========================================================================== */
 
 :root {
@@ -154,6 +154,52 @@ body {
     font-size: 20px;
     font-weight: 800;
     color: #ffffff;
+}
+
+/* STATISTICHE GRID */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    line-height: 1.1;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-top: 6px;
+    text-transform: uppercase;
+}
+
+.bar-container {
+    background: var(--background);
+    border-radius: 8px;
+    height: 10px;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.bar-fill {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    height: 100%;
+    border-radius: 8px;
 }
 
 /* BANNER WIZARD DA SINTOMO IN HOME */
