@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, MORSETTIERE & GENERATORE PDF
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, MORSETTIERE, WIZARD & SCHERMATA TECNICA
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -357,7 +357,72 @@ function toggleFav(id, event) {
     filtraErrori(false);
 }
 
-// 5. QUICK-VIEWER MORSETTIERE (SCHEMA SCHEDE)
+// 5. AREA TECNICA & GESTIONE PIN
+function apriPin() {
+    vibraTocco();
+    const modal = document.getElementById('pin-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const input = document.getElementById('pinInput');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 100);
+        }
+    }
+}
+
+function chiudiPin() {
+    const modal = document.getElementById('pin-modal');
+    const err = document.getElementById('pinError');
+    const inp = document.getElementById('pinInput');
+
+    if (modal) modal.style.display = 'none';
+    if (err) err.style.display = 'none';
+    if (inp) inp.value = '';
+}
+
+function verificaPin() {
+    const pin = document.getElementById('pinInput')?.value.trim() || '';
+    if (pin === '1234' || pin === '0000' || pin.length >= 4) {
+        chiudiPin();
+        renderAreaTecnica();
+        cambiaVista('area-tecnica-view');
+    } else {
+        const err = document.getElementById('pinError');
+        if (err) err.style.display = 'block';
+    }
+}
+
+function renderAreaTecnica() {
+    const container = document.getElementById('installer-content-main');
+    if (!container) return;
+
+    const menus = (typeof installerMenus !== 'undefined' && Array.isArray(installerMenus)) ? installerMenus : [];
+
+    let html = `
+        <div class="card" style="background:#2e1065; border-color:#7c3aed;">
+            <h3 style="color:#d8b4fe; font-size:15px; font-weight:800; text-transform:uppercase; margin-bottom:12px;">🔑 Parametri Tecnici & Menu Segreti</h3>
+    `;
+
+    if (menus.length === 0) {
+        html += `<p style="color:var(--text-sub); font-size:14px;">Nessun menu tecnico presente nel database.</p>`;
+    } else {
+        menus.forEach(m => {
+            html += `
+                <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:14px; margin-bottom:10px;">
+                    <div style="font-size:15px; font-weight:800; color:#c084fc;">${m.brand} (${m.model})</div>
+                    <div style="font-size:14px; color:#ffffff; margin-top:6px; line-height:1.4;"><strong>Procedura:</strong> ${m.sequence}</div>
+                    <div style="font-size:12px; color:var(--text-sub); margin-top:4px;"><em>${m.notes}</em></div>
+                </div>
+            `;
+        });
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// 6. QUICK-VIEWER MORSETTIERE (SCHEMA SCHEDE)
 const morsettiereData = {
     "Baxi": {
         title: "Baxi - Luna3 / Duo-Tec / Eco",
@@ -448,7 +513,7 @@ function renderMorsettieraBrand(brandKey) {
     `;
 }
 
-// 6. STAMPA & GENERATORE REPORT PDF
+// 7. STAMPA & GENERATORE REPORT PDF
 function stampaReportPDF() {
     vibraTocco();
 
@@ -540,7 +605,7 @@ function stampaReportPDF() {
     chiudiReportModal();
 }
 
-// 7. TROUBLESHOOTING WIZARD (DIAGNOSI DA SINTOMO)
+// 8. TROUBLESHOOTING WIZARD (DIAGNOSI DA SINTOMO)
 const wizardTree = {
     start: {
         title: "Quale sintomo presenta la caldaia?",
@@ -656,7 +721,7 @@ function renderStepWizard(stepKey) {
     container.innerHTML = html;
 }
 
-// 8. BACKUP & RIPRISTINO JSON TARGHE
+// 9. BACKUP & RIPRISTINO JSON TARGHE
 function esportaBackupJSON() {
     if (!dbIndexed) {
         alert("Banca dati non ancora pronta o non supportata dal browser.");
@@ -730,7 +795,7 @@ function ripristinaBackupJSON(event) {
     event.target.value = '';
 }
 
-// 9. ARCHIVIO TARGHE & INDEXED DB
+// 10. ARCHIVIO TARGHE & INDEXED DB
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -904,7 +969,7 @@ function richiediSvuotaTarghe() {
     };
 }
 
-// 10. CALCOLATORI TECNICI
+// 11. CALCOLATORI TECNICI
 function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
@@ -960,7 +1025,7 @@ function convertiPressione(type) {
     }
 }
 
-// 11. RAPPORTO INTERVENTO WHATSAPP
+// 12. RAPPORTO INTERVENTO WHATSAPP
 function apriReportModal(brand, code, desc) {
     vibraTocco();
     const company = localStorage.getItem('caldaiafix_company') || '';
@@ -1000,60 +1065,6 @@ function inviaRapportoWhatsApp() {
     const url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
     window.open(url, '_blank');
     chiudiReportModal();
-}
-
-// 12. AREA TECNICA & PIN
-function apriPin() {
-    vibraTocco();
-    const modal = document.getElementById('pin-modal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function chiudiPin() {
-    const modal = document.getElementById('pin-modal');
-    const err = document.getElementById('pinError');
-    const inp = document.getElementById('pinInput');
-
-    if (modal) modal.style.display = 'none';
-    if (err) err.style.display = 'none';
-    if (inp) inp.value = '';
-}
-
-function verificaPin() {
-    const pin = document.getElementById('pinInput')?.value.trim() || '';
-    if (pin === '1234' || pin === '0000' || pin.length >= 4) {
-        chiudiPin();
-        renderAreaTecnica();
-    } else {
-        const err = document.getElementById('pinError');
-        if (err) err.style.display = 'block';
-    }
-}
-
-function renderAreaTecnica() {
-    const container = document.getElementById('installer-content');
-    if (!container) return;
-
-    const menus = (typeof installerMenus !== 'undefined' && Array.isArray(installerMenus)) ? installerMenus : [];
-
-    let html = `
-        <div class="card" style="background:#2e1065; border-color:#7c3aed;">
-            <h3 style="color:#d8b4fe; font-size:14px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">🔑 Parametri Tecnici & Menu Segreti</h3>
-    `;
-
-    menus.forEach(m => {
-        html += `
-            <div style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:12px; margin-bottom:8px;">
-                <div style="font-size:14px; font-weight:800; color:#c084fc;">${m.brand} (${m.model})</div>
-                <div style="font-size:13px; color:#ffffff; margin-top:4px;"><strong>Procedura:</strong> ${m.sequence}</div>
-                <div style="font-size:12px; color:var(--text-sub); margin-top:2px;"><em>${m.notes}</em></div>
-            </div>
-        `;
-    });
-
-    html += `</div>`;
-    container.innerHTML = html;
-    container.style.display = 'block';
 }
 
 // 13. NAVIGAZIONE, VISTE & MENU TENDINA
