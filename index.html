@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.3">
+    <link rel="stylesheet" href="style.css?v=3.4">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
@@ -48,6 +48,16 @@
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
         
+        <!-- CARD DIAGNOSI DA SINTOMO (WIZARD) -->
+        <div class="wizard-banner-card" onclick="avviaWizard()">
+            <div class="wizard-banner-icon">🩺</div>
+            <div class="wizard-banner-text">
+                <strong>Diagnosi da Sintomo (Senza Codice Errore)</strong>
+                <small>Nessun codice sul display? Trova la causa guidata paso-passo.</small>
+            </div>
+            <div class="wizard-banner-arrow">›</div>
+        </div>
+
         <!-- CARD CONTENITORE RICERCA E FILTRI -->
         <div class="filter-card">
             <div class="search-box">
@@ -103,6 +113,15 @@
         </footer>
     </main>
 
+    <!-- VISTA DIAGNOSI GUIDATA DA SINTOMO (WIZARD) -->
+    <section id="wizard-view" class="view">
+        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
+        <div class="view-header">
+            <h2>🩺 Diagnosi Guidata da Sintomo</h2>
+        </div>
+        <div id="wizard-container"></div>
+    </section>
+
     <!-- VISTA DETTAGLIO GUASTO -->
     <section id="detail-view" class="view">
         <button class="back-btn" onclick="tornaHome()">⬅ Torna alla ricerca</button>
@@ -124,6 +143,14 @@
             <h2>📑 Archivio Targhe Impianti</h2>
             <button class="btn-action" onclick="apriTargaModal()">+ Nuova Targa</button>
         </div>
+
+        <!-- BARRA BACKUP TARGHE -->
+        <div class="backup-bar">
+            <button class="btn-backup" onclick="esportaBackupJSON()">💾 Esporta Backup (JSON)</button>
+            <button class="btn-restore" onclick="document.getElementById('importJsonInput').click()">📥 Ripristina Backup</button>
+            <input type="file" id="importJsonInput" accept=".json" onchange="ripristinaBackupJSON(event)" style="display:none;">
+        </div>
+
         <div id="targhe-list"></div>
         <button class="btn-clear" style="margin-top:20px; width:100%;" onclick="richiediSvuotaTarghe()">Cancella Tutto l'Archivio</button>
     </section>
@@ -173,12 +200,22 @@
         </div>
 
         <div class="card" style="margin-top:15px;">
+            <h3>💾 Gestione Dati & Backup</h3>
+            <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Salva o ripristina le targhe dei clienti in un file esterno:</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-backup" style="flex:1;" onclick="esportaBackupJSON()">💾 Esporta JSON</button>
+                <button class="btn-restore" style="flex:1;" onclick="document.getElementById('importJsonInputSettings').click()">📥 Importa JSON</button>
+                <input type="file" id="importJsonInputSettings" accept=".json" onchange="ripristinaBackupJSON(event)" style="display:none;">
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:15px;">
             <button class="btn-action" style="width:100%; font-size:16px; padding:14px; background:linear-gradient(135deg, #7c3aed, #4c1d95);" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
             <div id="installer-content" style="display:none; margin-top:15px;"></div>
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 3.3</p>
+            <p>© 2026 CaldaiaFix PRO - Version 3.4</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -190,8 +227,9 @@
             <span>🛠️ Strumenti Rapidi</span>
             <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
+        <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
-        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe</button>
+        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe & Backup</button>
         <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
         <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
         <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
@@ -221,7 +259,7 @@
         </button>
     </nav>
 
-    <!-- MODALE NUOVA TARGA -->
+    <!-- MODALI -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>📑 Scheda Targa Impianto</h3>
@@ -244,7 +282,6 @@
         </div>
     </div>
 
-    <!-- MODALE RAPPORTO WHATSAPP -->
     <div id="report-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>💬 Crea Rapporto Cliente</h3>
@@ -262,7 +299,6 @@
         </div>
     </div>
 
-    <!-- MODALE PIN TECNICO -->
     <div id="pin-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>🔑 Codice Sblocco Tecnico</h3>
@@ -277,9 +313,9 @@
         </div>
     </div>
 
-    <!-- CARICAMENTO SCRIPT CON VERSIONING ?v=3.3 -->
-    <script src="db.js?v=3.3"></script>
-    <script src="app.js?v=3.3"></script>
+    <!-- SCRIPT CON VERSIONING ?v=3.4 -->
+    <script src="db.js?v=3.4"></script>
+    <script src="app.js?v=3.4"></script>
 
 </body>
 </html>
