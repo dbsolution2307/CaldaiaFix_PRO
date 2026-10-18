@@ -183,6 +183,27 @@ function aggiornaStatoTab(activeBtnId) {
     if (activeBtn) activeBtn.classList.add('active');
 }
 
+// HELPER PER DETERMINARE GLI ATTREZZI NECESSARI IN BASE AL GUASTO
+function ottieniAttrezziGuasto(item) {
+    const desc = ((item.desc || "") + " " + (item.partName || "")).toLowerCase();
+    let attrezzi = ["🔧 Cacciaviti Isolati 1000V", "🛠️ Chiavi a Forchetta 10-17mm"];
+
+    if (desc.includes("pressione") || desc.includes("vaso") || desc.includes("acqua")) {
+        attrezzi.push("🪠 Pompa con Manometro per Vasi", "⚖️ Manometro Idraulico");
+    }
+    if (desc.includes("gas") || desc.includes("valvola") || desc.includes("fiamma") || desc.includes("elettrodo")) {
+        attrezzi.push("⚡ Multimetro Digitale", "🔥 Manometro Differenziale mbar", "🧹 Carta Abrasiva Fine");
+    }
+    if (desc.includes("fumi") || desc.includes("pressostato") || desc.includes("ventilatore") || desc.includes("venturi")) {
+        attrezzi.push("💨 Pompetta Prova Pressostati", "🪛 Chiave a Pipa / Millerighe");
+    }
+    if (desc.includes("ntc") || desc.includes("sonda") || desc.includes("termostato") || desc.includes("scheda")) {
+        attrezzi.push("⚡ Multimetro Digitale (Profe Ohm)", "🔌 Spray Pulisci Contatti");
+    }
+
+    return Array.from(new Set(attrezzi));
+}
+
 // 4. DETTAGLIO GUASTO & STORICO
 function mostraDettaglio(id) {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
@@ -207,6 +228,14 @@ function mostraDettaglio(id) {
         htmlCauses = '<ul style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.causes.map(c => `<li style="margin-bottom:4px;">${c}</li>`).join('') + '</ul>';
     }
 
+    // ATTREZZI CONSIGLIATI
+    const listaAttrezzi = ottieniAttrezziGuasto(item);
+    const htmlAttrezzi = listaAttrezzi.map(a => `<span class="tool-tag">${a}</span>`).join('');
+
+    // LINK AFFILIAZIONE AMAZON
+    const searchQuery = encodeURIComponent(`${item.brand} ${item.partName || item.code} ricambio caldaia`);
+    const amazonAffiliateUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=dbsolution-21`;
+
     detailContent.innerHTML = `
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
@@ -230,6 +259,14 @@ function mostraDettaglio(id) {
                 ${htmlSteps}
             </div>
 
+            <!-- SEZIONE ATTREZZI NECESSARI -->
+            <div class="tools-box">
+                <div style="font-size:12px; font-weight:900; color:#cbd5e1; text-transform:uppercase;">🧰 Attrezzatura Consigliata per l'Intervento:</div>
+                <div class="tools-list">
+                    ${htmlAttrezzi}
+                </div>
+            </div>
+
             ${item.partName ? `
                 <div style="background:#064e3b; border:1px solid #059669; padding:14px; border-radius:14px; margin-bottom:16px;">
                     <div style="font-size:12px; font-weight:800; color:#a7f3d0; text-transform:uppercase;">Ricambio Consigliato:</div>
@@ -238,8 +275,13 @@ function mostraDettaglio(id) {
                 </div>
             ` : ''}
 
+            <!-- PULSANTE AFFILIAZIONE AMAZON -->
+            <a href="${amazonAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon">
+                🛒 Cerca Ricambio e Attrezzatura su Amazon
+            </a>
+
             ${item.gasParams && item.gasParams !== '-' ? `
-                <div style="background:#451a03; border:1px solid #f97316; padding:14px; border-radius:14px; margin-bottom:16px; font-size:15px; color:#ffedd5;">
+                <div style="background:#451a03; border:1px solid #f97316; padding:14px; border-radius:14px; margin-top:16px; font-size:15px; color:#ffedd5;">
                     🔥 Parametri Combustione / Gas: <br>
                     <strong>${item.gasParams}</strong>
                 </div>
