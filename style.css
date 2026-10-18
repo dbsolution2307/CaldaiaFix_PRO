@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - TEMA DARK SLATE CON GRAFICA MODERNA & ATTREZZI
+   CALDAIAFIX PRO - TEMA DARK SLATE CON GRAFICA MODERNA & ATTREZZI CLICCABILI
    ========================================================================== */
 
 :root {
@@ -353,17 +353,31 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
+/* STILE TAG ATTREZZO CLICCABILE */
 .tool-tag {
     background: var(--background);
     border: 1px solid var(--border);
     color: #e2e8f0;
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
     font-size: 13px;
     font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.tool-tag:hover, .tool-tag:active {
+    background: #1e293b;
+    border-color: var(--primary);
+    color: #ff8c00;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
 }
 
 .btn-amazon {
