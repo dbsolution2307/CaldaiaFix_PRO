@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, DIAGNOSI WIZARD & BACKUP JSON
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, MORSETTIERE & GENERATORE PDF
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -357,7 +357,190 @@ function toggleFav(id, event) {
     filtraErrori(false);
 }
 
-// 5. TROUBLESHOOTING WIZARD (DIAGNOSI DA SINTOMO)
+// 5. QUICK-VIEWER MORSETTIERE (SCHEMA SCHEDE)
+const morsettiereData = {
+    "Baxi": {
+        title: "Baxi - Luna3 / Duo-Tec / Eco",
+        pins: [
+            { num: "1 - 2", func: "Termostato Ambiente (TA)", note: "Tensione 230V. Rimuovere ponticello di serie." },
+            { num: "3 - 4", func: "Comando Remoto / BUS OpenTherm", note: "Basso voltaggio (Polarizzato)." },
+            { num: "5 - 6", func: "Sonda Esterna (SE)", note: "NTC 10k Ohm a 25°C." }
+        ]
+    },
+    "Vaillant": {
+        title: "Vaillant - ecoTEC pro / plus / AtmoTEC",
+        pins: [
+            { num: "3 - 4", func: "Termostato Ambiente 230V", note: "Rimuovere il cavetto ponticello rosso." },
+            { num: "7 - 8 - 9", func: "Termostato Analogico Vaillant (24V)", note: "Collegare 7-8-9." },
+            { num: "+ eBUS -", func: "Cronotermostato vRT / eBUS", note: "Polarizzato eBUS digitale." }
+        ]
+    },
+    "Immergas": {
+        title: "Immergas - Victrix TT / Avio / Maior",
+        pins: [
+            { num: "40 - 41", func: "Termostato Ambiente (TA)", note: "Contatto pulito (Rimuovere ponticello)." },
+            { num: "42 - 43", func: "Comando Remoto CAR V2 (BUS)", note: "Basso voltaggio non polarizzato." },
+            { num: "38 - 39", func: "Sonda Esterna", note: "NTC temperatura esterna." }
+        ]
+    },
+    "Ariston": {
+        title: "Ariston - Clas One / Genus / Cares",
+        pins: [
+            { num: "TA1", func: "Termostato Ambiente 1", note: "Contatto pulito. Rimuovere bridge verde." },
+            { num: "B - T", func: "BUS BridgeNet Sensys", note: "Comunicazione digitale Ariston." },
+            { num: "SOLAR", func: "Sonda Collettore Solare", note: "Ingresso sensore dedicato." }
+        ]
+    },
+    "Beretta": {
+        title: "Beretta - Mynute / Ciao / Paros",
+        pins: [
+            { num: "TA - TA", func: "Termostato Ambiente", note: "Morsettiera M2. Rimuovere cavetto." },
+            { num: "OT - OT", func: "OpenTherm / BeSMART", note: "Contatto BUS Basso voltaggio." },
+            { num: "SE - SE", func: "Sonda Esterna", note: "Morsetti sonda climatica." }
+        ]
+    },
+    "Ferroli": {
+        title: "Ferroli - Bluehelix / Divacondens",
+        pins: [
+            { num: "1 - 2", func: "Termostato Ambiente (TA)", note: "Contatto pulito. Rimuovere ponticello." },
+            { num: "3 - 4", func: "Sonda Esterna / OpenTherm", note: "Configurabile da parametro scheda." }
+        ]
+    },
+    "Hermann Saunier Duval": {
+        title: "Hermann Saunier Duval - Thema / Saunier",
+        pins: [
+            { num: "24V = RT", func: "Termostato Ambiente 24V", note: "Togliere il ponte di fabbrica." },
+            { num: "BUS (+ -)", func: "Cronotermostato Exacontrol", note: "Interfaccia BUS eBUS." }
+        ]
+    }
+};
+
+function mostraMorsettiere() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('morsettiere-view');
+    const filter = document.getElementById('morsettiereBrandFilter');
+    if (filter) renderMorsettieraBrand(filter.value);
+}
+
+function renderMorsettieraBrand(brandKey) {
+    const container = document.getElementById('morsettiere-container');
+    if (!container) return;
+
+    const item = morsettiereData[brandKey] || morsettiereData["Baxi"];
+
+    let htmlPins = item.pins.map(p => `
+        <div class="terminal-pin-box">
+            <span class="pin-num">${p.num}</span>
+            <div class="pin-func">${p.func}</div>
+            <div class="pin-note">${p.note}</div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="terminal-card">
+            <h3 style="font-size:18px; font-weight:800; color:#38bdf8; margin-bottom:8px;">${item.title}</h3>
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:14px;">Morsettiera principale di collegamento sulla scheda madre:</p>
+            <div class="terminal-pin-grid">
+                ${htmlPins}
+            </div>
+        </div>
+    `;
+}
+
+// 6. STAMPA & GENERATORE REPORT PDF
+function stampaReportPDF() {
+    vibraTocco();
+
+    const company = document.getElementById('repCompany')?.value.trim() || 'Ditta Assistenza Tecnica';
+    const client = document.getElementById('repClient')?.value.trim() || 'Cliente Generico';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '-';
+    const fault = document.getElementById('repFault')?.value.trim() || '-';
+    const work = document.getElementById('repWork')?.value.trim() || 'Nessuna nota aggiuntiva';
+    const price = document.getElementById('repPrice')?.value.trim() || '0.00';
+    const dateStr = new Date().toLocaleDateString('it-IT');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert("Attiva i pop-up sul browser per generare il PDF.");
+        return;
+    }
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="it">
+        <head>
+            <meta charset="UTF-8">
+            <title>Rapporto_Intervento_${dateStr}.pdf</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; line-height: 1.5; }
+                .header-box { border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+                .company-name { font-size: 22px; font-weight: bold; color: #ea580c; }
+                .doc-title { font-size: 18px; font-weight: bold; text-align: right; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+                .field-label { font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+                .field-value { font-size: 15px; font-weight: bold; color: #0f172a; margin-top: 2px; }
+                .section-title { font-size: 14px; font-weight: bold; color: #ea580c; text-transform: uppercase; margin-top: 20px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+                .work-box { background: #ffffff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 8px; font-size: 14px; min-height: 100px; }
+                .total-box { margin-top: 30px; text-align: right; font-size: 20px; font-weight: bold; color: #166534; }
+                .footer-text { margin-top: 50px; font-size: 11px; text-align: center; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="header-box">
+                <div>
+                    <div class="company-name">${company}</div>
+                    <div style="font-size:12px; color:#64748b;">Rapporto Tecnico di Manutenzione / Riparazione</div>
+                </div>
+                <div class="doc-title">
+                    <div>Data: ${dateStr}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div>
+                    <div class="field-label">Cliente / Riferimento:</div>
+                    <div class="field-value">${client}</div>
+                </div>
+                <div>
+                    <div class="field-label">Caldaia / Impianto:</div>
+                    <div class="field-value">${boiler}</div>
+                </div>
+            </div>
+
+            <div class="section-title">Anomalia / Codice Guasto Riscontrato</div>
+            <div class="work-box" style="min-height:auto;">
+                <strong>${fault}</strong>
+            </div>
+
+            <div class="section-title">Intervento Svolto & Ricambi Sostituiti</div>
+            <div class="work-box">
+                ${work.replace(/\n/g, '<br>')}
+            </div>
+
+            <div class="total-box">
+                IMPORTO TOTALE: € ${price}
+            </div>
+
+            <div class="footer-text">
+                Documento generato tramite CaldaiaFix PRO • Copia Cliente
+            </div>
+
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            </script>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    chiudiReportModal();
+}
+
+// 7. TROUBLESHOOTING WIZARD (DIAGNOSI DA SINTOMO)
 const wizardTree = {
     start: {
         title: "Quale sintomo presenta la caldaia?",
@@ -381,7 +564,7 @@ const wizardTree = {
         title: "Hai verificato se c'è tensione sulla presa o sull'interruttore bipolare?",
         options: [
             { text: "C'è tensione 230V alla presa ma la caldaia è morta", solution: "Fusibile di protezione sulla scheda madre bruciato o scheda di alimentazione guasta a causa di sbalzo di tensione.", part: "Scheda madre caldaia", tool: "⚡ Multimetro Digitale" },
-            { text: "Il salvavita generale di casa scatta subito appena accendo la caldaia", solution: "Dispersion verso terra. Verificare in ordine: Circolatore pompa in corto, Resistenza candeletta o Ventilatore fumi.", part: "Pompa circolatore caldaia", tool: "⚡ Multimetro Digitale" }
+            { text: "Il salvavita generale di casa scatta subito appena accendo la caldaia", solution: "Dispersione verso terra. Verificare in ordine: Circolatore pompa in corto, Resistenza candeletta o Ventilatore fumi.", part: "Pompa circolatore caldaia", tool: "⚡ Multimetro Digitale" }
         ]
     },
     rumori: {
@@ -473,7 +656,7 @@ function renderStepWizard(stepKey) {
     container.innerHTML = html;
 }
 
-// 6. BACKUP & RIPRISTINO JSON TARGHE
+// 8. BACKUP & RIPRISTINO JSON TARGHE
 function esportaBackupJSON() {
     if (!dbIndexed) {
         alert("Banca dati non ancora pronta o non supportata dal browser.");
@@ -547,7 +730,7 @@ function ripristinaBackupJSON(event) {
     event.target.value = '';
 }
 
-// 7. ARCHIVIO TARGHE & INDEXED DB
+// 9. ARCHIVIO TARGHE & INDEXED DB
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -721,7 +904,7 @@ function richiediSvuotaTarghe() {
     };
 }
 
-// 8. CALCOLATORI TECNICI
+// 10. CALCOLATORI TECNICI
 function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
@@ -777,7 +960,7 @@ function convertiPressione(type) {
     }
 }
 
-// 9. RAPPORTO INTERVENTO WHATSAPP
+// 11. RAPPORTO INTERVENTO WHATSAPP
 function apriReportModal(brand, code, desc) {
     vibraTocco();
     const company = localStorage.getItem('caldaiafix_company') || '';
@@ -819,7 +1002,7 @@ function inviaRapportoWhatsApp() {
     chiudiReportModal();
 }
 
-// 10. AREA TECNICA & PIN
+// 12. AREA TECNICA & PIN
 function apriPin() {
     vibraTocco();
     const modal = document.getElementById('pin-modal');
@@ -873,7 +1056,7 @@ function renderAreaTecnica() {
     container.style.display = 'block';
 }
 
-// 11. NAVIGAZIONE, VISTE & MENU TENDINA
+// 13. NAVIGAZIONE, VISTE & MENU TENDINA
 function cambiaVista(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const target = document.getElementById(viewId);
@@ -915,7 +1098,7 @@ function impostaTabNav(tab) {
     if (navBtn) navBtn.classList.add('active');
 }
 
-// 12. TORCIA FLASH & PWA
+// 14. TORCIA FLASH & PWA
 function toggleTorch() {
     vibraTocco();
     if (!isTorchOn) {
@@ -980,7 +1163,7 @@ function chiudiIosBanner() {
     if (banner) banner.style.display = 'none';
 }
 
-// 13. UTILITY & IMPOSTAZIONI DITTA
+// 15. UTILITY & IMPOSTAZIONI DITTA
 function salvaImpostazioniDitta() {
     const el = document.getElementById('settingCompany');
     if (el) localStorage.setItem('caldaiafix_company', el.value.trim());
