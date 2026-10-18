@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, MORSETTIERE, WIZARD & SCHERMATA TECNICA
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, STATISTICHE & FORZA CACHE PWA
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -74,7 +74,31 @@ function verificaStatoRete() {
     }
 }
 
-// 2. CONTATORE INTESTAZIONE
+// FORZA AGGIORNAMENTO CACHE PWA E REFRESH
+async function forzaAggiornamentoCache() {
+    vibraTocco();
+    if (confirm("Vuoi svuotare la memoria cache dell'app e scaricare la versione più recente dal server?")) {
+        try {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (let key of keys) {
+                    await caches.delete(key);
+                }
+            }
+            window.location.reload(true);
+        } catch (err) {
+            window.location.reload(true);
+        }
+    }
+}
+
+// CONTATORE INTESTAZIONE
 function aggiornaContatoreHeader() {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
     const countBox = document.getElementById('resultsCount');
@@ -83,7 +107,7 @@ function aggiornaContatoreHeader() {
     }
 }
 
-// 3. FILTRAGGIO E RENDERING LISTA GUASTI
+// FILTRAGGIO E RENDERING LISTA GUASTI
 function filtraErrori(isFavOnly = false) {
     const searchEl = document.getElementById('searchInput');
     const brandEl = document.getElementById('brandFilter');
@@ -183,7 +207,7 @@ function aggiornaStatoTab(activeBtnId) {
     if (activeBtn) activeBtn.classList.add('active');
 }
 
-// HELPER PER DETERMINARE GLI ATTREZZI NECESSARI IN BASE AL GUASTO
+// ATTREZZI CONSIGLIATI
 function ottieniAttrezziGuasto(item) {
     const desc = ((item.desc || "") + " " + (item.partName || "")).toLowerCase();
     let attrezzi = ["🔧 Cacciaviti Isolati 1000V", "🛠️ Chiavi a Forchetta 10-17mm"];
@@ -204,7 +228,97 @@ function ottieniAttrezziGuasto(item) {
     return Array.from(new Set(attrezzi));
 }
 
-// 4. DETTAGLIO GUASTO & STORICO
+// DASHBOARD STATISTICHE
+function mostraStatistiche() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('stats-view');
+    calcolaEDisegnaStatistiche();
+}
+
+function calcolaEDisegnaStatistiche() {
+    const container = document.getElementById('stats-container');
+    if (!container) return;
+
+    let totalTarghe = 0;
+    const totalConsultazioni = historyGuasti.length;
+    
+    let brandMap = {};
+    historyGuasti.forEach(h => {
+        if (h.brand) {
+            brandMap[h.brand] = (brandMap[h.brand] || 0) + 1;
+        }
+    });
+
+    let topBrand = '-';
+    let topBrandCount = 0;
+    Object.keys(brandMap).forEach(b => {
+        if (brandMap[b] > topBrandCount) {
+            topBrandCount = brandMap[b];
+            topBrand = b;
+        }
+    });
+
+    const generaHTML = (numTarghe) => {
+        let brandBarsHTML = '';
+        const total = totalConsultazioni || 1;
+
+        Object.keys(brandMap).forEach(b => {
+            const pct = Math.round((brandMap[b] / total) * 100);
+            brandBarsHTML += `
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+                        <span>${b}</span>
+                        <span>${pct}% (${brandMap[b]})</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (!brandBarsHTML) {
+            brandBarsHTML = `<p style="font-size:13px; color:var(--text-sub);">Consulta alcuni guasti per iniziare a generare le statistiche per marca.</p>`;
+        }
+
+        container.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${numTarghe}</div>
+                    <div class="stat-label">Targhe Impianto</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalConsultazioni}</div>
+                    <div class="stat-label">Guasti Consultati</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:15px; font-weight:800; color:#38bdf8; margin-bottom:10px;">🏆 Marca Più Trattata</h3>
+                <div style="font-size:20px; font-weight:900; color:#ffffff;">${topBrand}</div>
+                <div style="font-size:13px; color:var(--text-sub); margin-top:2px;">Basato sullo storico delle tue ricerche recenti.</div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:15px; font-weight:800; color:#ffffff; margin-bottom:12px;">📊 Ripartizione Interventi per Marca</h3>
+                ${brandBarsHTML}
+            </div>
+        `;
+    };
+
+    if (dbIndexed) {
+        const tx = dbIndexed.transaction(['targhe'], 'readonly');
+        const store = tx.objectStore('targhe');
+        const req = store.count();
+        req.onsuccess = () => generaHTML(req.result);
+        req.onerror = () => generaHTML(0);
+    } else {
+        generaHTML(0);
+    }
+}
+
+// DETTAGLIO GUASTO & STORICO
 function mostraDettaglio(id) {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
     const item = dbData.find(e => e.id === id);
@@ -357,7 +471,7 @@ function toggleFav(id, event) {
     filtraErrori(false);
 }
 
-// 5. AREA TECNICA & GESTIONE PIN
+// AREA TECNICA & GESTIONE PIN
 function apriPin() {
     vibraTocco();
     const modal = document.getElementById('pin-modal');
@@ -422,7 +536,7 @@ function renderAreaTecnica() {
     container.innerHTML = html;
 }
 
-// 6. QUICK-VIEWER MORSETTIERE (SCHEMA SCHEDE)
+// QUICK-VIEWER MORSETTIERE
 const morsettiereData = {
     "Baxi": {
         title: "Baxi - Luna3 / Duo-Tec / Eco",
@@ -513,7 +627,7 @@ function renderMorsettieraBrand(brandKey) {
     `;
 }
 
-// 7. STAMPA & GENERATORE REPORT PDF
+// STAMPA & GENERATORE REPORT PDF
 function stampaReportPDF() {
     vibraTocco();
 
@@ -605,7 +719,7 @@ function stampaReportPDF() {
     chiudiReportModal();
 }
 
-// 8. TROUBLESHOOTING WIZARD (DIAGNOSI DA SINTOMO)
+// TROUBLESHOOTING WIZARD
 const wizardTree = {
     start: {
         title: "Quale sintomo presenta la caldaia?",
@@ -721,7 +835,7 @@ function renderStepWizard(stepKey) {
     container.innerHTML = html;
 }
 
-// 9. BACKUP & RIPRISTINO JSON TARGHE
+// BACKUP & RIPRISTINO JSON TARGHE
 function esportaBackupJSON() {
     if (!dbIndexed) {
         alert("Banca dati non ancora pronta o non supportata dal browser.");
@@ -795,7 +909,7 @@ function ripristinaBackupJSON(event) {
     event.target.value = '';
 }
 
-// 10. ARCHIVIO TARGHE & INDEXED DB
+// ARCHIVIO TARGHE & INDEXED DB
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -969,7 +1083,7 @@ function richiediSvuotaTarghe() {
     };
 }
 
-// 11. CALCOLATORI TECNICI
+// CALCOLATORI TECNICI
 function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
@@ -1025,7 +1139,7 @@ function convertiPressione(type) {
     }
 }
 
-// 12. RAPPORTO INTERVENTO WHATSAPP
+// RAPPORTO INTERVENTO WHATSAPP
 function apriReportModal(brand, code, desc) {
     vibraTocco();
     const company = localStorage.getItem('caldaiafix_company') || '';
@@ -1067,7 +1181,7 @@ function inviaRapportoWhatsApp() {
     chiudiReportModal();
 }
 
-// 13. NAVIGAZIONE, VISTE & MENU TENDINA
+// NAVIGAZIONE, VISTE & MENU TENDINA
 function cambiaVista(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const target = document.getElementById(viewId);
@@ -1109,7 +1223,7 @@ function impostaTabNav(tab) {
     if (navBtn) navBtn.classList.add('active');
 }
 
-// 14. TORCIA FLASH & PWA
+// TORCIA FLASH & PWA
 function toggleTorch() {
     vibraTocco();
     if (!isTorchOn) {
@@ -1174,7 +1288,7 @@ function chiudiIosBanner() {
     if (banner) banner.style.display = 'none';
 }
 
-// 15. UTILITY & IMPOSTAZIONI DITTA
+// UTILITY & IMPOSTAZIONI DITTA
 function salvaImpostazioniDitta() {
     const el = document.getElementById('settingCompany');
     if (el) localStorage.setItem('caldaiafix_company', el.value.trim());
