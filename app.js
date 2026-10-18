@@ -1,18 +1,17 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE & GESTIONE STATO (VERSIONE SAFE)
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE & GESTIONE STATO
    ========================================================================== */
 
-// STRUTTURA DATI LOCALE E SICURA
-let currentFilterType = 'all';
-let currentBrand = '';
-let favorites = safeGetStorage('caldaiafix_favs', []);
-let historyGuasti = safeGetStorage('caldaiafix_history', []);
-let dbIndexed = null;
-let deferredPrompt = null;
-let torchTrack = null;
-let isTorchOn = false;
+// PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+            registration.unregister();
+        }
+    }).catch(err => console.warn('PWA SW Cleanup:', err));
+}
 
-// UTILITY STORAGE SICURO (EVITA CRASH SE COOKIE/LOCALSTORAGE SONO DISABILITATI)
+// HELPER LOCALSTORAGE SICURO
 function safeGetStorage(key, defaultValue) {
     try {
         const val = localStorage.getItem(key);
@@ -26,12 +25,22 @@ function safeSetStorage(key, value) {
     try {
         localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-        console.warn("Impossibile salvare in localStorage", e);
+        console.warn("Errore salvataggio localStorage:", e);
     }
 }
 
-// 1. INIZIALIZZAZIONE ALLA CARICA DELLA PAGINA (IN TRY...CATCH ANTI-BLOCCO)
-window.addEventListener('DOMContentLoaded', () => {
+// STRUTTURA DATI LOCALE
+let currentFilterType = 'all';
+let currentBrand = '';
+let favorites = safeGetStorage('caldaiafix_favs', []);
+let historyGuasti = safeGetStorage('caldaiafix_history', []);
+let dbIndexed = null;
+let deferredPrompt = null;
+let torchTrack = null;
+let isTorchOn = false;
+
+// INIZIALIZZAZIONE SICURA A DOPPIO CONTROLLO (EVITA BLOCCO ALL'AVVIO)
+function initApp() {
     try {
         aggiornaContatoreHeader();
         initIndexedDB();
@@ -40,9 +49,15 @@ window.addEventListener('DOMContentLoaded', () => {
         gestisciPwaInstall();
         verificaStatoRete();
     } catch (err) {
-        console.error("Errore durante l'inizializzazione dell'app:", err);
+        console.error("Errore inizializzazione CaldaiaFix:", err);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
 
 window.addEventListener('online', verificaStatoRete);
 window.addEventListener('offline', verificaStatoRete);
@@ -59,7 +74,7 @@ function verificaStatoRete() {
     }
 }
 
-// 2. AGGIORNAMENTO AUTOMATICO CONTATORE INTESTAZIONE
+// 2. CONTATORE INTESTAZIONE
 function aggiornaContatoreHeader() {
     const subHeader = document.getElementById('sub-header-count');
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
@@ -68,7 +83,7 @@ function aggiornaContatoreHeader() {
     }
 }
 
-// 3. FILTRAGGIO E RENDERING LISTA GUASTI (DIFENSIVO SENZA CRASH)
+// 3. FILTRAGGIO E RENDERING LISTA GUASTI
 function filtraErrori(isFavOnly = false) {
     const searchEl = document.getElementById('searchInput');
     const brandEl = document.getElementById('brandFilter');
@@ -85,15 +100,13 @@ function filtraErrori(isFavOnly = false) {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
 
     const risultati = dbData.filter(item => {
-        // Filtro Marca
+        if (!item) return false;
         if (brandSel && item.brand !== brandSel) return false;
 
-        // Filtro Tipo (Dig / Led / Fav)
         if (currentFilterType === 'digital' && item.type !== 'digital') return false;
         if (currentFilterType === 'led' && item.type !== 'led') return false;
         if (currentFilterType === 'fav' && !favorites.includes(item.id)) return false;
 
-        // Filtro Testo (Codice, Descrizione, Modello, Marca)
         if (query !== '') {
             const matchCode = item.code ? item.code.toLowerCase().includes(query) : false;
             const matchDesc = item.desc ? item.desc.toLowerCase().includes(query) : false;
@@ -115,12 +128,12 @@ function renderListaErrori(lista) {
     if (!container) return;
     if (countBox) countBox.textContent = `${lista.length} GUASTI TROVATI`;
 
-    if (lista.length === 0) {
+    if (!lista || lista.length === 0) {
         container.innerHTML = `
             <div class="card" style="text-align:center; padding:30px 15px;">
-                <div style="font-size:32px; margin-bottom:8px;">🔍</div>
-                <div style="font-weight:800; font-size:14px; color:var(--text-main);">Nessun guasto trovato</div>
-                <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">Prova a cambiare la ricerca o i filtri selezionati.</div>
+                <div style="font-size:36px; margin-bottom:8px;">🔍</div>
+                <div style="font-weight:800; font-size:16px; color:var(--text-main);">Nessun guasto trovato</div>
+                <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">Prova a cambiare la ricerca o la marca selezionata.</div>
             </div>
         `;
         return;
@@ -133,15 +146,15 @@ function renderListaErrori(lista) {
         
         html += `
             <div class="error-item" onclick="mostraDettaglio(${item.id})">
-                <div style="flex:1; padding-right:10px;">
-                    <div style="display:flex; align-items:center; gap:8px;">
+                <div style="flex:1; padding-right:12px;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         <span class="badge ${badgeClass}">${item.brand}</span>
-                        <span class="badge b-code" style="font-size:11px;">${item.code}</span>
+                        <span class="badge b-code" style="font-size:13px; font-weight:800;">${item.code}</span>
                     </div>
                     <div class="error-title">${item.desc}</div>
                     <div class="error-model">Modelli: ${item.model}</div>
                 </div>
-                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(${item.id}, event)">
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(${item.id}, event)" title="Preferito">
                     ${isFav ? '★' : '☆'}
                 </button>
             </div>
@@ -183,58 +196,58 @@ function mostraDettaglio(id) {
 
     let htmlSteps = '';
     if (item.steps && item.steps.length > 0) {
-        htmlSteps = '<ol>' + item.steps.map(step => `<li>${step}</li>`).join('') + '</ol>';
+        htmlSteps = '<ol style="padding-left:20px; font-size:16px; line-height:1.5;">' + item.steps.map(step => `<li style="margin-bottom:8px;">${step}</li>`).join('') + '</ol>';
     }
 
     let htmlCauses = '';
     if (item.causes && item.causes.length > 0) {
-        htmlCauses = '<ul>' + item.causes.map(c => `<li>${c}</li>`).join('') + '</ul>';
+        htmlCauses = '<ul style="padding-left:20px; font-size:16px; line-height:1.5;">' + item.causes.map(c => `<li style="margin-bottom:6px;">${c}</li>`).join('') + '</ul>';
     }
 
     detailContent.innerHTML = `
-        <div class="detail-box">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
                 <div>
                     <span class="badge b-code">${item.brand}</span>
-                    <h2 style="font-size:20px; font-weight:800; color:var(--text-main); margin-top:6px;">Errore ${item.code}</h2>
-                    <p style="font-size:12px; color:var(--text-sub); font-weight:600;">Modelli: ${item.model}</p>
+                    <h2 style="font-size:22px; font-weight:900; color:var(--text-main); margin-top:8px;">Errore ${item.code}</h2>
+                    <p style="font-size:14px; color:var(--text-sub); font-weight:700;">Modelli: ${item.model}</p>
                 </div>
-                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:26px;" onclick="toggleFav(${item.id}, event); mostraDettaglio(${item.id});">
+                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:32px;" onclick="toggleFav(${item.id}, event); mostraDettaglio(${item.id});">
                     ${isFav ? '★' : '☆'}
                 </button>
             </div>
 
-            <div style="background:var(--surface-secondary); border:1px solid var(--border); padding:12px; border-radius:14px; margin-bottom:14px;">
-                <div style="font-size:11px; font-weight:800; color:var(--text-sub); text-transform:uppercase;">Descrizione Guasto:</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-top:2px;">${item.desc}</div>
+            <div style="background:var(--surface-secondary); border:2px solid var(--border); padding:14px; border-radius:14px; margin-bottom:16px;">
+                <div style="font-size:12px; font-weight:900; color:var(--text-sub); text-transform:uppercase;">Descrizione Guasto:</div>
+                <div style="font-size:17px; font-weight:800; color:var(--text-main); margin-top:4px;">${item.desc}</div>
             </div>
 
-            <div style="margin-bottom:14px;">
-                <h3 style="font-size:12px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:6px;">⚠️ Possibili Cause:</h3>
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:900; color:var(--primary); text-transform:uppercase; margin-bottom:8px;">⚠️ Possibili Cause:</h3>
                 ${htmlCauses}
             </div>
 
-            <div style="margin-bottom:14px;">
-                <h3 style="font-size:12px; font-weight:800; color:#10b981; text-transform:uppercase; margin-bottom:6px;">🛠️ Procedura di Risoluzione:</h3>
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:900; color:#15803d; text-transform:uppercase; margin-bottom:8px;">🛠️ Procedura di Risoluzione:</h3>
                 ${htmlSteps}
             </div>
 
             ${item.partName ? `
-                <div class="part-box">
-                    <div style="font-size:11px; font-weight:800; color:var(--text-sub); text-transform:uppercase;">Ricambio Consigliato:</div>
-                    <div style="font-size:13px; font-weight:700; color:var(--text-main);">${item.partName}</div>
-                    <div style="font-size:11px; color:var(--primary); font-family:monospace; margin-top:2px;">Codice: ${item.partCode}</div>
+                <div style="background:#f0fdf4; border:2px solid #bbf7d0; padding:14px; border-radius:14px; margin-bottom:16px;">
+                    <div style="font-size:12px; font-weight:900; color:#166534; text-transform:uppercase;">Ricambio Consigliato:</div>
+                    <div style="font-size:16px; font-weight:800; color:var(--text-main);">${item.partName}</div>
+                    <div style="font-size:14px; color:var(--primary); font-family:monospace; font-weight:800; margin-top:4px;">Codice: ${item.partCode}</div>
                 </div>
             ` : ''}
 
             ${item.gasParams && item.gasParams !== '-' ? `
-                <div class="gas-box">
+                <div style="background:#fff7ed; border:2px solid #fed7aa; padding:14px; border-radius:14px; margin-bottom:16px; font-size:15px; color:#9a3412;">
                     🔥 Parametri Combustione / Gas: <br>
                     <strong>${item.gasParams}</strong>
                 </div>
             ` : ''}
 
-            <div style="display:flex; gap:8px; margin-top:16px;">
+            <div style="margin-top:18px;">
                 <button class="btn-whatsapp" onclick="apriReportModal('${item.brand}', '${item.code}', '${item.desc}')">
                     💬 Crea Rapporto Cliente
                 </button>
@@ -260,7 +273,7 @@ function mostraStorico() {
     if (historyGuasti.length === 0) {
         container.innerHTML = `
             <div class="card" style="text-align:center; padding:20px;">
-                <p style="font-size:13px; color:var(--text-sub);">Nessun guasto consultato di recente.</p>
+                <p style="font-size:15px; color:var(--text-sub);">Nessun guasto consultato di recente.</p>
             </div>
         `;
     } else {
@@ -272,7 +285,7 @@ function mostraStorico() {
                         <span class="badge b-code">${item.brand} ${item.code}</span>
                         <div class="error-title">${item.desc}</div>
                     </div>
-                    <span style="font-size:11px; color:var(--text-sub); font-weight:600;">${item.timestamp}</span>
+                    <span style="font-size:13px; color:var(--text-sub); font-weight:700;">${item.timestamp}</span>
                 </div>
             `;
         });
@@ -310,7 +323,7 @@ function avviaRicercaVocale() {
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        alert("La ricerca vocale non è supportata dal tuo browser.");
+        alert("La ricerca vocale non è supportata dal browser in uso.");
         return;
     }
 
@@ -357,7 +370,7 @@ function initIndexedDB() {
             dbIndexed = e.target.result;
         };
     } catch(e) {
-        console.warn("IndexedDB non disponibile.", e);
+        console.warn("IndexedDB non disponibile:", e);
     }
 }
 
@@ -378,6 +391,21 @@ function chiudiTargaModal() {
     if (img) {
         img.style.display = 'none';
         img.src = '';
+    }
+}
+
+function anteprimaFotoTarga(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('tagImgPreview');
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
     }
 }
 
@@ -419,6 +447,7 @@ function salvaSchedaTarga() {
 
 function mostraTarghe() {
     vibraTocco();
+    impostaTabNav('targhe');
     cambiaVista('targhe-view');
     caricaTarghe();
 }
@@ -438,7 +467,7 @@ function caricaTarghe() {
         if (!items || items.length === 0) {
             container.innerHTML = `
                 <div class="card" style="text-align:center; padding:20px;">
-                    <p style="font-size:13px; color:var(--text-sub);">Nessuna targa salvata nell'archivio.</p>
+                    <p style="font-size:15px; color:var(--text-sub);">Nessuna targa salvata nell'archivio.</p>
                 </div>
             `;
             return;
@@ -450,21 +479,21 @@ function caricaTarghe() {
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <div style="font-size:15px; font-weight:800; color:var(--text-main);">${item.client}</div>
-                            <div style="font-size:12px; color:var(--text-sub); font-weight:600;">📍 ${item.address || 'Nessun indirizzo'}</div>
+                            <div style="font-size:17px; font-weight:800; color:var(--text-main);">${item.client}</div>
+                            <div style="font-size:14px; color:var(--text-sub); font-weight:700;">📍 ${item.address || 'Nessun indirizzo'}</div>
                         </div>
-                        <button style="background:none; border:none; color:#ef4444; font-size:16px; cursor:pointer;" onclick="eliminaTarga(${item.id})">🗑️</button>
+                        <button style="background:none; border:none; color:#ef4444; font-size:20px; cursor:pointer;" onclick="eliminaTarga(${item.id})">🗑️</button>
                     </div>
 
-                    <div style="margin-top:10px; font-size:12.5px; color:var(--text-main);">
+                    <div style="margin-top:10px; font-size:15px; color:var(--text-main);">
                         <div>🔥 Caldaia: <strong>${item.boiler || '-'}</strong></div>
                         <div>🏷️ Matricola: <strong>${item.serial || '-'}</strong></div>
-                        ${item.notes ? `<div style="margin-top:4px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
+                        ${item.notes ? `<div style="margin-top:6px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
                     </div>
 
-                    ${item.image ? `<img src="${item.image}" class="client-img-preview" style="display:block;" alt="Targa">` : ''}
+                    ${item.image ? `<img src="${item.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-top:10px; border:1px solid var(--border);" alt="Targa">` : ''}
 
-                    <div style="font-size:10px; color:var(--text-sub); margin-top:8px; text-align:right;">Salvato il: ${item.date}</div>
+                    <div style="font-size:12px; color:var(--text-sub); margin-top:8px; text-align:right;">Salvato il: ${item.date}</div>
                 </div>
             `;
         });
@@ -502,6 +531,7 @@ function richiediSvuotaTarghe() {
 // 7. CALCOLATORI TECNICI
 function mostraCalcolatori() {
     vibraTocco();
+    impostaTabNav('calc');
     cambiaVista('calc-view');
 }
 
@@ -512,7 +542,7 @@ function calcolaPortataGas() {
 
     const litri = parseFloat(input.value);
     if (isNaN(litri) || litri <= 0) {
-        resultBox.textContent = '0.0 kW';
+        resultBox.textContent = '0.0 kW Termici';
         return;
     }
 
@@ -632,15 +662,15 @@ function renderAreaTecnica() {
 
     let html = `
         <div class="card" style="background:#f3e8ff; border-color:#d8b4fe;">
-            <h3 style="color:#6d28d9; font-size:13px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">🔑 Parametri Tecnici & Menu Segreti</h3>
+            <h3 style="color:#6d28d9; font-size:15px; font-weight:900; text-transform:uppercase; margin-bottom:12px;">🔑 Parametri Tecnici & Menu Segreti</h3>
     `;
 
     menus.forEach(m => {
         html += `
-            <div style="background:#ffffff; border:1px solid #e9d5ff; padding:12px; border-radius:14px; margin-bottom:8px;">
-                <div style="font-size:13px; font-weight:800; color:#581c87;">${m.brand} (${m.model})</div>
-                <div style="font-size:12px; color:var(--text-main); margin-top:4px;"><strong>Procedura:</strong> ${m.sequence}</div>
-                <div style="font-size:11px; color:var(--text-sub); margin-top:2px;"><em>${m.notes}</em></div>
+            <div style="background:#ffffff; border:1px solid #e9d5ff; padding:12px; border-radius:14px; margin-bottom:10px;">
+                <div style="font-size:15px; font-weight:800; color:#581c87;">${m.brand} (${m.model})</div>
+                <div style="font-size:14px; color:var(--text-main); margin-top:4px;"><strong>Procedura:</strong> ${m.sequence}</div>
+                <div style="font-size:13px; color:var(--text-sub); margin-top:2px;"><em>${m.notes}</em></div>
             </div>
         `;
     });
@@ -666,7 +696,6 @@ function tornaHome() {
 
 function mostraImpostazioni() {
     vibraTocco();
-    impostaTabNav('settings');
     cambiaVista('settings-view');
 }
 
@@ -725,39 +754,10 @@ function gestisciPwaInstall() {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.style.display = 'flex';
     });
-
-    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-
-    if (isIos && !isStandalone) {
-        const iosBanner = document.getElementById('ios-install-banner');
-        if (iosBanner) iosBanner.style.display = 'flex';
-    }
 }
 
-function installaPWA() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-            chiudiPwaBanner();
-        });
-    }
-}
-
-function chiudiPwaBanner() {
-    const banner = document.getElementById('pwa-install-banner');
-    if (banner) banner.style.display = 'none';
-}
-
-function chiudiIosBanner() {
-    const banner = document.getElementById('ios-install-banner');
-    if (banner) banner.style.display = 'none';
-}
-
-// 12. UTILITY & IMPOSTAZIONI DITTA
+// 12. IMPOSTAZIONI DITTA
 function salvaImpostazioniDitta() {
     const el = document.getElementById('settingCompany');
     if (el) localStorage.setItem('caldaiafix_company', el.value.trim());
