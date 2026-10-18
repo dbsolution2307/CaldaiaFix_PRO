@@ -296,36 +296,68 @@
     </div>
 
     <!-- BOTTOM NAVIGATION BAR LIGHT GLASS -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" id="nav-home" onclick="tornaHome(); impostaTabNav('home')">
+    <!-- MENU A TENDINA POPUP DAL BASSO -->
+<div id="dropup-overlay" class="dropup-overlay" onclick="toggleMenuTendina()"></div>
+<div id="dropup-menu" class="dropup-menu">
+    <div class="dropup-header">
+        <span>📱 Menu Opzioni CaldaiaFix</span>
+        <button class="dropup-close" onclick="toggleMenuTendina()">✕</button>
+    </div>
+    <div class="dropup-grid">
+        <button class="dropup-item" onclick="tornaHome(); toggleMenuTendina();">
             <span class="icon">🏠</span>
             <span>Home</span>
         </button>
-        <button class="nav-item" id="nav-fav" onclick="filtraTipo('fav'); impostaTabNav('fav')">
+        <button class="dropup-item" onclick="filtraTipo('fav'); toggleMenuTendina();">
             <span class="icon">⭐</span>
             <span>Preferiti</span>
         </button>
-        <button class="nav-item" id="nav-targhe" onclick="mostraTarghe(); impostaTabNav('targhe')">
+        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">
             <span class="icon">📸</span>
-            <span>Targhe</span>
+            <span>Targhe & Clienti</span>
         </button>
-        <button class="nav-item" id="nav-torch" onclick="toggleTorch()">
+        <button class="dropup-item" id="menu-torch-btn" onclick="toggleTorch(); toggleMenuTendina();">
             <span class="icon">🔦</span>
-            <span>Torcia</span>
+            <span>Torcia Flash</span>
         </button>
-        <button class="nav-item" id="nav-calc" onclick="mostraCalcolatori(); impostaTabNav('calc')">
+        <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">
             <span class="icon">🧮</span>
-            <span>Calcoli</span>
+            <span>Calcolatori HVAC</span>
         </button>
-        <button class="nav-item" id="nav-hist" onclick="mostraStorico(); impostaTabNav('hist')">
+        <button class="dropup-item" onclick="mostraStorico(); toggleMenuTendina();">
             <span class="icon">🕒</span>
-            <span>Storico</span>
+            <span>Storico Guasti</span>
         </button>
-        <button class="nav-item" id="nav-settings" onclick="mostraImpostazioni(); impostaTabNav('settings')">
+        <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();" style="grid-column: span 2;">
             <span class="icon">⚙️</span>
-            <span>Impostazioni</span>
+            <span>Impostazioni App</span>
         </button>
-    </nav>
+    </div>
+</div>
+
+<!-- BOTTOM NAVIGATION BAR REVISIONATA -->
+<nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="tornaHome(); impostaTabNav('home')">
+        <span class="icon">🏠</span>
+        <span>Home</span>
+    </button>
+    <button class="nav-item" id="nav-targhe" onclick="mostraTarghe(); impostaTabNav('targhe')">
+        <span class="icon">📸</span>
+        <span>Targhe</span>
+    </button>
+    <button class="nav-item nav-menu-btn" onclick="toggleMenuTendina()">
+        <span class="icon">☰</span>
+        <span>Menu</span>
+    </button>
+    <button class="nav-item" id="nav-calc" onclick="mostraCalcolatori(); impostaTabNav('calc')">
+        <span class="icon">🧮</span>
+        <span>Calcoli</span>
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="mostraImpostazioni(); impostaTabNav('settings')">
+        <span class="icon">⚙️</span>
+        <span>Impostazioni</span>
+    </button>
+</nav>
 
     <!-- CARICAMENTO SCRIPT SEPARATI -->
     <script src="db.js"></script>
