@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE & GESTIONE STATO
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, DIAGNOSI WIZARD & BACKUP JSON
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -228,17 +228,14 @@ function mostraDettaglio(id) {
         htmlCauses = '<ul style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.causes.map(c => `<li style="margin-bottom:4px;">${c}</li>`).join('') + '</ul>';
     }
 
-    // ATTREZZI CONSIGLIATI TRASFORMATI IN LINK AMAZON AFFILIATI
     const listaAttrezzi = ottieniAttrezziGuasto(item);
     const htmlAttrezzi = listaAttrezzi.map(attrezzo => {
-        // Rimuoviamo gli emoji per creare una query pulita per Amazon
         const cleanToolName = attrezzo.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
         const toolSearchQuery = encodeURIComponent(cleanToolName);
         const toolAmazonUrl = `https://www.amazon.it/s?k=${toolSearchQuery}&tag=dbsolution-21`;
         return `<a href="${toolAmazonUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" onclick="event.stopPropagation();">${attrezzo} ↗</a>`;
     }).join('');
 
-    // LINK AFFILIAZIONE AMAZON PER RICAMBIO CALDAIA
     const searchQuery = encodeURIComponent(`${item.brand} ${item.partName || item.code} ricambio caldaia`);
     const amazonAffiliateUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=dbsolution-21`;
 
@@ -265,7 +262,6 @@ function mostraDettaglio(id) {
                 ${htmlSteps}
             </div>
 
-            <!-- SEZIONE ATTREZZI NECESSARI (CON LINK AMAZON) -->
             <div class="tools-box">
                 <div style="font-size:12px; font-weight:900; color:#cbd5e1; text-transform:uppercase;">🧰 Attrezzatura Consigliata (Clicca per acquistare su Amazon):</div>
                 <div class="tools-list">
@@ -281,7 +277,6 @@ function mostraDettaglio(id) {
                 </div>
             ` : ''}
 
-            <!-- PULSANTE AFFILIAZIONE AMAZON -->
             <a href="${amazonAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon">
                 🛒 Cerca Ricambio Principale su Amazon
             </a>
@@ -362,46 +357,197 @@ function toggleFav(id, event) {
     filtraErrori(false);
 }
 
-// 5. RICERCA VOCALE
-function avviaRicercaVocale() {
-    vibraTocco();
-    const btn = document.getElementById('micBtn');
-    const input = document.getElementById('searchInput');
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        alert("La ricerca vocale non è supportata da questo browser.");
-        return;
+// 5. TROUBLESHOOTING WIZARD (DIAGNOSI DA SINTOMO)
+const wizardTree = {
+    start: {
+        title: "Quale sintomo presenta la caldaia?",
+        options: [
+            { text: "💧 Acqua calda sanitaria tiepida o altalenante", next: "sanitaria" },
+            { text: "🔌 Caldaia completamente spenta (Nessun LED/Display)", next: "spenta" },
+            { text: "🔊 Rumori anomali (Ebollizione / Colpi d'ariete / Fischi)", next: "rumori" },
+            { text: "📈 Pressione acqua instabile (Sale alta o cade a 0)", next: "pressione" },
+            { text: "💦 Perdita d'acqua idraulica sotto la caldaia", next: "perdita" }
+        ]
+    },
+    sanitaria: {
+        title: "L'acqua riscalda quando il riscaldamento è acceso?",
+        options: [
+            { text: "Sì, l'acqua scalda bene solo con i termosifoni accesi", solution: "Valvola a 3 vie bloccata in posizione riscaldamento o attuatore guasto. Verificare lo spillo e la cartuccia sferica.", part: "Valvola 3 vie caldaia", tool: "⚡ Multimetro Digitale" },
+            { text: "No, l'acqua cambia continuamente temperatura da calda a fredda", solution: "Scambiatore secondario a piastre intasato da calcare o Sonda NTC Sanitario ritarata.", part: "Scambiatore piastre sanitario", tool: "🛠️ Chiavi per Raccordi" },
+            { text: "Il bruciatore non si accende proprio aprendo il rubinetto", solution: "Flussostato / Flussometro o microinterruttore sanitario guasto. Non rileva il flusso d'acqua.", part: "Flussostato sanitario caldaia", tool: "⚡ Multimetro Digitale" }
+        ]
+    },
+    spenta: {
+        title: "Hai verificato se c'è tensione sulla presa o sull'interruttore bipolare?",
+        options: [
+            { text: "C'è tensione 230V alla presa ma la caldaia è morta", solution: "Fusibile di protezione sulla scheda madre bruciato o scheda di alimentazione guasta a causa di sbalzo di tensione.", part: "Scheda madre caldaia", tool: "⚡ Multimetro Digitale" },
+            { text: "Il salvavita generale di casa scatta subito appena accendo la caldaia", solution: "Dispersion verso terra. Verificare in ordine: Circolatore pompa in corto, Resistenza candeletta o Ventilatore fumi.", part: "Pompa circolatore caldaia", tool: "⚡ Multimetro Digitale" }
+        ]
+    },
+    rumori: {
+        title: "Che tipo di rumore senti durante il funzionamento?",
+        options: [
+            { text: "Ebollizione violenta / Gorgoglio tipo pentola a pressione", solution: "Mancanza di circolazione acqua. Pompa bloccata (sbloccare la vite centrale) o Scambiatore primario ostruito.", part: "Pompa circolatore caldaia", tool: "🪛 Cacciavite a Taglio Grosso" },
+            { text: "Fischio acuto continuo durante la ventilazione", solution: "Cuscinetti del ventilatore esausti o tubetto Venturi / Pressostato fumi ostruito.", part: "Ventilatore fumi caldaia", tool: "💨 Pompetta Prova Pressostati" }
+        ]
+    },
+    pressione: {
+        title: "Cosa fa esattamente il manometro della pressione?",
+        options: [
+            { text: "La pressione sale oltre 2.5 - 3 bar solo quando accendo i termosifoni", solution: "Vaso d'espansione scarico d'aria o membrana bucata. Ripristinare precarica a 1.0 bar o sostituire vaso.", part: "Vaso espansione caldaia", tool: "🪠 Pompa con Manometro per Vasi" },
+            { text: "La pressione scende continuamente a 0 bar ogni giorno", solution: "Perdita sull'impianto di riscaldamento o Scambiatore primario bucato con scarico in camera di combustione.", part: "Valvola sicurezza 3 bar", tool: "⚖️ Manometro Idraulico" }
+        ]
+    },
+    perdita: {
+        title: "Da dove proviene la perdita d'acqua?",
+        options: [
+            { text: "Dalla valvola di sicurezza con il tappino rosso (gocciola)", solution: "Valvola di sicurezza 3 bar sporca di calcare sotto la sede o pressione impianto troppo alta (> 3 bar).", part: "Valvola sicurezza 3 bar caldaia", tool: "🛠️ Chiavi per Raccordi" },
+            { text: "Dal rubinetto di riempimento sotto la caldaia", solution: "Guarnizioni / OR del rubinetto di carico usurate o corpo in plastica crepato.", part: "Rubinetto di carico caldaia", tool: "🛠️ Chiavi per Raccordi" }
+        ]
     }
+};
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'it-IT';
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-        if (btn) btn.classList.add('listening');
-    };
-
-    recognition.onresult = (e) => {
-        const text = e.results[0][0].transcript;
-        if (input) {
-            input.value = text;
-            filtraErrori(false);
-        }
-    };
-
-    recognition.onerror = () => {
-        if (btn) btn.classList.remove('listening');
-    };
-
-    recognition.onend = () => {
-        if (btn) btn.classList.remove('listening');
-    };
-
-    recognition.start();
+function avviaWizard() {
+    vibraTocco();
+    impostaTabNav('home');
+    cambiaVista('wizard-view');
+    renderStepWizard('start');
 }
 
-// 6. ARCHIVIO TARGHE & INDEXED DB
+function renderStepWizard(stepKey) {
+    const container = document.getElementById('wizard-container');
+    if (!container) return;
+
+    const data = wizardTree[stepKey];
+    if (!data) return;
+
+    let html = `
+        <div class="wizard-card">
+            <div class="wizard-step-title">${data.title}</div>
+            <div class="wizard-options-list">
+    `;
+
+    if (data.options) {
+        data.options.forEach(opt => {
+            if (opt.next) {
+                html += `
+                    <button class="wizard-option-btn" onclick="renderStepWizard('${opt.next}')">
+                        <span>${opt.text}</span>
+                        <span>›</span>
+                    </button>
+                `;
+            } else if (opt.solution) {
+                const searchPartUrl = `https://www.amazon.it/s?k=${encodeURIComponent(opt.part || "ricambio caldaia")}&tag=dbsolution-21`;
+                const searchToolUrl = `https://www.amazon.it/s?k=${encodeURIComponent((opt.tool || "").replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim())}&tag=dbsolution-21`;
+
+                html += `
+                    <div class="wizard-solution-box">
+                        <div style="font-size:12px; font-weight:900; color:#34d399; text-transform:uppercase; margin-bottom:6px;">🎯 Risultato Diagnostica:</div>
+                        <div style="font-size:16px; font-weight:700; color:#ffffff; line-height:1.4; margin-bottom:12px;">${opt.solution}</div>
+
+                        ${opt.tool ? `
+                            <div style="margin-top:10px;">
+                                <div style="font-size:12px; font-weight:800; color:#94a3b8;">🧰 Attrezzo Consigliato:</div>
+                                <a href="${searchToolUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" style="margin-top:4px;">${opt.tool} ↗</a>
+                            </div>
+                        ` : ''}
+
+                        ${opt.part ? `
+                            <a href="${searchPartUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon" style="margin-top:14px;">
+                                🛒 Cerca "${opt.part}" su Amazon
+                            </a>
+                        ` : ''}
+
+                        <button class="btn-clear" style="width:100%; margin-top:12px;" onclick="renderStepWizard('start')">🔄 Ricomincia Diagnosi</button>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// 6. BACKUP & RIPRISTINO JSON TARGHE
+function esportaBackupJSON() {
+    if (!dbIndexed) {
+        alert("Banca dati non ancora pronta o non supportata dal browser.");
+        return;
+    }
+    vibraTocco();
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        const data = request.result;
+        if (!data || data.length === 0) {
+            alert("Nessuna targa salvata nell'archivio da esportare.");
+            return;
+        }
+
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CaldaiaFix_Backup_Targhe_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+}
+
+function ripristinaBackupJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) {
+                alert("File di backup non valido: deve contenere un elenco di targhe.");
+                return;
+            }
+
+            if (!confirm(`Trovate ${importedData.length} targhe nel file. Vuoi aggiungerle all'archivio locale?`)) {
+                return;
+            }
+
+            if (!dbIndexed) {
+                alert("Banca dati non disponibile.");
+                return;
+            }
+
+            const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+            const store = transaction.objectStore('targhe');
+
+            importedData.forEach(item => {
+                delete item.id;
+                store.add(item);
+            });
+
+            transaction.oncomplete = () => {
+                alert("Ripristino completato con successo!");
+                mostraTarghe();
+            };
+        } catch (err) {
+            alert("Errore nel caricamento del file JSON: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// 7. ARCHIVIO TARGHE & INDEXED DB
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -575,7 +721,7 @@ function richiediSvuotaTarghe() {
     };
 }
 
-// 7. CALCOLATORI TECNICI
+// 8. CALCOLATORI TECNICI
 function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
@@ -631,7 +777,7 @@ function convertiPressione(type) {
     }
 }
 
-// 8. RAPPORTO INTERVENTO WHATSAPP
+// 9. RAPPORTO INTERVENTO WHATSAPP
 function apriReportModal(brand, code, desc) {
     vibraTocco();
     const company = localStorage.getItem('caldaiafix_company') || '';
@@ -673,7 +819,7 @@ function inviaRapportoWhatsApp() {
     chiudiReportModal();
 }
 
-// 9. AREA TECNICA & PIN
+// 10. AREA TECNICA & PIN
 function apriPin() {
     vibraTocco();
     const modal = document.getElementById('pin-modal');
@@ -727,7 +873,7 @@ function renderAreaTecnica() {
     container.style.display = 'block';
 }
 
-// 10. NAVIGAZIONE, VISTE & MENU TENDINA
+// 11. NAVIGAZIONE, VISTE & MENU TENDINA
 function cambiaVista(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const target = document.getElementById(viewId);
@@ -769,7 +915,7 @@ function impostaTabNav(tab) {
     if (navBtn) navBtn.classList.add('active');
 }
 
-// 11. TORCIA FLASH & PWA
+// 12. TORCIA FLASH & PWA
 function toggleTorch() {
     vibraTocco();
     if (!isTorchOn) {
@@ -834,7 +980,7 @@ function chiudiIosBanner() {
     if (banner) banner.style.display = 'none';
 }
 
-// 12. UTILITY & IMPOSTAZIONI DITTA
+// 13. UTILITY & IMPOSTAZIONI DITTA
 function salvaImpostazioniDitta() {
     const el = document.getElementById('settingCompany');
     if (el) localStorage.setItem('caldaiafix_company', el.value.trim());
