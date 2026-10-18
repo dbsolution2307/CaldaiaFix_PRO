@@ -51,7 +51,7 @@
                 <option value="Buderus">Buderus</option>
                 <option value="Wolf">Wolf</option>
                 <option value="Silber">Silber</option>
-                <option value="Climatizzatori">Climatizzatori (Daikin/LG/Mitsu/ecc)</option>
+                <option value="Climatizzatori">Climatizzatori</option>
             </select>
         </div>
 
@@ -102,4 +102,134 @@
 
         <!-- CALCOLO PORTATA GAS -->
         <div class="card">
-            <h3>🔥 Calcolo Portata Gas (
+            <h3>🔥 Calcolo Portata Gas (kW)</h3>
+            <p>Inserisci i litri contati sul contatore in 60 secondi:</p>
+            <input type="number" id="gasLiters" placeholder="Litri in 60 sec (es. 40)" oninput="calcolaPortataGas()">
+            <div id="gasResult" class="calc-result">0.0 kW Termici</div>
+        </div>
+
+        <!-- CALCOLO VASO ESPANSIONE -->
+        <div class="card">
+            <h3>🪠 Vaso Espansione & Precarica</h3>
+            <input type="number" id="waterVolume" placeholder="Litri acqua impianto (es. 100)" oninput="calcolaVasoEspansione()">
+            <input type="number" id="buildingHeight" placeholder="Altezza punto più alto (m)" oninput="calcolaVasoEspansione()" style="margin-top:8px;">
+            <div id="vasoResult" class="calc-result">Vaso Minimo: 0 L | Precarica: 1.0 bar</div>
+        </div>
+
+        <!-- CONVERTITORE PRESSIONE -->
+        <div class="card">
+            <h3>⚖️ Conversione mbar / Pascal</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="inputMbar" placeholder="mbar" oninput="convertiPressione('mbar')">
+                <input type="number" id="inputPascal" placeholder="Pa" oninput="convertiPressione('pascal')">
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA IMPOSTAZIONI -->
+    <section id="settings-view" class="view">
+        <div class="view-header">
+            <h2>⚙️ Impostazioni</h2>
+        </div>
+        <div class="card">
+            <label>Nome Ditta per Rapporti WhatsApp:</label>
+            <input type="text" id="settingCompany" placeholder="Es. DB Solution" oninput="salvaImpostazioniDitta()">
+            
+            <label style="margin-top:15px; display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="settingVibration" onchange="salvaImpostazioniVibrazione()" checked>
+                Vibrazione al tocco (Feedback)
+            </label>
+        </div>
+
+        <div class="card" style="margin-top:15px;">
+            <button class="btn-action" style="width:100%;" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
+            <div id="installer-content" style="display:none; margin-top:15px;"></div>
+        </div>
+    </section>
+
+    <!-- BARRA DI NAVIGAZIONE IN BASSO -->
+    <nav class="bottom-nav">
+        <button id="nav-home" class="nav-item active" onclick="tornaHome()">
+            <span>🔍</span>
+            <small>Guasti</small>
+        </button>
+        <button id="nav-targhe" class="nav-item" onclick="mostraTarghe()">
+            <span>📑</span>
+            <small>Targhe</small>
+        </button>
+        <button id="nav-calc" class="nav-item" onclick="mostraCalcolatori()">
+            <span>🧮</span>
+            <small>Calcoli</small>
+        </button>
+        <button id="nav-history" class="nav-item" onclick="mostraStorico()">
+            <span>📜</span>
+            <small>Storico</small>
+        </button>
+        <button id="nav-settings" class="nav-item" onclick="mostraImpostazioni()">
+            <span>⚙️</span>
+            <small>Menu</small>
+        </button>
+    </nav>
+
+    <!-- MODALE NUOVA TARGA -->
+    <div id="targa-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>📑 Scheda Targa Impianto</h3>
+            <input type="text" id="tagClient" placeholder="Nome Cliente / Riferimento">
+            <input type="text" id="tagAddress" placeholder="Indirizzo">
+            <input type="text" id="tagBoiler" placeholder="Marca e Modello Caldaia">
+            <input type="text" id="tagSerial" placeholder="Numero Matricola">
+            <textarea id="tagNotes" placeholder="Note tecniche / Note cliente..."></textarea>
+            
+            <label class="btn-file">
+                📷 Scatta/Carica Foto Targa
+                <input type="file" accept="image/*" capture="environment" onchange="anteprimaFotoTarga(event)">
+            </label>
+            <img id="tagImgPreview" class="client-img-preview" style="display:none;" alt="Anteprima">
+
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action" onclick="salvaSchedaTarga()">Salva</button>
+                <button class="btn-clear" onclick="chiudiTargaModal()">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE RAPPORTO WHATSAPP -->
+    <div id="report-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>💬 Crea Rapporto Cliente</h3>
+            <input type="text" id="repCompany" placeholder="Nome Tua Ditta">
+            <input type="text" id="repClient" placeholder="Nome Cliente">
+            <input type="text" id="repBoiler" placeholder="Modello Caldaia" readonly>
+            <input type="text" id="repFault" placeholder="Guasto Riscontrato" readonly>
+            <textarea id="repWork" placeholder="Lavoro svolto / Ricambi sostituiti..."></textarea>
+            <input type="text" id="repPrice" placeholder="Importo Totale (€)">
+
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-whatsapp" onclick="inviaRapportoWhatsApp()">Invia WhatsApp</button>
+                <button class="btn-clear" onclick="chiudiReportModal()">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE PIN TECNICO -->
+    <div id="pin-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>🔑 Codice Sblocco Tecnico</h3>
+            <p style="font-size:12px; color:var(--text-sub);">Inserisci il PIN (predefinito: 1234):</p>
+            <input type="password" id="pinInput" placeholder="1234">
+            <p id="pinError" style="color:red; font-size:12px; display:none;">PIN Errato!</p>
+
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action" onclick="verificaPin()">Entra</button>
+                <button class="btn-clear" onclick="chiudiPin()">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT ORDINATI CORRETTAMENTE (db.js PRIMA DI app.js) -->
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
