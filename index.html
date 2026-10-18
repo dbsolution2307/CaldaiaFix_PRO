@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="style.css?v=3.2">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
 <body>
 
-    <!-- BANNER INSTALLAZIONE PWA -->
+    <!-- BANNER INSTALLAZIONE PWA (ANDROID / CHROME) -->
     <div id="pwa-install-banner" class="pwa-banner" style="display:none;">
         <div class="pwa-banner-text">
             <strong>📲 Installa CaldaiaFix PRO</strong>
@@ -20,6 +20,7 @@
         <button class="btn-pwa-close" onclick="chiudiPwaBanner()">✕</button>
     </div>
 
+    <!-- BANNER INSTALLAZIONE PWA (IOS / SAFARI) -->
     <div id="ios-install-banner" class="pwa-banner" style="display:none;">
         <div class="pwa-banner-text">
             <strong>📲 Installa su iPhone</strong>
@@ -28,14 +29,14 @@
         <button class="btn-pwa-close" onclick="chiudiIosBanner()">✕</button>
     </div>
 
-    <!-- INTESTAZIONE SCURA CON LOGO E AREA TECNICA VIOLA -->
+    <!-- INTESTAZIONE SCURA CON LOGO -->
     <header class="header">
         <div class="header-top">
             <div class="header-brand" onclick="tornaHome()">
                 <div class="logo-icon-box">🔥</div>
                 <div>
                     <h1 class="logo">CaldaiaFix <span class="badge-pro">PRO</span></h1>
-                    <p class="logo-sub">DB SOLUTION • Assistenza Tecnica</p>
+                    <p class="logo-sub">Diagnostica & Assistenza Tecnica</p>
                 </div>
             </div>
             <button class="btn-area-tecnica" onclick="apriPin()">
@@ -94,6 +95,12 @@
 
         <!-- LISTA ERRORI -->
         <div id="errors-list" class="errors-container"></div>
+
+        <!-- FOOTER COPYRIGHT -->
+        <footer class="copyright-footer">
+            <p>© 2026 CaldaiaFix PRO. Tutti i diritti riservati.</p>
+            <p>Banca dati e algoritmi di diagnostica protetti da copyright.</p>
+        </footer>
     </main>
 
     <!-- VISTA DETTAGLIO GUASTO -->
@@ -157,7 +164,7 @@
         </div>
         <div class="card">
             <label style="font-weight:700; font-size:15px; color:var(--text-main);">Nome Ditta per Rapporti WhatsApp:</label>
-            <input type="text" id="settingCompany" placeholder="Es. DB Solution" oninput="salvaImpostazioniDitta()">
+            <input type="text" id="settingCompany" placeholder="Es. Mario Rossi Termoidraulica" oninput="salvaImpostazioniDitta()">
             
             <label style="margin-top:15px; display:flex; align-items:center; gap:10px; font-size:16px; color:var(--text-main);">
                 <input type="checkbox" id="settingVibration" onchange="salvaImpostazioniVibrazione()" checked style="width:22px; height:22px;">
@@ -169,6 +176,11 @@
             <button class="btn-action" style="width:100%; font-size:16px; padding:14px; background:linear-gradient(135deg, #7c3aed, #4c1d95);" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
             <div id="installer-content" style="display:none; margin-top:15px;"></div>
         </div>
+
+        <footer class="copyright-footer" style="margin-top:15px;">
+            <p>© 2026 CaldaiaFix PRO - Version 3.2</p>
+            <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
+        </footer>
     </section>
 
     <!-- OVERLAY & MENU A TENDINA STRUMENTI -->
@@ -265,9 +277,9 @@
         </div>
     </div>
 
-    <!-- CARICAMENTO SCRIPT CON VERSIONING ?v=3.0 -->
-    <script src="db.js?v=3.0"></script>
-    <script src="app.js?v=3.0"></script>
+    <!-- CARICAMENTO SCRIPT CON VERSIONING ?v=3.2 -->
+    <script src="db.js?v=3.2"></script>
+    <script src="app.js?v=3.2"></script>
 
 </body>
 </html>
