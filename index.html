@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.7">
+    <link rel="stylesheet" href="style.css?v=3.8">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
@@ -181,7 +181,7 @@
     <!-- VISTA ARCHIVIO TARGHE -->
     <section id="targhe-view" class="view">
         <div class="view-header">
-            <h2>📑 Archivio Targhe Impianti</h2>
+            <h2>📑 Archivio Targhe & Scadenzario</h2>
             <button class="btn-action" onclick="apriTargaModal()">+ Nuova Targa</button>
         </div>
 
@@ -199,6 +199,22 @@
     <section id="calc-view" class="view">
         <div class="view-header">
             <h2>🧮 Calcolatori Tecnici HVAC</h2>
+        </div>
+
+        <div class="card">
+            <h3>🔥 Calcolo Rendimento Combustione (&eta;%)</h3>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <input type="number" id="tempFumi" placeholder="Temp. Fumi °C" oninput="calcolaRendimentoCombustione()">
+                <input type="number" id="tempAmbiente" placeholder="Temp. Amb. °C" value="20" oninput="calcolaRendimentoCombustione()">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <input type="number" id="valoreCO2" step="0.1" placeholder="CO₂ (%) es. 9.0" oninput="calcolaRendimentoCombustione()">
+                <select id="tipoCombustibile" class="brand-select" onchange="calcolaRendimentoCombustione()">
+                    <option value="metano">Metano (G20)</option>
+                    <option value="gpl">GPL (G31)</option>
+                </select>
+            </div>
+            <div id="rendimentoResult" class="calc-result">Rendimento &eta;: -- % | Perdita qA: -- %</div>
         </div>
 
         <div class="card">
@@ -240,12 +256,6 @@
         </div>
 
         <div class="card" style="margin-top:15px;">
-            <h3>🔄 Aggiornamento App & Cache</h3>
-            <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Se non vedi le ultime modifiche apportate al sito, forza il ricaricamento pulito:</p>
-            <button class="btn-action" style="width:100%; background:linear-gradient(135deg, #0284c7, #0369a1);" onclick="forzaAggiornamentoCache()">🔄 Forza Aggiornamento Cache PWA</button>
-        </div>
-
-        <div class="card" style="margin-top:15px;">
             <h3>💾 Gestione Dati & Backup</h3>
             <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Salva o ripristina le targhe dei clienti in un file esterno:</p>
             <div style="display:flex; gap:10px;">
@@ -260,7 +270,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 3.7</p>
+            <p>© 2026 CaldaiaFix PRO - Version 3.8</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -272,11 +282,12 @@
             <span>🛠️ Strumenti Rapidi</span>
             <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
+        <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="forzaAggiornamentoCache(); toggleMenuTendina();">🔄 Forza Aggiornamento App (Reset Cache)</button>
         <button class="dropup-item" onclick="mostraStatistiche(); toggleMenuTendina();">📊 Dashboard Statistiche Interventi</button>
         <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Quick-Viewer Morsettiere TA/Bus</button>
         <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
-        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe & Backup</button>
+        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe & Scadenzario</button>
         <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
         <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
         <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
@@ -306,7 +317,7 @@
         </button>
     </nav>
 
-    <!-- MODALE PIN -->
+    <!-- MODALI -->
     <div id="pin-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>🔑 Codice Sblocco Tecnico</h3>
@@ -321,14 +332,17 @@
         </div>
     </div>
 
-    <!-- MODALI TARGHE E REPORT -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <h3>📑 Scheda Targa Impianto</h3>
+            <h3>📑 Scheda Targa & Manutenzione</h3>
             <input type="text" id="tagClient" placeholder="Nome Cliente / Riferimento">
             <input type="text" id="tagAddress" placeholder="Indirizzo">
             <input type="text" id="tagBoiler" placeholder="Marca e Modello Caldaia">
             <input type="text" id="tagSerial" placeholder="Numero Matricola">
+            
+            <label style="font-size:13px; font-weight:700; color:var(--text-sub); margin-top:10px; display:block;">📅 Prossimo Controllo Fumi / Manutenzione:</label>
+            <input type="date" id="tagNextMaintenance">
+
             <textarea id="tagNotes" placeholder="Note tecniche..."></textarea>
             
             <label class="btn-file">
@@ -362,9 +376,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=3.7 -->
-    <script src="db.js?v=3.7"></script>
-    <script src="app.js?v=3.7"></script>
+    <!-- SCRIPT CON VERSIONING ?v=3.8 -->
+    <script src="db.js?v=3.8"></script>
+    <script src="app.js?v=3.8"></script>
 
 </body>
 </html>
