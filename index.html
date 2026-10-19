@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.9">
+    <link rel="stylesheet" href="style.css?v=4.0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
@@ -27,6 +27,19 @@
             <small>Premi Condividi ⎘ e poi "Aggiungi a Schermata Home".</small>
         </div>
         <button class="btn-pwa-close" onclick="chiudiIosBanner()">✕</button>
+    </div>
+
+    <!-- TOOLTIP ONBOARDING PROGRESSIVO -->
+    <div id="onboarding-tooltip" class="onboarding-tooltip" style="display:none;">
+        <div class="onboarding-content">
+            <div class="onboarding-header">
+                <span id="onboarding-icon">💡</span>
+                <strong id="onboarding-title">Suggerimento</strong>
+                <button onclick="chiudiOnboarding()" class="onboarding-close">✕</button>
+            </div>
+            <p id="onboarding-text"></p>
+            <button onclick="chiudiOnboarding()" class="btn-onboarding-ok">Ho capito!</button>
+        </div>
     </div>
 
     <!-- INTESTAZIONE SCURA CON LOGO -->
@@ -270,7 +283,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 3.9</p>
+            <p>© 2026 CaldaiaFix PRO - Version 4.0</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -408,9 +421,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=3.9 -->
-    <script src="db.js?v=3.9"></script>
-    <script src="app.js?v=3.9"></script>
+    <!-- SCRIPT CON VERSIONING ?v=4.0 -->
+    <script src="db.js?v=4.0"></script>
+    <script src="app.js?v=4.0"></script>
 
 </body>
 </html>
