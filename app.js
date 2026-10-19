@@ -1,1 +1,1381 @@
-const _0xed8232=_0x34cf;(function(_0x266172,_0x1d5841){const _0x7e9a23=_0x34cf,_0x4e1acc=_0x266172();while(!![]){try{const _0x1c72dd=parseInt(_0x7e9a23(0x22e))/0x1*(-parseInt(_0x7e9a23(0x1a7))/0x2)+-parseInt(_0x7e9a23(0x14d))/0x3*(parseInt(_0x7e9a23(0xaa))/0x4)+parseInt(_0x7e9a23(0x1fa))/0x5*(-parseInt(_0x7e9a23(0x153))/0x6)+parseInt(_0x7e9a23(0x193))/0x7*(-parseInt(_0x7e9a23(0x1e7))/0x8)+parseInt(_0x7e9a23(0x11a))/0x9+-parseInt(_0x7e9a23(0x194))/0xa*(parseInt(_0x7e9a23(0xe5))/0xb)+parseInt(_0x7e9a23(0x1c0))/0xc;if(_0x1c72dd===_0x1d5841)break;else _0x4e1acc['push'](_0x4e1acc['shift']());}catch(_0x49627a){_0x4e1acc['push'](_0x4e1acc['shift']());}}}(_0x542a,0x63268));_0xed8232(0xe3)in navigator&&navigator[_0xed8232(0xe3)][_0xed8232(0xbf)]()[_0xed8232(0x266)](_0xe3f489=>{const _0x102280=_0xed8232;for(let _0x56daf3 of _0xe3f489){_0x56daf3[_0x102280(0x200)]();}})[_0xed8232(0x1d0)](_0x5b11ce=>console[_0xed8232(0x13d)](_0xed8232(0x175),_0x5b11ce));function safeGetStorage(_0x3bfabd,_0x34051f){const _0x454fda=_0xed8232;try{const _0x17c5fd=localStorage['getItem'](_0x3bfabd);return _0x17c5fd?JSON[_0x454fda(0x1af)](_0x17c5fd):_0x34051f;}catch(_0x5534a9){return _0x34051f;}}function safeSetStorage(_0x1951e1,_0x5e0f84){const _0x4c022f=_0xed8232;try{localStorage['setItem'](_0x1951e1,JSON[_0x4c022f(0x10b)](_0x5e0f84));}catch(_0x3b1fe2){console[_0x4c022f(0x13d)](_0x4c022f(0x1a8),_0x3b1fe2);}}let currentFilterType=_0xed8232(0xe6),currentBrand='',favorites=safeGetStorage(_0xed8232(0x162),[]),historyGuasti=safeGetStorage('caldaiafix_history',[]),dbIndexed=null,deferredPrompt=null,torchTrack=null,isTorchOn=![];function initApp(){const _0xb9d144=_0xed8232;try{aggiornaContatoreHeader(),initIndexedDB(),caricaImpostazioni(),filtraErrori(![]),gestisciPwaInstall(),verificaStatoRete();}catch(_0x25efe8){console['error'](_0xb9d144(0x24c),_0x25efe8);}}document[_0xed8232(0xea)]===_0xed8232(0x1f6)?document[_0xed8232(0x1da)](_0xed8232(0x1c5),initApp):initApp();window[_0xed8232(0x1da)](_0xed8232(0x128),verificaStatoRete),window['addEventListener'](_0xed8232(0x24d),verificaStatoRete);function verificaStatoRete(){const _0x227bca=_0xed8232,_0x2a0824=document['getElementById'](_0x227bca(0x196));if(!_0x2a0824)return;navigator[_0x227bca(0x1e5)]?(_0x2a0824[_0x227bca(0xbd)]='net-badge\x20online',_0x2a0824['textContent']=_0x227bca(0x269)):(_0x2a0824[_0x227bca(0xbd)]=_0x227bca(0xbc),_0x2a0824[_0x227bca(0x22c)]=_0x227bca(0x192));}async function forzaAggiornamentoCache(){const _0x39d3c1=_0xed8232;vibraTocco();if(confirm(_0x39d3c1(0xcf)))try{if(_0x39d3c1(0xe3)in navigator){const _0x15e2c4=await navigator['serviceWorker'][_0x39d3c1(0xbf)]();for(let _0x12816c of _0x15e2c4){await _0x12816c[_0x39d3c1(0x200)]();}}if(_0x39d3c1(0x146)in window){const _0x6670d2=await caches['keys']();for(let _0x4d35d1 of _0x6670d2){await caches['delete'](_0x4d35d1);}}window[_0x39d3c1(0x1ff)]['reload'](!![]);}catch(_0x2a54a6){window[_0x39d3c1(0x1ff)][_0x39d3c1(0xb3)](!![]);}}function aggiornaContatoreHeader(){const _0x319ccf=_0xed8232,_0x1938ce=typeof errori!==_0x319ccf(0x27c)&&Array[_0x319ccf(0x144)](errori)?errori:[],_0xfa8153=document[_0x319ccf(0x201)](_0x319ccf(0x25b));_0xfa8153&&(_0xfa8153[_0x319ccf(0x22c)]=_0x1938ce[_0x319ccf(0x119)]+_0x319ccf(0x21b));}function filtraErrori(_0x2f8c0d=![]){const _0x2735d9=_0xed8232,_0x14aa64=document[_0x2735d9(0x201)](_0x2735d9(0x156)),_0x5d6649=document['getElementById'](_0x2735d9(0xf3)),_0x225b14=_0x14aa64?_0x14aa64['value'][_0x2735d9(0x22a)]()[_0x2735d9(0x25a)]():'',_0x24a284=_0x5d6649?_0x5d6649[_0x2735d9(0x262)]:'';currentBrand=_0x24a284;_0x2f8c0d&&(currentFilterType=_0x2735d9(0x1d5),aggiornaStatoTab(_0x2735d9(0x1a9)));const _0x5b8a85=typeof errori!==_0x2735d9(0x27c)&&Array['isArray'](errori)?errori:[],_0x46792a=_0x5b8a85[_0x2735d9(0x166)](_0x27e099=>{const _0x38ac25=_0x2735d9;if(!_0x27e099)return![];if(_0x24a284&&_0x27e099[_0x38ac25(0xac)]!==_0x24a284)return![];if(currentFilterType==='digital'&&_0x27e099['type']!=='digital')return![];if(currentFilterType===_0x38ac25(0x1f9)&&_0x27e099[_0x38ac25(0x118)]!==_0x38ac25(0x1f9))return![];if(currentFilterType===_0x38ac25(0x1d5)&&!favorites[_0x38ac25(0x26c)](_0x27e099['id']))return![];if(_0x225b14!==''){const _0x22aacb=_0x27e099[_0x38ac25(0xe4)]?_0x27e099[_0x38ac25(0xe4)]['toLowerCase']()[_0x38ac25(0x26c)](_0x225b14):![],_0x726cd3=_0x27e099[_0x38ac25(0x241)]?_0x27e099[_0x38ac25(0x241)]['toLowerCase']()[_0x38ac25(0x26c)](_0x225b14):![],_0x26ce6a=_0x27e099[_0x38ac25(0x10e)]?_0x27e099['model'][_0x38ac25(0x22a)]()[_0x38ac25(0x26c)](_0x225b14):![],_0x5d30fb=_0x27e099[_0x38ac25(0xac)]?_0x27e099[_0x38ac25(0xac)][_0x38ac25(0x22a)]()['includes'](_0x225b14):![];return _0x22aacb||_0x726cd3||_0x26ce6a||_0x5d30fb;}return!![];});renderListaErrori(_0x46792a);}function renderListaErrori(_0x589138){const _0x5d898a=_0xed8232,_0x48ea4c=document[_0x5d898a(0x201)]('errors-list'),_0xfa7979=document[_0x5d898a(0x201)](_0x5d898a(0x25b));if(!_0x48ea4c)return;if(_0xfa7979)_0xfa7979['textContent']=_0x589138[_0x5d898a(0x119)]+_0x5d898a(0x21b);if(!_0x589138||_0x589138[_0x5d898a(0x119)]===0x0){_0x48ea4c['innerHTML']='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x22\x20style=\x22text-align:center;\x20padding:30px\x2015px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:32px;\x20margin-bottom:8px;\x22>🔍</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-weight:800;\x20font-size:16px;\x20color:#ffffff;\x22>Nessun\x20guasto\x20trovato</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:14px;\x20color:var(--text-sub);\x20margin-top:4px;\x22>Prova\x20a\x20cambiare\x20la\x20ricerca\x20o\x20i\x20filtri.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20';return;}let _0x4c11be='';_0x589138[_0x5d898a(0x1f0)](_0x5ec864=>{const _0x2e5eee=_0x5d898a,_0x3eb3cc=favorites[_0x2e5eee(0x26c)](_0x5ec864['id']),_0x3cebc7=_0x5ec864['chamber']||_0x2e5eee(0x135);_0x4c11be+=_0x2e5eee(0x120)+_0x5ec864['id']+')\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22fav-btn\x20'+(_0x3eb3cc?_0x2e5eee(0x161):'')+'\x22\x20onclick=\x22toggleFav('+_0x5ec864['id']+_0x2e5eee(0x21f)+(_0x3eb3cc?'★':'☆')+_0x2e5eee(0x1c4)+_0x5ec864[_0x2e5eee(0xac)]+_0x2e5eee(0xcb)+_0x5ec864[_0x2e5eee(0xe4)]+_0x2e5eee(0x202)+_0x5ec864[_0x2e5eee(0x10e)]+_0x2e5eee(0x1de)+_0x3cebc7+_0x2e5eee(0x1ba)+_0x5ec864[_0x2e5eee(0x241)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22error-chevron\x22>›</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20';}),_0x48ea4c[_0x5d898a(0x1e3)]=_0x4c11be;}function filtraTipo(_0x5533fc){const _0x5b5c19=_0xed8232;currentFilterType=_0x5533fc;const _0x2a2e20={'all':_0x5b5c19(0x176),'digital':'btn-dig','led':'btn-led','fav':_0x5b5c19(0x1a9)};aggiornaStatoTab(_0x2a2e20[_0x5533fc]),filtraErrori(![]);}function aggiornaStatoTab(_0x5273fa){const _0x1c0b36=_0xed8232;[_0x1c0b36(0x176),_0x1c0b36(0x188),'btn-led',_0x1c0b36(0x1a9)][_0x1c0b36(0x1f0)](_0x285695=>{const _0x3ac5c0=_0x1c0b36,_0x5b5ae4=document[_0x3ac5c0(0x201)](_0x285695);if(_0x5b5ae4)_0x5b5ae4[_0x3ac5c0(0x267)]['remove'](_0x3ac5c0(0x161));});const _0x301515=document[_0x1c0b36(0x201)](_0x5273fa);if(_0x301515)_0x301515[_0x1c0b36(0x267)]['add']('active');}function _0x542a(){const _0x17b5fd=['DgfNtMv4De1HAw50zw5HBMnL','yM9PBgvY','qMf4AsaTieX1BMeZic8GrhvVlvrLyYaVievJBW','B2jQzwn0u3rVCMu','mZeXmZy3mhzHvvDfDG','4PQHie11BhrPBwv0CM8GrgLNAxrHBguGkfbYB2zLie9OBsK','qMvYzxr0ysaTie15BNv0zsaVienPyw8GlYbqyxjVCW','C2vHCMnOsw5WDxq','CMvTB3zLsxrLBq','CMvHzefZrgf0yvvsta','yMXVy2S','pc9ZDhjVBMC+pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGicaGia','C2vYAwfS','jNrHzZ1KyNnVBhv0Aw9UltiX','tw9YC2v0DgKGC29UzgeGy2XPBwf0AwnHlG','AM9PBG','C29SDxrPB24','qMf4Aq','ywn0AxzL','y2fSzgfPywzPEf9MyxzZ','ywrK','DgfNqwrKCMvZCW','ug9TCgeGy2LYy29SyxrVCMuGy2fSzgfPyq','zMLSDgvY','CMvWrMf1Bhq','pg9Sihn0EwXLpsjWywrKAw5NlwXLzNq6mJbWEdSGzM9UDc1ZAxPLoJe1ChG7igXPBMuTAgvPz2H0oJeUntSIpG','8j+NUsbdyxj0ysbbyNjHC2L2ysbgAw5L','BM9Uzq','rwjVBgXPEMLVBMuGDMLVBgvUDgeGlYbhB3jNB2DSAw8GDgLWBYbWzw50B2XHigeGChjLC3nPB25L','y2XPzw50','pc9KAxy+','pc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaG','DgvTCefTyMLLBNrL','jtSIpJWVzgL2pGOGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGia','BM90zq','8j+pOIbeAxr0ytOG','pc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGpc9KAxy+cGOGicaGicaGicaGica8zgL2ignSyxnZpsjZzwn0Aw9UlxrPDgXLiJ5bBM9TywXPysaVienVzgLJzsbhDwfZDg8GuMLZy29UDhjHDg88l2rPDJ4kicaGicaGicaGicaGpgrPDIbJBgfZCZ0ID29YAY1IB3GIihn0EwXLpsjTAw4TAgvPz2H0oMf1Dg87iJ4kicaGicaGicaGicaGicaGidXZDhjVBMC+','lMPZB24','ufDbifnxienSzwfUDxa6','yNrUlwfSBa','y2fSyW','igTxifrLCM1Py2K','BNrJ','DgfNtM90zxm','q3jVBM90zxjTB3n0yxrViev4ywnVBNrYB2W','u2nHBwjPyxrVCMuGCgLHC3rYzsbZyw5PDgfYAw8','DgfYz2eTBw9KywW','4PQG77IpieD1yxn0BZOG','zhjVChvWlw92zxjSyxK','CMvWq2XPzw50','z2v0vxnLCK1LzgLH','Cg9W','8j+sPYbby3f1ysbJywXKysbZyw5PDgfYAweGDgLLCgLKysbVigfSDgfSzw5HBNrL','vMfSDM9SysaZihzPzsbJywXKywLH','DMvUDhvYAq','vgvYBw9ZDgf0BYbbBwjPzw50zq','ndaGlsa0mq','yNrUlwrPzW','DgfNqM9PBgvY','AxqTsvq','Dg9mB2nHBgveyxrLu3rYAw5N','y29UDgfPBNm','4PQw77Ipie1HBM9TzxrYBYbjzhjHDwXPy28','CMvTB3zLq2HPBgq','cIaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjIywnRz3jVDw5KoNzHCIGTlxn1CMzHy2uPoYbIB3jKzxi6mxb4ihnVBgLKihzHCIGTlwjVCMrLCIK7ihbHzgrPBMC6mtrWEdSGyM9YzgvYlxjHzgL1CZOXnhb4oYbTyxjNAw4TyM90Dg9ToJeWChG7iJ4kicaGicaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjMB250lxnPEMu6mtvWEdSGzM9UDc13zwLNAhq6odaWoYbJB2XVCJOJyZa4ngzJoYi+','iIb0yxjNzxq9iL9IBgfUAYiGCMvSpsjUB29Wzw5LCIbUB3jLzMvYCMvYiIbJBgfZCZ0IDg9VBc10ywCIig9Uy2XPy2S9iMv2zw50lNn0B3bqCM9WywDHDgLVBIGPoYi+','z2fZ','8j+uTcbpzMzSAw5L','ndeYodeZmxPhCNbqAa','mtbyyuDev0K','yMvMB3jLAw5ZDgfSBhbYB21WDa','BMv0u3rHDhvZ','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbZDhLSzt0IzM9UDc1ZAxPLoJe0ChG7ignVBg9YoIm2zwu3yJC7igzVBNqTzMfTAwX5oM1VBM9ZCgfJztSGBwfYz2LUlxrVCdOYChG7iJ5dB2rPy2u6ia','Bwv0yw5V','phvSihn0EwXLpsjWywrKAw5NlwXLzNq6mJbWEdSGzM9UDc1ZAxPLoJe1ChG7igXPBMuTAgvPz2H0oJeUntSIpG','Ahr0Chm6lY93ys5Tzs8/Dgv4Dd0','CMvUzgLTzw50B1jLC3vSDa','y2vPBa','4PQHie11BhrPBwv0CM8GrgLNAxrHBgu','igDNktWVzgL2pG','vMfZBYbnAw5PBw86ia','yNvPBgrPBMDizwLNAhq','kgrPC3bSyxKTBw9KztOGC3rHBMrHBg9UzsK','q29ZysbMysbLC2f0DgfTzw50zsbPBcbTyw5VBwv0CM8GzgvSBgeGChjLC3nPB25LpW','u29UzgeGq29SBgv0Dg9YzsbtB2XHCMu','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbZDhLSzt0IzM9UDc1ZAxPLoJeYChG7ignVBg9YoNzHCIGTlxrLEhqTC3vIktSGBwfYz2LUlxrVCdO0ChG7iJ48zw0+','CgLUrxjYB3i','zM9JDxm','mtG5nZi0tKT4CNLT','rxjYB3jLihnHBhzHDgfNz2LVigXVy2fSu3rVCMfNztO','yNrUlwzHDG','CMvWB3j0lw1VzgfS','q29UzMLNDxjHyMLSzsbKysbWyxjHBwv0CM8GC2nOzwrHlG','zw52AxjVBM1LBNq','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGicaGicaGica8yNv0Dg9Uihn0EwXLpsjIywnRz3jVDw5KoM5VBMu7igjVCMrLCJPUB25LoYbJB2XVCJOJzwy0ndq0oYbMB250lxnPEMu6mtHWEdSGy3vYC29YoNbVAw50zxi7iIbVBMnSAwnRpsjLBgLTAw5HvgfYz2eO','cIaGicaGicaGicaGicaGicaGicaGpgj1DhrVBIbJBgfZCZ0ID2L6yxjKlw9WDgLVBI1IDg4Iig9Uy2XPy2S9iNjLBMrLCLn0zxbxAxPHCMqOjW','CgfYC2u','D2L6yxjKlxzPzxC','tLrdideWAYbpAg0GysaYnCkWqY4','iZG2zwzHyW','C29Uzge','y2fSzgfPywzPEf9JB21Wyw55','pc9KAxy+cGOGicaGicaGicaGicaGicaGicaGicaGica','z3bS','cIaGicaGicaGicaGidWVzgL2pGOGicaGicaGia','jsaOtK9oienptKzpuK1fidW5mcuPihWGugvYzgL0ysbXqtOG','pc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjLCNjVCI10AxrSzsi+','pc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMvYCM9YlxrPDgXLiJ4','y2fSyY12Awv3','zMLUza','iIb0yxjNzxq9iL9IBgfUAYiGCMvSpsjUB29Wzw5LCIbUB3jLzMvYCMvYiIbJBgfZCZ0IDg9VBc10ywCIihn0EwXLpsjTyxjNAw4TDg9WoJrWEdSIpG','lNbKzJWVDgL0Bgu+cIaGicaGicaGicaGidXZDhLSzt4kicaGicaGicaGicaGicaGigjVzhKGEYbMB250lwzHBwLSEtOGqxjPywWSihnHBNmTC2vYAwy7ihbHzgrPBMC6idmWChG7ignVBg9YoIaJmwuYotnIoYbSAw5LlwHLAwDODdOGms41oYb9cIaGicaGicaGicaGicaGicaUAgvHzgvYlwjVEcb7igjVCMrLCI1IB3r0B206idjWEcbZB2XPzcaJzwe1odbJoYbWywrKAw5NlwjVDhrVBtOGmtvWEdSGBwfYz2LUlwjVDhrVBtOGmJbWEdSGzgLZCgXHEtOGzMXLEdSGANvZDgLMEs1JB250zw50oIbZCgfJzs1Izxr3zwvUoYbHBgLNBI1PDgvTCZOGy2vUDgvYoYb9cIaGicaGicaGicaGicaGicaUy29TCgfUEs1Uyw1LihSGzM9UDc1ZAxPLoIaYmNb4oYbMB250lxDLAwDODdOGyM9SzdSGy29SB3i6icnLytu4mgm7ih0kicaGicaGicaGicaGicaGic5KB2mTDgL0BguGEYbMB250lxnPEMu6ide4ChG7igzVBNqTD2vPz2H0oIbIB2XKoYb0zxH0lwfSAwDUoIbYAwDODdSGFqOGicaGicaGicaGicaGicaGlMLUzM8Tz3jPzcb7igrPC3bSyxK6igDYAwq7igDYAwqTDgvTCgXHDguTy29SDw1UCZOGmwzYidfMCJSGz2fWoIaXnxb4oYbIywnRz3jVDw5KoIaJzJHMywzJoYbWywrKAw5NoIaXnxb4oYbIB3jKzxiTCMfKAxvZoIa4ChG7igjVCMrLCJOGmxb4ihnVBgLKicnLmMu4zJa7ig1HCMDPBI1IB3r0B206idiWChG7ih0kicaGicaGicaGicaGicaGic5MAwvSzc1SywjLBcb7igzVBNqTC2L6ztOGmtjWEdSGzM9UDc13zwLNAhq6igjVBgq7ignVBg9YoIaJnJq3ndHIoYb0zxH0lxrYyw5ZzM9YBtOGDxbWzxjJyxnLoYb9cIaGicaGicaGicaGicaGicaUzMLLBgqTDMfSDwuGEYbMB250lxnPEMu6ide1ChG7igzVBNqTD2vPz2H0oIbIB2XKoYbJB2XVCJOGiZbMmtCYytSGBwfYz2LUlxrVCdOGmNb4oYb9cIaGicaGicaGicaGicaGicaUC2vJDgLVBI10AxrSzsb7igzVBNqTC2L6ztOGmtrWEdSGzM9UDc13zwLNAhq6igjVBgq7ignVBg9YoIaJzwe1odbJoYb0zxH0lxrYyw5ZzM9YBtOGDxbWzxjJyxnLoYbTyxjNAw4TDg9WoIaYmhb4oYbIB3jKzxiTyM90Dg9ToIaXChGGC29SAwqGi2nIzdvLmtSGCgfKzgLUzY1IB3r0B206idrWEdSGFqOGicaGicaGicaGicaGicaGlNDVCMSTyM94ihSGyMfJA2DYB3vUzdOGi2zMzMzMzJSGyM9YzgvYoIaXChGGC29SAwqGi2uYztHMmdSGCgfKzgLUzZOGmtvWEdSGyM9YzgvYlxjHzgL1CZOGohb4oYbTyxjNAw4TDg9WoIa4ChG7igzVBNqTC2L6ztOGmtrWEdSGBwLUlwHLAwDODdOGmtaWChG7ih0kicaGicaGicaGicaGicaGic50B3rHBc1IB3GGEYbTyxjNAw4TDg9WoIaZmhb4oYb0zxH0lwfSAwDUoIbYAwDODdSGzM9UDc1ZAxPLoIaYmhb4oYbMB250lxDLAwDODdOGyM9SzdSGy29SB3i6icmXnJy1mZq7ih0kicaGicaGicaGicaGicaGic5MB290zxiTDgv4Dcb7ig1HCMDPBI10B3a6iduWChG7igzVBNqTC2L6ztOGmtfWEdSGDgv4Dc1HBgLNBJOGy2vUDgvYoYbJB2XVCJOGiZK0ytnIodSGyM9YzgvYlxrVCdOGmxb4ihnVBgLKicnLmMu4zJa7ihbHzgrPBMCTDg9WoIaXmhb4oYb9cIaGicaGicaGicaGidWVC3r5Bgu+cIaGicaGicaGpc9OzwfKpGOGicaGicaGidXIB2r5pGOGicaGicaGicaGica8zgL2ignSyxnZpsjOzwfKzxiTyM94iJ4kicaGicaGicaGicaGicaGidXKAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0Iy29TCgfUEs1Uyw1LiJ4','zMLSzxm','mJq0mJe3ndbrwKzksM0','C3rHCNrZv2L0Aa','pc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGidXKAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IzMLLBgqTBgfIzwWIpKnHBgrHAweGlYbjBxbPyw50BZO8l2rPDJ4kicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjMAwvSzc12ywX1zsi+','CMvZDwX0','cIaGicaGicaGicaGicaGica8l2j1DhrVBJ4kcIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjLCNjVCI1TywLUlwLUzM8IpGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMvYCM9YlwjHzgDLCY1YB3CIpGOGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IyMfKz2uTyNjHBMqTy29Kzsi+','re9nq29UDgvUDeXVywrLza','rMvYCM9SAsaTiejSDwvOzwXPEcaVierPDMfJB25Kzw5Z','lM5HDI1PDgvT','rgfSBgeGDMfSDM9SysbKAsbZAwn1CMv6EMeGy29UigLSihrHChbPBM8GCM9ZC28GkgDVy2nPB2XHkq','ieWGFcbqCMvJyxjPy2e6ia','DMfSDM9Syq','u09mqvi','pc9OmJ4kicaGicaGicaGicaGicaGicaGica8CcbZDhLSzt0IzM9UDc1ZAxPLoJe0ChG7ignVBg9YoNzHCIGTlxrLEhqTC3vIktSGzM9UDc13zwLNAhq6nJaWoYbTyxjNAw4TDg9WoJjWEdSIpK1VzgvSBgK6ia','pc9VBd4','Ag9Tzq','ktSIpGOGicaGicaGicaGicaGicaGicaGia','y2f0y2G','C3jJ','cIaGicaGicaGpgrPDIbJBgfZCZ0IDgvYBwLUywWTy2fYzci+cIaGicaGicaGicaGidXOmYbZDhLSzt0IzM9UDc1ZAxPLoJe4ChG7igzVBNqTD2vPz2H0oJGWmdSGy29SB3i6iZm4yMrModSGBwfYz2LUlwjVDhrVBtO4ChG7iJ4','C2v0DgLUz0nVBxbHBNK','y3jLyxrLt2jQzwn0vvjm','zMf2','pgrPDIbJBgfZCZ0IBwfPBNqTyMfKz2uGBwfPBNqTywXLCNqIpVcFLlqGtwfUDxrLBNPPB25LifnJywr1DgeGka','CMvTB3zL','C3rHDhmTy29UDgfPBMvY','yxbWBgLJyxrPB24VANnVBG','ywrKrxzLBNrmAxn0zw5LCG','ChvZAa','Ahr0Chm6lY93D3CUyw1HEM9UlML0l3m/AZ0','y2XPy2S','pc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IyMfKz2uTy2HHBwjLCIi+','B25JB21WBgv0zq','BwfW','DMfZBW','lcbLDMvUDcK7ig1VC3rYyurLDhrHz2XPBYG','Aw5Uzxjive1m','C2XPy2u','B25mAw5L','C2v0DgLUz3mTDMLLDW','oe1jALLfyG','pc9KAxy+cIaGicaGicaGpc9KAxy+cIaGica','pgXPihn0EwXLpsjTyxjNAw4TyM90Dg9ToJrWEdSIpG','vgvYBw9ZDgf0BYbbBwjPzw50zsaOveeP','zhjVChvWlw1LBNu','cIaGicaGicaGicaGicaGicaGicaGicaGia','qxjPC3rVBIaTienSyxmGt25Lic8Gr2vUDxmGlYbdyxjLCW','Aw5WDxrnyMfY','mtiZna','zM9YrwfJAa','Aw5KzxHpzG','BwvZC2fNzq','vgvYBw9ZDgf0BYbbBMfSB2DPy28GvMfPBgXHBNqGkdi0vIK','tw9YC2v0DgLLCMeGttiUifjPBxvVDMvYzsbJyxzLDhrVlG','8j+tIcbqCMvZC2LVBMuGywnXDweGAw5ZDgfIAwXLicHtywXLigfSDgeGBYbJywrLigeGmcK','Bg9HzgLUzW','ksi+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IzxjYB3iTBwfPBI1PBMzViJ4kicaGicaGicaGicaGicaGicaGicaGicaGphnWyw4Gy2XHC3m9iMjHzgDLlwjYyw5KlwnVzguIpG','pc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGidXOmIbZDhLSzt0IzM9UDc1ZAxPLoJiYChG7igzVBNqTD2vPz2H0oJGWmdSGy29SB3i6i2zMzMzMzJSGBwfYz2LUlxrVCdO4ChG7iJ4','BgvK','nxzWqwjOEq','CMvWBgfJzq','qLvtiejYAwrNzu5LDcbtzw5ZExm','C2fUAxrHCMLH','DgfNq2XPzw50','Bg9JyxrPB24','Dw5YzwDPC3rLCG','z2v0rwXLBwvUDej5swq','pc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IzxjYB3iTBw9KzwWTDgv4Dci+','u29UzgeGrxn0zxjUyq','8j+sTIbjBxbVCNrVifrVDgfSztOG4OkSia','sgfPihzLCMLMAwnHDg8GC2uGyYFdQcb0zw5ZAw9UzsbZDwXSysbWCMvZysbVihn1BgWNAw50zxjYDxr0B3jLigjPCg9SyxjLpW','kYbLqLvtic0','vg9Yy2LHig5VBIbKAxnWB25PyMLSzsbZDsbXDwvZDg8GyNjVD3nLCI4','8j+sPIbqzxjKAxrHigqNywnXDweGAwrYyxvSAwnHihnVDhrVigXHignHBgrHAwe','BwvKAwfezxzPy2vZ','ktWVzgL2pGOGicaGicaGicaGicaGicaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXnhb4oYbJB2XVCJOJzMzMzMzMoYbTyxjNAw4TDg9WoJzWEdSGBgLUzs1OzwLNAhq6ms40oYi+phn0CM9UzZ5qCM9Jzwr1CMe6pc9ZDhjVBMC+ia','sw5KzxHLzercig5VBIbKAxnWB25PyMLSztO','DhjHBNnHy3rPB24','pgLTzYbZCMm9iG','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGphnWyw4GC3r5Bgu9iMzVBNqTC2L6ztOXmNb4oYbJB2XVCJP2yxiOls10zxH0lxn1yIK7igzVBNqTD2vPz2H0oJyWmdSIpG','zNjVBq','i2zJytvHnq','zg93BMXVywq','vgvYBw9ZDgf0BYbbBwjPzw50zsaYnfy','y3jLyxrLrwXLBwvUDa','B25SB2fK','cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGpc9KAxy+cGOGicaGicaGicaGica','qMfUy2eGzgf0AsbUB24GzgLZCg9UAwjPBguU','C2nOzwrH','CMvWv29YAW','BMf2AwDHDg9Y','ug9SyxjPENPHDg8GzujvuYbKAwDPDgfSzs4','ieDvqvnussbquKvtru5ussboruWGrefuqujbu0u','CxvLCNLtzwXLy3rVCKfSBa','rgL0DgeGqxnZAxn0zw56ysbuzwnUAwnH','Aw9ZlwLUC3rHBgWTyMfUBMvY','lcbLDMvUDcKIihrPDgXLpsjqCMvMzxjPDg8IpGOGicaGicaGicaGicaGicaGicaGia','y2fSzgfPywzPEf9OAxn0B3j5','cIaGicaGicaGpgrPDIbJBgfZCZ0Iy2fYzciGC3r5Bgu9iMjHy2TNCM91BMq6iZjLmta2ntSGyM9YzgvYlwnVBg9YoIm3yZnHzwq7iJ4kicaGicaGicaGicaGpgGZihn0EwXLpsjJB2XVCJOJzdHIngzLoYbMB250lxnPEMu6mtvWEdSGzM9UDc13zwLNAhq6odaWoYb0zxH0lxrYyw5ZzM9YBtP1ChbLCMnHC2u7ig1HCMDPBI1IB3r0B206mtjWEdSIpVcFLjeGugfYyw1LDhjPifrLy25Py2KGjIbnzw51ifnLz3jLDgK8l2GZpGOGicaG','C2vXDwvUy2u','DgvTCez1BwK','B3bLBG','DMvUDgLSyxrVCMu','pc9KAxy+cIaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjMB250lxnPEMu6mtnWEdSGy29SB3i6DMfYkc0TDgv4Dc1ZDwiPoYbTyxjNAw4TDg9WoJjWEdSIpKjHC2f0BYbZDwXSBYbZDg9YAwnVigrLBgXLihr1zsbYAwnLCMnOzsbYzwnLBNrPlJWVzgL2pGOGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGidXKAxyGy2XHC3m9iMnHCMqIpGOGicaGicaGicaGicaGicaGpgGZihn0EwXLpsjMB250lxnPEMu6mtvWEdSGzM9UDc13zwLNAhq6odaWoYbJB2XVCJOJzMzMzMzMoYbTyxjNAw4TyM90Dg9ToJeYChG7iJ7WN5okifjPCgfYDgL6Aw9UzsbjBNrLCNzLBNrPihbLCIbnyxjJytWVAdm+cIaGicaGicaGicaGicaGica','Bwf0y2HLCW','zNvUyW','veeX','Dg9mB3DLCKnHC2u','q29TDw5Py2f6Aw9UzsbKAwDPDgfSzsbbCMLZDg9UlG','Dgv4DenVBNrLBNq','C2v0DgLUz1zPyNjHDgLVBG','mKzvu1bRtG','Bwf0y2HnzwrPyq','ywrKCMvZCW','8j+uPYbdywnJAwf2AxrPieLZB2XHDgKGmtaWmfy','Dhj1zq','BMf2lq','Dw5ZAgLMDa','pc9KAxy+cIaGicaGicaGicaGidXKAxyGy2XHC3m9iNDPEMfYzc1VChrPB25ZlwXPC3qIpGOGicaG','z2fZtgL0zxjZ','zMXLEa','uMvUzgLTzw50BYdoTZOGls0Gjsb8ifbLCMrPDgeGCue6ic0Ticu','mI1KAwDPDa','DgfYz2v0','z2fZugfYyw1Z','cIaGicaGicaGicaGidXKAxyGy2XHC3m9iNn0yxrZlwDYAwqIpGOGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC3rHDc1JyxjKiJ4kicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZDgf0lw51BwjLCIi+','zMLHBw1H','C3rLChm','vMfSDM9SysbZAwn1CMv6EMeGmYbIyxi','cGOGicaGicaGicaGicaGicaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXmxb4oYbJB2XVCJP2yxiOls10zxH0lxn1yIK7ig1HCMDPBI10B3a6ohb4oYb0zxH0lwfSAwDUoNjPz2H0oYi+u2fSDMf0BYbPBdOG','zgvZyW','jYKIpGOGicaGicaGicaGicaGicaGicaGicaGica8C3bHBJ4','lNzPzxC','ChjLC3nVC3rHDg8','CgLUsw5WDxq','ChjLC3nPB25L','rMLSzsbKAsbIywnRDxaGBM9UihzHBgLKBZOGzgv2zsbJB250zw5LCMuGDw4GzwXLBMnVigrPihrHCMDOzs4','CgLUlw1VzgfS','jYKIpGOGicaGicaGicaGicaGicaGicaGipcFKQWGq3jLysbsyxbWB3j0BYbdBgLLBNrLcIaGicaGicaGicaGicaGica8l2j1DhrVBJ4kicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGpc9KAxy+cIaGica','q29UDgf0Dg8GqLvtiejHC3nVihzVBhrHz2DPBY4','C3rHDhmTDMLLDW','rxjYB3jLigLUAxPPywXPENPHEMLVBMuGq2fSzgfPyuzPEdO','B2zMBgLUzq','CgLUCW','ywnXDwe','ksi+8j+xKE+4JZWVyNv0Dg9UpGOGicaGicaGicaGicaGicaGicaGidWVzgL2pGOkicaGicaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjTyxjNAw4TDg9WoJeWChG7igzVBNqTC2L6ztOXnhb4oYbJB2XVCJOJzMzMzMzMoYi+cIaGicaGicaGicaGicaGicaGicaGicaGidXKAxy+8j+uPsbdywXKywLHoIa8C3rYB25NpG','BwjHCG','vgvYBw9ZDgf0BYbbBwjPzw50zsaYmZbw','sw50zxjMywnJAweGqLvtigvcvvmU','tMvZC3vUysb0yxjNysbZywX2yxrHig5LBgWNyxjJAgL2Aw8GzgeGzxnWB3j0yxjLlG','cIaGicaGicaGpgrPDIbJBgfZCZ0ID2L6yxjKlwnHCMqIpGOGicaGicaGicaGica8zgL2ignSyxnZpsj3AxPHCMqTC3rLCc10AxrSzsi+','rxjYB3jLig5LBcbJyxjPy2fTzw50BYbKzwWGzMLSzsbku09ooIa','mc4WigTxifrLCM1Py2K','vMfSDM9SysbZAwn1CMv6EMeGmYbIyxiGy2fSzgfPyq','u29UzgeGrxn0zxjUysaOu0uP','DhjPBq','CMvZDwX0C0nVDw50','t1qGlsbpva','rgLZCgvYC2LVBMuGDMvYC28GDgvYCMeUifzLCMLMAwnHCMuGAw4GB3jKAw5LoIbdAxjJB2XHDg9YzsbWB21WysbPBIbJB3j0BYWGuMvZAxn0zw56ysbJyw5KzwXLDhrHig8GvMvUDgLSyxrVCMuGzNvTAs4','rMLZy2HPBYbHy3v0BYbJB250Aw51BYbKDxjHBNrLigXHihzLBNrPBgf6Aw9Uzq','DgLWB0nVBwj1C3rPyMLSzq','pgjYpG','mJrwid0GuLq','DMfSDwu','DgfYz2HL','y291BNq','sgvYBwfUBIbtyxvUAwvYier1DMfSic0GvgHLBweGlYbtyxvUAwvY','DgHLBG','y2XHC3nmAxn0','C2nYB2XSvg8','8j+FOIbpBMXPBMu','cIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjLCNjVCI1PDgvTiIbVBMnSAwnRpsjTB3n0CMfezxr0ywDSAw8O','mdaWma','Aw5JBhvKzxm','igjHCG','DMLICMf0zq','B3b0Aw9UCW','q2XPzw50zsbhzw5LCMLJBW','vMvUDgLSyxrVCMuGzNvTAsbJywXKywLH','A2v5CW','q29UDgf0Dg8GChvSAxrVicHsAw11B3zLCMuGCg9UDgLJzwXSBYKU','vMfPBgXHBNqGlsbLy29urumGChjVic8GCgX1CYaVief0Bw9urum','cIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjJyxjKiJ4kicaGicaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjKAxnWBgf5oMzSzxG7igP1C3rPzNKTy29UDgvUDdPZCgfJzs1Izxr3zwvUoYbHBgLNBI1PDgvTCZPMBgv4lxn0yxj0oYi+cIaGicaGicaGicaGicaGicaGicaGicaGidXKAxy+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjMB250lxnPEMu6mtDWEdSGzM9UDc13zwLNAhq6odaWoYbJB2XVCJOJzMzMzMzMoYi+','cIaGicaGicaGicaGidXKAxyGy2XHC3m9iMnHCMqIihn0EwXLpsj0zxH0lwfSAwDUoMnLBNrLCJSGCgfKzgLUzZOYmhb4oYi+cIaGicaGicaGicaGicaGica8CcbZDhLSzt0IzM9UDc1ZAxPLoJe0ChG7ignVBg9YoNzHCIGTlxrLEhqTC3vIktSIpK5LC3n1BIbNDwfZDg8Gy29UC3vSDgf0BYbKAsbYzwnLBNrLlJWVCd4kicaGicaGicaGicaGpc9KAxy+cIaGicaGicaG','C3rHBMrHBg9Uzq','q3vZy2LUzxr0AsbKzwWGDMvUDgLSyxrVCMuGzxnHDxn0AsbVihr1yMv0Dg8GvMvUDhvYAsaVifbYzxnZB3n0yxrVigz1BwKGB3n0CNvPDg8U','8j+uIIbsDw1VCMKGyw5VBwfSAsaOrwjVBgXPEMLVBMuGlYbdB2XWAsbKj2fYAwv0zsaViezPC2nOAsK','cIaGicaGicaGicaGidWVzgL2pGOkicaGicaGicaGicaGpgrPDIbJBgfZCZ0IDg90ywWTyM94iJ4kicaGicaGicaGicaGicaGieLnue9sve8Gve9uquXfoIdIGQWG','DgL0Bgu','Dw5KzwzPBMvK','z2v0vMLKzw9uCMfJA3m','Dg9gAxHLza','pc9ZDhjVBMC+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaG','DgfNu2vYAwfS','CMvWq29TCgfUEq','ndiWohHrAhvVBq','q2fSzgfPyuzPEf9cywnRDxbFvgfYz2HLxW','yNjHBMq','y2fSzgfPywzPEf92AwjYyxrPB24','BwvUDs10B3jJAc1IDg4','zNvTAq','yxjLys10zwnUAwnHlxzPzxC','8j+BOo+4JYbdAgLHDMKGCgvYifjHy2nVCMrP','cGOGicaGicaGicaGica8ysbOCMvMpsi','CMvSB2fK','Aw5WDxrqyxnJywW','tvntDhjLyw0','twfUy2fUEMeGzgKGy2LYy29SyxPPB25LigfJCxvHlIbqB21WysbIBg9Jy2f0ysaOC2jSB2nJyxjLigXHihzPDguGy2vUDhjHBguPig8Gu2nHBwjPyxrVCMuGChjPBwfYAw8GB3n0CNvPDg8U','q2HLihrPCg8GzgKGCNvTB3jLihnLBNrPigr1CMfUDguGAwWGzNvUEMLVBMfTzw50BZ8','cIaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjIywnRz3jVDw5KoIm0ntfHmdm7igjVCMrLCJOXChGGC29SAwqGi2y5nZmXnJSGCgfKzgLUzZOXnhb4oYbIB3jKzxiTCMfKAxvZoJe0ChG7ig1HCMDPBI10B3a6mtzWEdSGzM9UDc1ZAxPLoJe1ChG7ignVBg9YoInMzMvKzdu7iJ4kicaGicaGicaGicaGicaGicaGicdWN5sLifbHCMfTzxrYAsbdB21IDxn0Aw9UzsaVieDHCZOGpgjYpGOGicaGicaGicaGicaGicaGicaGidXZDhjVBMC+','iIb0yxjNzxq9iL9IBgfUAYiGCMvSpsjUB29Wzw5LCIbUB3jLzMvYCMvYiIbJBgfZCZ0IyNrUlwfTyxPVBIiGC3r5Bgu9iM1HCMDPBI10B3a6mtrWEdSIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGipcFM5iGq2vYy2eGiG','DMfSB3jLq08Y','Aw5ZDgfSBgvYlwnVBNrLBNqTBwfPBG','BMv0lwjHzgDLig9MzMXPBMu','y2XHC3noyw1L','u2nHBwjPyxrVCMuGC2vJB25KyxjPBYbHihbPyxn0CMuGAw50yxnHDg8GzgeGy2fSy2fYzsbVifnVBMrHie5uqYbtyw5PDgfYAw8GCML0yxjHDgeU','z2v0uMvNAxn0CMf0Aw9UCW','ici8l2rPDJ4','Dg9mB2nHBgvuAw1Lu3rYAw5N','y2XLyxi','u29UzgeGrxn0zxjUysaVie9Wzw5uAgvYBq','q29Tyw5KBYbszw1VDg8Gq0fsifyYicHcvvmP','y2XVC2u','Bw9YC2v0DgLLCMuTy29UDgfPBMvY','r3vHCM5PEMLVBMKGlYbpuIbKzwWGCNvIAw5LDhrVigrPignHCMLJBYb1C3vYyxrLig8Gy29YCg8GAw4GCgXHC3rPy2eGy3jLCgf0BY4','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbZDhLSzt0IzM9UDc1ZAxPLoJeYChG7ignVBg9YoIm2ndC0ogi7iJ5syxbWB3j0BYbuzwnUAwnVigrPie1HBNv0zw56Aw9UzsaVifjPCgfYyxPPB25Lpc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMrVyY10AxrSzsi+cIaGicaGicaGicaGicaGicaGicaGpgrPDJ5eyxrHoIa','DgfNsw1NuhjLDMLLDW','zMfSC2u','ic0G','ndiGlsa0mW','8j+QMYbdywnJAwf2AxrLigeGvgfNBgLVieDYB3nZBW','pc9ZDhjVBMC+cIaGicaGicaGicaGidWVzgL2pGOkicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC2vJDgLVBI10AxrSzsi+sw50zxj2zw50BYbtDM9SDg8GjIbsAwnHBwjPifnVC3rPDhvPDgK8l2rPDJ4kicaGicaGicaGicaGpgrPDIbJBgfZCZ0ID29YAY1IB3GIpGOGicaGicaGicaGicaGicaG','vNvVAsbZDNvVDgfYzsbSysbTzw1VCMLHignHy2HLigrLBgWNyxbWiguGC2nHCMLJyxjLigXHihzLCNnPB25LihbPW7KGCMvJzw50zsbKywWGC2vYDMvYpW','CM91BMq','cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8ysbOCMvMpsi','zgv0ywLSlwnVBNrLBNq','cIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjJyxjKiIbZDhLSzt0IDgv4Dc1HBgLNBJPJzw50zxi7ihbHzgrPBMC6mJbWEdSIpGOGicaGicaGicaGicaGicaGicaGidXWihn0EwXLpsjMB250lxnPEMu6mtrWEdSGy29SB3i6DMfYkc0TDgv4Dc1ZDwiPoYi+tMvZC3vUysb0yxjNysbZywX2yxrHig5LBgWNyxjJAgL2Aw8Upc9WpGOGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGia','B251CgDYywrLBMvLzgvK','mYaTidq','ihrHCMDOzsbUzwWGzMLSzs4GvNvVAsbHz2DPDw5NzxjSzsbHBgWNyxjJAgL2Aw8GBg9JywXLpW','ktWVzgL2pG','z2fZuMvZDwX0','pgeGAhjLzJ0I','tLrdihrLBxbLCMf0DxjHigvZDgvYBMeU','C3rHCNq','CNvTB3jP','uxvHBguGC2LUDg9TBYbWCMvZzw50ysbSysbJywXKywLHpW','DgvYBw9ZDgf0BW','u8oSlcbSj2fJCxvHihnJywXKysbIzw5LihnVBg8Gy29UigKGDgvYBw9ZAwzVBMKGywnJzxnP','z2v0qwXS','CMv2B2TLt2jQzwn0vvjm','CgfYDe5HBwu','C2vYDMLJzvDVCMTLCG','y29Kzq','ndu4nJa5ofjYwxLiyW','ywXS','qMfZC28GDM9SDgfNz2LVig5VBIbWB2XHCML6EMf0BY4','zwXLDhrYB2rV','cIaGicaGicaGicaGidWVzgL2pGOGicaGicaGidWVzgL2pGOGicaG','CMvHzhLtDgf0zq','swWGC2fSDMf2AxrHigDLBMvYywXLigrPignHC2eGC2nHDhrHihn1yML0BYbHChbLBMeGywnJzw5KBYbSysbJywXKywLH','8j+sQcbqB21Wzxr0ysbqCM92ysbqCMvZC29ZDgf0Aq','uMvUzgLTzw50BYdoTZOG','jsaO','pc9KAxy+cIaGicaGicaGicaGidXKAxyGy2XHC3m9iNbPBI1UB3rLiJ4','iIb0yxjNzxq9iL9IBgfUAYiGCMvSpsjUB29Wzw5LCIbUB3jLzMvYCMvYiIbJBgfZCZ0IyNrUlwfTyxPVBIi+cIaGicaGicaGicaGicaGicdWN5UsienLCMnHifjPy2fTyMLVifbYAw5JAxbHBguGC3uGqw1HEM9UcIaGicaGicaGicaGidWVyt4kcIaGicaGicaGicaGia','zg9JDw1LBNq','cIaGicaGicaGpcfet0nuwvbfigH0BwW+cIaGicaGicaGpgH0BwWGBgfUzZ0IAxqIpGOGicaGicaGidXOzwfKpGOGicaGicaGicaGica8Bwv0ysbJAgfYC2v0psjvveyToci+cIaGicaGicaGicaGidX0AxrSzt5syxbWB3j0B19jBNrLCNzLBNrVxW','yNjHBMrgAwX0zxi','iIbZDhLSzt0ID2LKDgG6mtaWjtSGBwf4lwHLAwDODdOYmdbWEdSGB2jQzwn0lwzPDdPJB3zLCJSGyM9YzgvYlxjHzgL1CZOXmNb4oYbTyxjNAw4TDg9WoJeWChG7iIbHBhq9iLrHCMDHiJ4','pc9LBt48l2rPDJ4kicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGica','jYWGjW','sw5ZzxjPC2nPigfSBwvUBYbPBcboB21LienSAwvUDguGBYbPBcbnB2rLBgXVienHBgrHAweU','vgvUC2LVBMuGmJmWvI4GuMLTDw92zxjLihbVBNrPy2vSBg8GzgKGC2vYAwuU','B25ZDwnJzxnZ','C3r5Bgu','rgeGzg92zsbWCM92AwvUzsbSysbWzxjKAxrHigqNywnXDwe/','tMvZC3vUysbUB3rHigfNz2L1BNrPDMe','ChDHlwLUC3rHBgWTyMfUBMvY','kLjbufbpuLrpieLovevsvKvove8GvevdtKLdtYOk','AgLZDg9YEq','y2f1C2vZ','CMvWuhjPy2u','C3bLBNrH','DxnLCKnOB2LJzq','zgf0zq','pgXPihn0EwXLpsjTyxjNAw4TyM90Dg9ToJzWEdSIpG','8j+rPcbdBgLLBNrLoIa','vg9NBgLLCMuGAwWGCg9UDguGzgKGzMfIyNjPy2eU','ihjPy2fTyMLVignHBgrHAwe','z2v0sxrLBq','vNvVAsbKyxz2zxjVigvSAw1PBMfYzsbXDwvZDgeGC2nOzwrHihrHCMDHpW','C3rYAw5NAwz5','iIbZDhLSzt0IzM9UDc1ZAxPLoJmYChG7iIbVBMnSAwnRpsj0B2DNBgvgyxyO','pc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGpc9KAxy+cGOGicaGicaGicaGica8zgL2ignSyxnZpsjPBMzVlwDYAwqIpGOGicaGicaGicaGicaGicaGpgrPDJ4kicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjMAwvSzc1SywjLBci+q2XPzw50zsaVifjPzMvYAw1LBNrVoJWVzgL2pGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMzPzwXKlxzHBhvLiJ4','Bw9KzwW','8j+QOcbqB21WysbJB24GtwfUB21LDhjVihbLCIbwyxnP','CMvWqM9PBgvY','vMfZBYbnAw5PBw86idaGtcb8ifbYzwnHCMLJytOGms4WigjHCG','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC3rHDc1SywjLBci+r3vHC3rPienVBNn1BhrHDgK8l2rPDJ4kicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGidXKAxyGy2XHC3m9iMnHCMqIpGOGicaGicaGicaGicaGicaGpgGZihn0EwXLpsjMB250lxnPEMu6mtvWEdSGzM9UDc13zwLNAhq6odaWoYbJB2XVCJOJmZHIzgy4oYbTyxjNAw4TyM90Dg9ToJeWChG7iJ7WN4+gie1HCMnHifbPW7KGvhjHDhrHDge8l2GZpGOGicaGicaGicaGicaGicaGpgrPDIbZDhLSzt0IzM9UDc1ZAxPLoJiWChG7igzVBNqTD2vPz2H0oJKWmdSGy29SB3i6i2zMzMzMzJSIpG','u2vPihnPy3vYBYbKAsb2B2XLCIbJyw5JzwXSyxjLifrvvfrbigXHigjHBMnHigrHDgKGzgvSBguGDgfYz2HLihnHBhzHDgu/','BM90zxm','tcDHy3f1ysbYAxnJywXKysbXDwfUzg8GAwWGCMLZy2fSzgfTzw50BYddQcbHy2nLC28/','sw5NCMvZC28GC2vUC29YzsbKzwrPy2f0BY4','cIaGicaGicaGicaGidWVzgL2pGOkicaGicaGicaGicaGpgrPDIbJBgfZCZ0IDg9VBhmTyM94iJ4kicaGicaGicaGicaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXmNb4oYbMB250lxDLAwDODdO5mda7ignVBg9YoInJyMq1zte7ihrLEhqTDhjHBNnMB3jToNvWCgvYy2fZztSIpVcFP7aGqxr0CMv6EMf0DxjHienVBNnPz2XPyxrHicHdBgLJy2eGCgvYigfJCxvPC3rHCMuGC3uGqw1HEM9UktO8l2rPDJ4kicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iNrVB2XZlwXPC3qIpGOGicaGicaGicaGicaGicaGicaGia','DhLWzq','BgvUz3rO','mtu5mdKWm1LeqwvcDa','vMfSDM9SysbKAsbZAwn1CMv6EMeGmYbIyxiGC3bVCMnHigrPignHBgnHCMuGC290Dg8GBgeGC2vKzsbVihbYzxnZAw9UzsbPBxbPyw50BYb0CM9WCg8GywX0ysaOpIaZigjHCIKU','pc9SAt4','x2jSyw5R','t3bLBLrOzxjTic8GqMvttufsva','pgrPDIbJBgfZCZ0IBwfPBNqTyMfKz2uGBwfPBNqTD2fYBIi+8j+FOsbjBIbty2fKzw56ysaOtwfUy2fUBYa','cIaGicaGicaGicaGidXKAxyGy2XHC3m9iMvYCM9YlwL0zw0Iig9Uy2XPy2S9iM1VC3rYyurLDhrHz2XPBYG','u0uGlsbtrq','Aw1Hz2u','uMLTDw92zxjLigLSignHDMv0Dg8GCg9UDgLJzwXSBYbYB3nZBY4','CMvHzg9UBhK','cGOGicaGicaGicaGicaGicaGicaGicaGica','BwvUDq','rMX1C3nVC3rHDg8GlYbgBhvZC29TzxrYBYbVig1Py3jVAw50zxjYDxr0B3jLihnHBML0yxjPBYbNDwfZDg8Uie5VBIbYAwXLDMeGAwWGzMX1C3nVigqNywnXDweU','B25SAw5L','BMv4De1HAw50zw5HBMnL','8j+QMYbdAgLHDMuGysbqAxbHic8GtwLSBgvYAwDOzq','qIaTifq','CMvHzefZvgv4Da','y29SB3i','8j+uPsbnyw5VBwv0CM8GrgLMzMvYzw56AwfSzsbTyMfY','zgLZCgXHEq','vMfZBYbKj2vZCgfUC2LVBMuGC2nHCMLJBYbKj2fYAweGBYbTzw1ICMfUysbIDwnHDgeUifjPChjPC3rPBMfYzsbWCMvJyxjPy2eGysaXlJaGyMfYig8GC29ZDgL0DwLYzsb2yxnVlG','msaTidi','B2jQzwn0u3rVCMvoyw1LCW','ugvYzgL0ysbZDwXSj2LTCgLHBNrVigrPihjPC2nHBgrHBwvUDg8GBYbty2fTyMLHDg9YzsbWCMLTyxjPBYbIDwnHDg8Gy29UihnJyxjPy28GAw4Gy2fTzxjHigrPignVBwj1C3rPB25LlG','ChjLDMvUDerLzMf1Bhq','qY9g','BMv4Da','pgrPDIbJBgfZCZ0IBwfPBNqTyMfKz2uGBwfPBNqTB2SIpVcFN6iGuMvNB2XHCMuGkfnJywrLigLSia','Dg9VBa','y2HLy2TLza','pc9ZCgfUpGOGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGia','qMfUy2eGzgf0AsbUB24Gyw5JB3jHihbYB250ysbVig5VBIbZDxbWB3j0yxrHigrHBcbICM93C2vYlG','cIaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjIywnRz3jVDw5KoImWnJrLm2i7igjVCMrLCJOXChGGC29SAwqGiZa1oty2otSGCgfKzgLUzZOXnhb4oYbIB3jKzxiTCMfKAxvZoJe0ChG7ig1HCMDPBI1IB3r0B206mtzWEdSIpGOGicaGicaGicaGicaGicaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXmNb4oYbMB250lxDLAwDODdO4mda7ignVBg9YoInHn2yZzda7ihrLEhqTDhjHBNnMB3jToNvWCgvYy2fZztSIpLjPy2fTyMLVienVBNnPz2XPyxrVoJWVzgL2pGOGicaGicaGicaGicaGicaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXnNb4oYbMB250lxDLAwDODdO4mda7ignVBg9YoInMzMzMzMy7ig1HCMDPBI10B3a6mNb4oYi+','D2fYBG','yM9KEq','C2v0sxrLBq','cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjTyxjNAw4TDg9WoJeWChG7iJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGica8zgL2ihn0EwXLpsjMB250lxnPEMu6mtjWEdSGzM9UDc13zwLNAhq6odaWoYbJB2XVCJOJotrHm2i4oYi+8j+NScbbDhrYzxP6BYbdB25ZAwDSAwf0BZO8l2rPDJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGica8ysbOCMvMpsi','pc91Bd4','DgfYz2HLlwXPC3q','nsaTidy','AxnbCNjHEq','D2f0zxjwB2X1Bwu','y2fJAgvZ','q3jVBM90zxjTB3n0yxrVihzsvcaVigvcvvm','vMfZBYbLC3bHBNnPB25LignHBgrHAwe','qLvticGRic0P','u2nOzwrHig1HzhjLignHBgrHAwe','CgfYDa','CMvHzhDYAxrL','mJu4yvzXthv2','jsaOq09orK9stuuPihWGugvYzgL0ysbXqtOG'];_0x542a=function(){return _0x17b5fd;};return _0x542a();}function ottieniAttrezziGuasto(_0x12a57e){const _0x518918=_0xed8232,_0x4df913=((_0x12a57e[_0x518918(0x241)]||'')+'\x20'+(_0x12a57e[_0x518918(0xe2)]||''))[_0x518918(0x22a)]();let _0x2ef947=[_0x518918(0x231),'🛠️\x20Chiavi\x20a\x20Forchetta\x2010-17mm'];return(_0x4df913[_0x518918(0x26c)](_0x518918(0x246))||_0x4df913[_0x518918(0x26c)](_0x518918(0x1e1))||_0x4df913[_0x518918(0x26c)](_0x518918(0x24f)))&&_0x2ef947[_0x518918(0x1db)](_0x518918(0x10f),_0x518918(0x18d)),(_0x4df913[_0x518918(0x26c)](_0x518918(0x191))||_0x4df913['includes'](_0x518918(0x1ca))||_0x4df913[_0x518918(0x26c)](_0x518918(0x23d))||_0x4df913['includes'](_0x518918(0xe8)))&&_0x2ef947[_0x518918(0x1db)](_0x518918(0x19d),_0x518918(0x12e),_0x518918(0x169)),(_0x4df913[_0x518918(0x26c)](_0x518918(0xaf))||_0x4df913[_0x518918(0x26c)](_0x518918(0x244))||_0x4df913[_0x518918(0x26c)](_0x518918(0x225))||_0x4df913[_0x518918(0x26c)](_0x518918(0x185)))&&_0x2ef947[_0x518918(0x1db)](_0x518918(0xec),_0x518918(0x12a)),(_0x4df913[_0x518918(0x26c)](_0x518918(0x179))||_0x4df913[_0x518918(0x26c)](_0x518918(0x1b3))||_0x4df913[_0x518918(0x26c)](_0x518918(0xde))||_0x4df913[_0x518918(0x26c)](_0x518918(0x217)))&&_0x2ef947[_0x518918(0x1db)](_0x518918(0x154),'🔌\x20Spray\x20Pulisci\x20Contatti'),Array[_0x518918(0x20f)](new Set(_0x2ef947));}function mostraStatistiche(){const _0x2acad1=_0xed8232;vibraTocco(),impostaTabNav(_0x2acad1(0x126)),cambiaVista(_0x2acad1(0x24b)),calcolaEDisegnaStatistiche();}function calcolaEDisegnaStatistiche(){const _0x45bb18=_0xed8232,_0xa76b45=document[_0x45bb18(0x201)](_0x45bb18(0x1d8));if(!_0xa76b45)return;const _0x3991d4=historyGuasti[_0x45bb18(0x119)];let _0x1b9f4e={};historyGuasti['forEach'](_0x3f82c3=>{const _0x4778c0=_0x45bb18;_0x3f82c3[_0x4778c0(0xac)]&&(_0x1b9f4e[_0x3f82c3[_0x4778c0(0xac)]]=(_0x1b9f4e[_0x3f82c3[_0x4778c0(0xac)]]||0x0)+0x1);});let _0x5e128f='-',_0x341968=0x0;Object[_0x45bb18(0x272)](_0x1b9f4e)[_0x45bb18(0x1f0)](_0x5da49a=>{_0x1b9f4e[_0x5da49a]>_0x341968&&(_0x341968=_0x1b9f4e[_0x5da49a],_0x5e128f=_0x5da49a);});const _0x3df2c0=_0xe10d08=>{const _0x413a8b=_0x45bb18;let _0x4c6b9a='';const _0x5aa6db=_0x3991d4||0x1;Object[_0x413a8b(0x272)](_0x1b9f4e)[_0x413a8b(0x1f0)](_0x1c32ac=>{const _0x3d55ba=_0x413a8b,_0x115011=Math[_0x3d55ba(0xd0)](_0x1b9f4e[_0x1c32ac]/_0x5aa6db*0x64);_0x4c6b9a+='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-bottom:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20font-size:13px;\x20font-weight:700;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>'+_0x1c32ac+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>'+_0x115011+_0x3d55ba(0xee)+_0x1b9f4e[_0x1c32ac]+')</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22bar-container\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22bar-fill\x22\x20style=\x22width:\x20'+_0x115011+_0x3d55ba(0x170);}),!_0x4c6b9a&&(_0x4c6b9a='<p\x20style=\x22font-size:13px;\x20color:var(--text-sub);\x22>Consulta\x20alcuni\x20guasti\x20per\x20iniziare\x20a\x20generare\x20le\x20statistiche\x20per\x20marca.</p>'),_0xa76b45['innerHTML']=_0x413a8b(0x23c)+_0xe10d08+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-label\x22>Targhe\x20Impianto</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-card\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-number\x22>'+_0x3991d4+_0x413a8b(0x112)+_0x5e128f+_0x413a8b(0x226)+_0x4c6b9a+_0x413a8b(0x1b7);};if(dbIndexed){const _0x571c6f=dbIndexed['transaction']([_0x45bb18(0x263)],_0x45bb18(0x124)),_0x104590=_0x571c6f[_0x45bb18(0x152)](_0x45bb18(0x263)),_0x3ab132=_0x104590[_0x45bb18(0x264)]();_0x3ab132[_0x45bb18(0xf9)]=()=>_0x3df2c0(_0x3ab132[_0x45bb18(0x1c3)]),_0x3ab132['onerror']=()=>_0x3df2c0(0x0);}else _0x3df2c0(0x0);}function mostraDettaglio(_0x1286b3){const _0x9ea61e=_0xed8232,_0x57fbcf=typeof errori!==_0x9ea61e(0x27c)&&Array[_0x9ea61e(0x144)](errori)?errori:[],_0xa6bdd3=_0x57fbcf[_0x9ea61e(0x1bc)](_0x247cc8=>_0x247cc8['id']===_0x1286b3);if(!_0xa6bdd3)return;vibraTocco(),salvaInStorico(_0xa6bdd3);const _0x5d2b28=document[_0x9ea61e(0x201)](_0x9ea61e(0xd2));if(!_0x5d2b28)return;const _0x273544=favorites[_0x9ea61e(0x26c)](_0xa6bdd3['id']);let _0x37c7ae='';_0xa6bdd3[_0x9ea61e(0x23e)]&&_0xa6bdd3[_0x9ea61e(0x23e)]['length']>0x0&&(_0x37c7ae=_0x9ea61e(0x168)+_0xa6bdd3[_0x9ea61e(0x23e)][_0x9ea61e(0x1e0)](_0xb494de=>_0x9ea61e(0x105)+_0xb494de+_0x9ea61e(0x11c))['join']('')+_0x9ea61e(0x1cd));let _0x4c6e68='';_0xa6bdd3[_0x9ea61e(0x100)]&&_0xa6bdd3[_0x9ea61e(0x100)][_0x9ea61e(0x119)]>0x0&&(_0x4c6e68=_0x9ea61e(0x199)+_0xa6bdd3['causes'][_0x9ea61e(0x1e0)](_0x558b27=>_0x9ea61e(0x1e9)+_0x558b27+_0x9ea61e(0x11c))['join']('')+_0x9ea61e(0x141));const _0x16e9b5=ottieniAttrezziGuasto(_0xa6bdd3),_0x467f25=_0x16e9b5[_0x9ea61e(0x1e0)](_0x3c050b=>{const _0x2152ff=_0x9ea61e,_0x203bd9=_0x3c050b['replace'](/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu,'')['trim'](),_0x34a5b9=encodeURIComponent(_0x203bd9),_0x20b2aa='https://www.amazon.it/s?k='+_0x34a5b9+_0x2152ff(0x15c);return _0x2152ff(0xd9)+_0x20b2aa+_0x2152ff(0x190)+_0x3c050b+'\x20↗</a>';})['join'](''),_0x372950=encodeURIComponent(_0xa6bdd3['brand']+'\x20'+(_0xa6bdd3[_0x9ea61e(0xe2)]||_0xa6bdd3[_0x9ea61e(0xe4)])+_0x9ea61e(0x108)),_0x49c757=_0x9ea61e(0x1dc)+_0x372950+_0x9ea61e(0x15c);_0x5d2b28[_0x9ea61e(0x1e3)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:flex-start;\x20margin-bottom:12px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22badge-brand-code\x22>'+_0xa6bdd3['brand']+_0x9ea61e(0xcb)+_0xa6bdd3[_0x9ea61e(0xe4)]+_0x9ea61e(0x1f8)+_0xa6bdd3['desc']+_0x9ea61e(0x1cc)+_0xa6bdd3[_0x9ea61e(0x10e)]+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22fav-btn\x20'+(_0x273544?'active':'')+_0x9ea61e(0x10c)+_0xa6bdd3['id']+_0x9ea61e(0x1e2)+_0xa6bdd3['id']+_0x9ea61e(0x1cf)+(_0x273544?'★':'☆')+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-bottom:16px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22font-size:14px;\x20font-weight:800;\x20color:var(--primary);\x20text-transform:uppercase;\x20margin-bottom:6px;\x22>⚠️\x20Possibili\x20Cause:</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4c6e68+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-bottom:16px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22font-size:14px;\x20font-weight:800;\x20color:#22c55e;\x20text-transform:uppercase;\x20margin-bottom:6px;\x22>🛠️\x20Procedura\x20di\x20Risoluzione:</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x37c7ae+_0x9ea61e(0x117)+_0x467f25+_0x9ea61e(0x215)+(_0xa6bdd3['partName']?_0x9ea61e(0x13c)+_0xa6bdd3[_0x9ea61e(0xe2)]+_0x9ea61e(0x197)+_0xa6bdd3['partCode']+_0x9ea61e(0x16e):'')+_0x9ea61e(0xb2)+_0x49c757+_0x9ea61e(0xf0)+(_0xa6bdd3[_0x9ea61e(0x23b)]&&_0xa6bdd3[_0x9ea61e(0x23b)]!=='-'?_0x9ea61e(0xb8)+_0xa6bdd3[_0x9ea61e(0x23b)]+_0x9ea61e(0x27f):'')+'\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-top:16px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn-whatsapp\x22\x20onclick=\x22apriReportModal(\x27'+_0xa6bdd3[_0x9ea61e(0xac)]+_0x9ea61e(0xf6)+_0xa6bdd3['code']+_0x9ea61e(0xf6)+_0xa6bdd3[_0x9ea61e(0x241)]+_0x9ea61e(0x249),cambiaVista('detail-view');}function salvaInStorico(_0x23a444){const _0x41fc74=_0xed8232;historyGuasti=historyGuasti[_0x41fc74(0x166)](_0x161368=>_0x161368['id']!==_0x23a444['id']),historyGuasti[_0x41fc74(0x234)]({..._0x23a444,'timestamp':new Date()[_0x41fc74(0xc1)](_0x41fc74(0x18a),{'hour':'2-digit','minute':_0x41fc74(0x239)})});if(historyGuasti[_0x41fc74(0x119)]>0x14)historyGuasti[_0x41fc74(0x182)]();safeSetStorage(_0x41fc74(0x220),historyGuasti);}function mostraStorico(){const _0x2b98dd=_0xed8232;vibraTocco(),impostaTabNav(_0x2b98dd(0xff));const _0x3c23b9=document[_0x2b98dd(0x201)]('history-list');if(!_0x3c23b9)return;if(historyGuasti[_0x2b98dd(0x119)]===0x0)_0x3c23b9['innerHTML']=_0x2b98dd(0x276);else{let _0xd5ebae='';historyGuasti[_0x2b98dd(0x1f0)](_0x10459c=>{const _0x21cc56=_0x2b98dd;_0xd5ebae+=_0x21cc56(0x26a)+_0x10459c['id']+_0x21cc56(0x1f7)+_0x10459c[_0x21cc56(0xac)]+'\x20-\x20'+_0x10459c[_0x21cc56(0xe4)]+_0x21cc56(0x1b9)+_0x10459c['desc']+_0x21cc56(0x20e)+_0x10459c['timestamp']+_0x21cc56(0x13a);}),_0x3c23b9[_0x2b98dd(0x1e3)]=_0xd5ebae;}cambiaVista('history-view');}function richiediSvuotaStorico(){const _0x496872=_0xed8232;historyGuasti=[],localStorage[_0x496872(0x157)]('caldaiafix_history'),mostraStorico();}function toggleFav(_0x15f659,_0x1efc1a){const _0x26556d=_0xed8232;if(_0x1efc1a)_0x1efc1a['stopPropagation']();vibraTocco();const _0x5995b4=favorites[_0x26556d(0x1f1)](_0x15f659);_0x5995b4>-0x1?favorites['splice'](_0x5995b4,0x1):favorites[_0x26556d(0x1db)](_0x15f659),safeSetStorage('caldaiafix_favs',favorites),filtraErrori(![]);}function apriPin(){const _0x2ddef5=_0xed8232;vibraTocco();const _0x3c1a5b=document['getElementById'](_0x2ddef5(0x248));if(_0x3c1a5b){_0x3c1a5b['style']['display']=_0x2ddef5(0x237);const _0x2b444f=document['getElementById'](_0x2ddef5(0x245));_0x2b444f&&(_0x2b444f[_0x2ddef5(0x262)]='',setTimeout(()=>_0x2b444f[_0x2ddef5(0x1a6)](),0x64));}}function chiudiPin(){const _0x31fe5a=_0xed8232,_0x1fae48=document[_0x31fe5a(0x201)](_0x31fe5a(0x248)),_0x59b7db=document[_0x31fe5a(0x201)](_0x31fe5a(0x1a5)),_0x61f674=document[_0x31fe5a(0x201)](_0x31fe5a(0x245));if(_0x1fae48)_0x1fae48['style']['display']=_0x31fe5a(0x16a);if(_0x59b7db)_0x59b7db[_0x31fe5a(0xfa)]['display']=_0x31fe5a(0x16a);if(_0x61f674)_0x61f674[_0x31fe5a(0x262)]='';}function verificaPin(){const _0x34d0cc=_0xed8232,_0x5f32ff=document['getElementById'](_0x34d0cc(0x245))?.['value'][_0x34d0cc(0x25a)]()||'';if(_0x5f32ff===_0x34d0cc(0x1ef)||_0x5f32ff===_0x34d0cc(0x26b)||_0x5f32ff[_0x34d0cc(0x119)]>=0x4)chiudiPin(),renderAreaTecnica(),cambiaVista(_0x34d0cc(0xb0));else{const _0x25a566=document['getElementById']('pinError');if(_0x25a566)_0x25a566[_0x34d0cc(0xfa)][_0x34d0cc(0x12f)]=_0x34d0cc(0x159);}}function renderAreaTecnica(){const _0x37a665=_0xed8232,_0x50f78e=document['getElementById'](_0x37a665(0xbb));if(!_0x50f78e)return;const _0x160a15=typeof installerMenus!==_0x37a665(0x27c)&&Array[_0x37a665(0x144)](installerMenus)?installerMenus:[];let _0x4c2c0f=_0x37a665(0x221);_0x160a15['length']===0x0?_0x4c2c0f+='<p\x20style=\x22color:var(--text-sub);\x20font-size:14px;\x22>Nessun\x20menu\x20tecnico\x20presente\x20nel\x20database.</p>':_0x160a15['forEach'](_0x48e361=>{const _0x4d2a88=_0x37a665;_0x4c2c0f+=_0x4d2a88(0x18f)+_0x48e361[_0x4d2a88(0xac)]+'\x20('+_0x48e361[_0x4d2a88(0x10e)]+_0x4d2a88(0x20a)+_0x48e361[_0x4d2a88(0x222)]+_0x4d2a88(0x1a4)+_0x48e361[_0x4d2a88(0x114)]+_0x4d2a88(0xf5);}),_0x4c2c0f+=_0x37a665(0x16d),_0x50f78e[_0x37a665(0x1e3)]=_0x4c2c0f;}const morsettiereData={'Baxi':{'title':_0xed8232(0x151),'pins':[{'num':'1\x20-\x202','func':_0xed8232(0x1ea),'note':_0xed8232(0xf8)},{'num':_0xed8232(0xd5),'func':'Comando\x20Remoto\x20/\x20BUS\x20OpenTherm','note':'Basso\x20voltaggio\x20(Polarizzato).'},{'num':_0xed8232(0x143),'func':_0xed8232(0x259),'note':_0xed8232(0x1b1)}]},'Vaillant':{'title':_0xed8232(0x274),'pins':[{'num':_0xed8232(0xd5),'func':_0xed8232(0x252),'note':_0xed8232(0x123)},{'num':'7\x20-\x208\x20-\x209','func':_0xed8232(0x1f3),'note':'Collegare\x207-8-9.'},{'num':_0xed8232(0x206),'func':_0xed8232(0x147),'note':_0xed8232(0x21a)}]},'Immergas':{'title':'Immergas\x20-\x20Victrix\x20TT\x20/\x20Avio\x20/\x20Maior','pins':[{'num':_0xed8232(0x187),'func':'Termostato\x20Ambiente\x20(TA)','note':_0xed8232(0x273)},{'num':_0xed8232(0xcc),'func':_0xed8232(0xc4),'note':_0xed8232(0xe7)},{'num':'38\x20-\x2039','func':'Sonda\x20Esterna','note':_0xed8232(0xda)}]},'Ariston':{'title':_0xed8232(0x1ed),'pins':[{'num':_0xed8232(0x229),'func':'Termostato\x20Ambiente\x201','note':'Contatto\x20pulito.\x20Rimuovere\x20bridge\x20verde.'},{'num':_0xed8232(0x12b),'func':_0xed8232(0x1fc),'note':_0xed8232(0x22b)},{'num':_0xed8232(0x1cb),'func':_0xed8232(0x1a3),'note':_0xed8232(0x116)}]},'Beretta':{'title':_0xed8232(0x155),'pins':[{'num':'TA\x20-\x20TA','func':_0xed8232(0x186),'note':_0xed8232(0x1f4)},{'num':_0xed8232(0x25c),'func':_0xed8232(0x11e),'note':_0xed8232(0x24a)},{'num':_0xed8232(0x121),'func':_0xed8232(0x203),'note':_0xed8232(0x15d)}]},'Ferroli':{'title':_0xed8232(0x1c6),'pins':[{'num':_0xed8232(0x131),'func':_0xed8232(0x1ea),'note':'Contatto\x20pulito.\x20Rimuovere\x20ponticello.'},{'num':'3\x20-\x204','func':_0xed8232(0xc3),'note':_0xed8232(0x1ab)}]},'Hermann\x20Saunier\x20Duval':{'title':_0xed8232(0x265),'pins':[{'num':_0xed8232(0x261),'func':_0xed8232(0x212),'note':_0xed8232(0x107)},{'num':_0xed8232(0x149),'func':_0xed8232(0x17b),'note':_0xed8232(0x253)}]}};function mostraMorsettiere(){const _0x574f0c=_0xed8232;vibraTocco(),impostaTabNav('menu'),cambiaVista('morsettiere-view');const _0x2bbdbd=document[_0x574f0c(0x201)]('morsettiereBrandFilter');if(_0x2bbdbd)renderMorsettieraBrand(_0x2bbdbd['value']);}function renderMorsettieraBrand(_0x213782){const _0x18be87=_0xed8232,_0x40fd91=document[_0x18be87(0x201)](_0x18be87(0xc6));if(!_0x40fd91)return;const _0x559301=morsettiereData[_0x213782]||morsettiereData[_0x18be87(0x160)];let _0x1ee2f2=_0x559301[_0x18be87(0x24e)][_0x18be87(0x1e0)](_0x4666c=>'\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22terminal-pin-box\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22pin-num\x22>'+_0x4666c['num']+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22pin-func\x22>'+_0x4666c[_0x18be87(0x228)]+_0x18be87(0xef)+_0x4666c[_0x18be87(0x171)]+_0x18be87(0x1e8))[_0x18be87(0x15e)]('');_0x40fd91['innerHTML']=_0x18be87(0x1d2)+_0x559301['title']+'</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22font-size:13px;\x20color:var(--text-sub);\x20margin-bottom:14px;\x22>Morsettiera\x20principale\x20di\x20collegamento\x20sulla\x20scheda\x20madre:</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22terminal-pin-grid\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x1ee2f2+_0x18be87(0xe9);}function stampaReportPDF(){const _0x21e685=_0xed8232;vibraTocco();const _0x2db58c=document[_0x21e685(0x201)](_0x21e685(0x281))?.[_0x21e685(0x262)][_0x21e685(0x25a)]()||_0x21e685(0x21d),_0x1b6ded=document[_0x21e685(0x201)](_0x21e685(0x180))?.['value'][_0x21e685(0x25a)]()||_0x21e685(0x270),_0x16c439=document[_0x21e685(0x201)]('repBoiler')?.['value'][_0x21e685(0x25a)]()||'-',_0x56d20a=document[_0x21e685(0x201)](_0x21e685(0x167))?.[_0x21e685(0x262)][_0x21e685(0x25a)]()||'-',_0x3ca45f=document[_0x21e685(0x201)](_0x21e685(0x218))?.['value'][_0x21e685(0x25a)]()||_0x21e685(0xfc),_0x1a19f0=document[_0x21e685(0x201)]('repPrice')?.[_0x21e685(0x262)][_0x21e685(0x25a)]()||'0.00',_0xc3be8a=new Date()[_0x21e685(0x18b)]('it-IT'),_0x17314a=window['open']('',_0x21e685(0x11d));if(!_0x17314a){alert('Attiva\x20i\x20pop-up\x20sul\x20browser\x20per\x20generare\x20il\x20PDF.');return;}const _0xef0af3=_0x21e685(0xf2)+_0xc3be8a+_0x21e685(0x1be)+_0x2db58c+_0x21e685(0xc8)+_0xc3be8a+_0x21e685(0x10d)+_0x1b6ded+_0x21e685(0x1c2)+_0x16c439+_0x21e685(0x173)+_0x56d20a+_0x21e685(0xce)+_0x3ca45f[_0x21e685(0x1fb)](/\n/g,_0x21e685(0x260))+_0x21e685(0x27a)+_0x1a19f0+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22footer-text\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Documento\x20generato\x20tramite\x20CaldaiaFix\x20PRO\x20•\x20Copia\x20Cliente\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<script>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20window.onload\x20=\x20function()\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20window.print();\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20};\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</script>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</body>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</html>\x0a\x20\x20\x20\x20';_0x17314a['document']['write'](_0xef0af3),_0x17314a[_0x21e685(0xf1)][_0x21e685(0xc5)](),chiudiReportModal();}const wizardTree={'start':{'title':_0xed8232(0xdd),'options':[{'text':_0xed8232(0x183),'next':_0xed8232(0x1fd)},{'text':'🔌\x20Caldaia\x20completamente\x20spenta\x20(Nessun\x20LED/Display)','next':_0xed8232(0x102)},{'text':_0xed8232(0x279),'next':_0xed8232(0xdc)},{'text':_0xed8232(0x1f5),'next':_0xed8232(0x246)},{'text':_0xed8232(0x208),'next':'perdita'}]},'sanitaria':{'title':_0xed8232(0x115),'options':[{'text':_0xed8232(0xdf),'solution':'Valvola\x20a\x203\x20vie\x20bloccata\x20in\x20posizione\x20riscaldamento\x20o\x20attuatore\x20guasto.\x20Verificare\x20lo\x20spillo\x20e\x20la\x20cartuccia\x20sferica.','part':_0xed8232(0x184),'tool':'⚡\x20Multimetro\x20Digitale'},{'text':'No,\x20l\x27acqua\x20cambia\x20continuamente\x20temperatura\x20da\x20calda\x20a\x20fredda','solution':_0xed8232(0xbe),'part':_0xed8232(0x17c),'tool':'🛠️\x20Chiavi\x20per\x20Raccordi'},{'text':'Il\x20bruciatore\x20non\x20si\x20accende\x20proprio\x20aprendo\x20il\x20rubinetto','solution':_0xed8232(0x127),'part':'Flussostato\x20sanitario\x20caldaia','tool':_0xed8232(0x19d)}]},'spenta':{'title':_0xed8232(0x205),'options':[{'text':'C\x27è\x20tensione\x20230V\x20alla\x20presa\x20ma\x20la\x20caldaia\x20è\x20morta','solution':'Fusibile\x20di\x20protezione\x20sulla\x20scheda\x20madre\x20bruciato\x20o\x20scheda\x20di\x20alimentazione\x20guasta\x20a\x20causa\x20di\x20sbalzo\x20di\x20tensione.','part':_0xed8232(0x14a),'tool':_0xed8232(0x19d)},{'text':_0xed8232(0xeb),'solution':_0xed8232(0x25d),'part':_0xed8232(0x165),'tool':_0xed8232(0x19d)}]},'rumori':{'title':_0xed8232(0xb7),'options':[{'text':_0xed8232(0x16b),'solution':_0xed8232(0xb6),'part':_0xed8232(0x165),'tool':_0xed8232(0xcd)},{'text':_0xed8232(0x25e),'solution':_0xed8232(0x278),'part':_0xed8232(0x271),'tool':_0xed8232(0xec)}]},'pressione':{'title':_0xed8232(0x1a2),'options':[{'text':'La\x20pressione\x20sale\x20oltre\x202.5\x20-\x203\x20bar\x20solo\x20quando\x20accendo\x20i\x20termosifoni','solution':_0xed8232(0x130),'part':_0xed8232(0x148),'tool':'🪠\x20Pompa\x20con\x20Manometro\x20per\x20Vasi'},{'text':'La\x20pressione\x20scende\x20continuamente\x20a\x200\x20bar\x20ogni\x20giorno','solution':_0xed8232(0x133),'part':_0xed8232(0x23f),'tool':_0xed8232(0x18d)}]},'perdita':{'title':_0xed8232(0xfb),'options':[{'text':_0xed8232(0x1c8),'solution':_0xed8232(0x11b),'part':_0xed8232(0x258),'tool':_0xed8232(0xb1)},{'text':'Dal\x20rubinetto\x20di\x20riempimento\x20sotto\x20la\x20caldaia','solution':_0xed8232(0xc7),'part':'Rubinetto\x20di\x20carico\x20caldaia','tool':_0xed8232(0xb1)}]}};function avviaWizard(){const _0x1e9b3a=_0xed8232;vibraTocco(),impostaTabNav(_0x1e9b3a(0x1ce)),cambiaVista(_0x1e9b3a(0x1b0)),renderStepWizard(_0x1e9b3a(0xdb));}function renderStepWizard(_0x4b427d){const _0x5df701=_0xed8232,_0x26f272=document[_0x5df701(0x201)]('wizard-container');if(!_0x26f272)return;const _0x2d5c51=wizardTree[_0x4b427d];if(!_0x2d5c51)return;let _0x341894=_0x5df701(0x255)+_0x2d5c51[_0x5df701(0x27b)]+_0x5df701(0x235);_0x2d5c51[_0x5df701(0x26f)]&&_0x2d5c51[_0x5df701(0x26f)]['forEach'](_0x58a95e=>{const _0x249584=_0x5df701;if(_0x58a95e['next'])_0x341894+=_0x249584(0x1ae)+_0x58a95e[_0x249584(0x136)]+_0x249584(0x242)+_0x58a95e['text']+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>›</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';else{if(_0x58a95e[_0x249584(0x15f)]){const _0x53dcf5=_0x249584(0x1dc)+encodeURIComponent(_0x58a95e[_0x249584(0x14b)]||'ricambio\x20caldaia')+'&tag=dbsolution-21',_0x1e85fe='https://www.amazon.it/s?k='+encodeURIComponent((_0x58a95e['tool']||'')[_0x249584(0x1fb)](/[\u{1F300}-\u{1F9FF}]/gu,'')['trim']())+'&tag=dbsolution-21';_0x341894+='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22wizard-solution-box\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:12px;\x20font-weight:900;\x20color:#34d399;\x20text-transform:uppercase;\x20margin-bottom:6px;\x22>🎯\x20Risultato\x20Diagnostica:</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:16px;\x20font-weight:700;\x20color:#ffffff;\x20line-height:1.4;\x20margin-bottom:12px;\x22>'+_0x58a95e[_0x249584(0x15f)]+_0x249584(0x1b5)+(_0x58a95e['tool']?_0x249584(0x140)+_0x1e85fe+_0x249584(0x1bd)+_0x58a95e[_0x249584(0x138)]+'\x20↗</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20':'')+_0x249584(0x125)+(_0x58a95e[_0x249584(0x14b)]?_0x249584(0xd1)+_0x53dcf5+_0x249584(0xb9)+_0x58a95e[_0x249584(0x14b)]+'\x22\x20su\x20Amazon\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20':'')+'\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn-clear\x22\x20style=\x22width:100%;\x20margin-top:12px;\x22\x20onclick=\x22renderStepWizard(\x27start\x27)\x22>🔄\x20Ricomincia\x20Diagnosi</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';}}}),_0x341894+=_0x5df701(0xe9),_0x26f272[_0x5df701(0x1e3)]=_0x341894;}function esportaBackupJSON(){const _0x7d3fa1=_0xed8232;if(!dbIndexed){alert(_0x7d3fa1(0x13b));return;}vibraTocco();const _0x25ed6f=dbIndexed[_0x7d3fa1(0x20c)]([_0x7d3fa1(0x263)],'readonly'),_0x546308=_0x25ed6f[_0x7d3fa1(0x152)](_0x7d3fa1(0x263)),_0x4bbcf5=_0x546308[_0x7d3fa1(0xe0)]();_0x4bbcf5[_0x7d3fa1(0xf9)]=()=>{const _0x44c0ed=_0x7d3fa1,_0x27b5ed=_0x4bbcf5[_0x44c0ed(0x1c3)];if(!_0x27b5ed||_0x27b5ed[_0x44c0ed(0x119)]===0x0){alert(_0x44c0ed(0x254));return;}const _0x159f12=JSON[_0x44c0ed(0x10b)](_0x27b5ed,null,0x2),_0x31941e=new Blob([_0x159f12],{'type':_0x44c0ed(0x1d9)}),_0x126234=URL[_0x44c0ed(0x1d4)](_0x31941e),_0x55f850=document[_0x44c0ed(0x213)]('a');_0x55f850['href']=_0x126234,_0x55f850[_0x44c0ed(0x211)]=_0x44c0ed(0xab)+new Date()['toISOString']()[_0x44c0ed(0x1e4)](0x0,0xa)+_0x44c0ed(0x174),document['body']['appendChild'](_0x55f850),_0x55f850[_0x44c0ed(0x1dd)](),document[_0x44c0ed(0x13e)][_0x44c0ed(0x18e)](_0x55f850),URL[_0x44c0ed(0xe1)](_0x126234);};}function ripristinaBackupJSON(_0xf5fd5e){const _0x1e6fad=_0xed8232,_0x47bebb=_0xf5fd5e['target'][_0x1e6fad(0x1bf)][0x0];if(!_0x47bebb)return;const _0x429fb9=new FileReader();_0x429fb9['onload']=_0x144f67=>{const _0x25d44a=_0x1e6fad;try{const _0x3714c9=JSON['parse'](_0x144f67[_0x25d44a(0x23a)]['result']);if(!Array[_0x25d44a(0x144)](_0x3714c9)){alert(_0x25d44a(0x247));return;}if(!confirm('Trovate\x20'+_0x3714c9['length']+_0x25d44a(0xd6)))return;if(!dbIndexed){alert(_0x25d44a(0x216));return;}const _0x1e93c9=dbIndexed['transaction'](['targhe'],_0x25d44a(0x14c)),_0x32b596=_0x1e93c9[_0x25d44a(0x152)]('targhe');_0x3714c9[_0x25d44a(0x1f0)](_0x30d536=>{const _0x4f7a88=_0x25d44a;delete _0x30d536['id'],_0x32b596[_0x4f7a88(0x163)](_0x30d536);}),_0x1e93c9[_0x25d44a(0x1df)]=()=>{alert('Ripristino\x20completato\x20con\x20successo!'),mostraTarghe();};}catch(_0x4ce7db){alert(_0x25d44a(0x256)+_0x4ce7db[_0x25d44a(0x1f2)]);}},_0x429fb9[_0x1e6fad(0x12c)](_0x47bebb),_0xf5fd5e[_0x1e6fad(0x23a)][_0x1e6fad(0x262)]='';}function initIndexedDB(){const _0x4b6abe=_0xed8232;try{const _0x107ca2=indexedDB[_0x4b6abe(0x224)]('CaldaiaFixTargheDB',0x1);_0x107ca2[_0x4b6abe(0xd4)]=_0x33ad8b=>{const _0x240277=_0x4b6abe,_0x51b838=_0x33ad8b['target'][_0x240277(0x1c3)];!_0x51b838[_0x240277(0x132)][_0x240277(0x18c)](_0x240277(0x263))&&_0x51b838['createObjectStore']('targhe',{'keyPath':'id','autoIncrement':!![]});},_0x107ca2[_0x4b6abe(0xf9)]=_0x58f32a=>{const _0x299931=_0x4b6abe;dbIndexed=_0x58f32a[_0x299931(0x23a)]['result'];};}catch(_0x201664){console[_0x4b6abe(0x13d)](_0x4b6abe(0x20b),_0x201664);}}function apriTargaModal(){const _0x359583=_0xed8232;vibraTocco();const _0x22293b=document['getElementById'](_0x359583(0x17d));if(_0x22293b)_0x22293b['style'][_0x359583(0x12f)]='flex';}function chiudiTargaModal(){const _0x2fd6f1=_0xed8232,_0x2525b0=document['getElementById']('targa-modal');if(_0x2525b0)_0x2525b0['style'][_0x2fd6f1(0x12f)]=_0x2fd6f1(0x16a);[_0x2fd6f1(0x1fe),_0x2fd6f1(0x164),_0x2fd6f1(0x189),'tagSerial',_0x2fd6f1(0x17a),_0x2fd6f1(0x14f)][_0x2fd6f1(0x1f0)](_0x3d91be=>{const _0x8c5543=_0x2fd6f1,_0x428aa5=document[_0x8c5543(0x201)](_0x3d91be);if(_0x428aa5)_0x428aa5[_0x8c5543(0x262)]='';});const _0x488287=document[_0x2fd6f1(0x201)](_0x2fd6f1(0xc9));_0x488287&&(_0x488287[_0x2fd6f1(0xfa)][_0x2fd6f1(0x12f)]='none',_0x488287[_0x2fd6f1(0x1d1)]='');}function anteprimaFotoTarga(_0x1d6e5d){const _0x4ae188=_0xed8232,_0x1dcada=_0x1d6e5d[_0x4ae188(0x23a)][_0x4ae188(0x1bf)][0x0];if(_0x1dcada){const _0x4573e5=new FileReader();_0x4573e5[_0x4ae188(0x214)]=_0x5799cc=>{const _0x2e8437=_0x4ae188,_0x293381=document[_0x2e8437(0x201)](_0x2e8437(0xc9));_0x293381&&(_0x293381['src']=_0x5799cc['target'][_0x2e8437(0x1c3)],_0x293381[_0x2e8437(0xfa)][_0x2e8437(0x12f)]='block');},_0x4573e5[_0x4ae188(0x158)](_0x1dcada);}}function salvaSchedaTarga(){const _0xdc5d0=_0xed8232;if(!dbIndexed)return;const _0x3f8c16=document['getElementById']('tagClient')?.[_0xdc5d0(0x262)][_0xdc5d0(0x25a)]()||'',_0x47cb34=document[_0xdc5d0(0x201)](_0xdc5d0(0x164))?.[_0xdc5d0(0x262)][_0xdc5d0(0x25a)]()||'',_0x2c873e=document['getElementById'](_0xdc5d0(0x189))?.[_0xdc5d0(0x262)][_0xdc5d0(0x25a)]()||'',_0x55fd81=document[_0xdc5d0(0x201)](_0xdc5d0(0x280))?.[_0xdc5d0(0x262)][_0xdc5d0(0x25a)]()||'',_0x31d9a5=document[_0xdc5d0(0x201)](_0xdc5d0(0x17a))?.[_0xdc5d0(0x262)][_0xdc5d0(0x25a)]()||'',_0x4a768f=document['getElementById']('tagNextMaintenance')?.[_0xdc5d0(0x262)]||'',_0xd1de9e=document['getElementById'](_0xdc5d0(0xc9)),_0x3e6f11=_0xd1de9e?_0xd1de9e[_0xdc5d0(0x1d1)]:'';if(!_0x3f8c16&&!_0x2c873e){alert(_0xdc5d0(0xf7));return;}const _0x3e5e99={'client':_0x3f8c16||_0xdc5d0(0x270),'address':_0x47cb34,'boiler':_0x2c873e,'serial':_0x55fd81,'notes':_0x31d9a5,'nextMaintenance':_0x4a768f,'image':_0x3e6f11&&_0x3e6f11[_0xdc5d0(0x1c1)]('data:image')?_0x3e6f11:null,'date':new Date()[_0xdc5d0(0x18b)](_0xdc5d0(0x18a))},_0x13582c=dbIndexed['transaction']([_0xdc5d0(0x263)],_0xdc5d0(0x14c)),_0x52836a=_0x13582c[_0xdc5d0(0x152)](_0xdc5d0(0x263));_0x52836a[_0xdc5d0(0x163)](_0x3e5e99),_0x13582c['oncomplete']=()=>{chiudiTargaModal(),mostraTarghe();};}function mostraTarghe(){vibraTocco(),impostaTabNav('targhe'),cambiaVista('targhe-view'),caricaTarghe();}function caricaTarghe(){const _0x154d02=_0xed8232;if(!dbIndexed)return;const _0x3d887d=document[_0x154d02(0x201)](_0x154d02(0x142));if(!_0x3d887d)return;const _0x15b41c=dbIndexed['transaction']([_0x154d02(0x263)],_0x154d02(0x124)),_0x5bf7b6=_0x15b41c[_0x154d02(0x152)]('targhe'),_0x4c63c2=_0x5bf7b6[_0x154d02(0xe0)]();_0x4c63c2['onsuccess']=()=>{const _0x5eb51f=_0x154d02,_0x1de1b0=_0x4c63c2[_0x5eb51f(0x1c3)];if(!_0x1de1b0||_0x1de1b0[_0x5eb51f(0x119)]===0x0){_0x3d887d[_0x5eb51f(0x1e3)]=_0x5eb51f(0xd3);return;}const _0x45c5a3=new Date();_0x45c5a3['setHours'](0x0,0x0,0x0,0x0);let _0x1b2dfc='';_0x1de1b0['reverse']()['forEach'](_0x327cca=>{const _0x445868=_0x5eb51f;let _0x2cb00e='';if(_0x327cca['nextMaintenance']){const _0x2069f9=new Date(_0x327cca[_0x445868(0x129)]),_0x487ebf=Math[_0x445868(0x19c)]((_0x2069f9-_0x45c5a3)/(0x3e8*0x3c*0x3c*0x18)),_0x1db7b9=_0x2069f9[_0x445868(0x18b)](_0x445868(0x18a));if(_0x487ebf<0x0)_0x2cb00e=_0x445868(0x1d6)+_0x1db7b9+_0x445868(0xd7);else _0x487ebf<=0x1e?_0x2cb00e=_0x445868(0x11f)+_0x487ebf+_0x445868(0x19e):_0x2cb00e=_0x445868(0x137)+_0x1db7b9+_0x445868(0xd7);}_0x1b2dfc+=_0x445868(0x275)+_0x327cca[_0x445868(0x16c)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:13px;\x20color:var(--text-sub);\x20font-weight:600;\x22>📍\x20'+(_0x327cca[_0x445868(0x230)]||'Nessun\x20indirizzo')+_0x445868(0x1ad)+_0x327cca['id']+_0x445868(0x250)+(_0x327cca[_0x445868(0x150)]||'-')+'</strong></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>🏷️\x20Matricola:\x20<strong>'+(_0x327cca[_0x445868(0x15b)]||'-')+_0x445868(0x15a)+_0x2cb00e+_0x445868(0x1ec)+(_0x327cca[_0x445868(0x114)]?'<div\x20style=\x22margin-top:6px;\x20font-style:italic;\x20color:var(--text-sub);\x22>\x22\x20'+_0x327cca[_0x445868(0x114)]+_0x445868(0xc0):'')+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+(_0x327cca[_0x445868(0x122)]?_0x445868(0x20d)+_0x327cca[_0x445868(0x122)]+_0x445868(0xf4):'')+_0x445868(0x240)+_0x327cca[_0x445868(0x104)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';}),_0x3d887d['innerHTML']=_0x1b2dfc;};}function _0x34cf(_0x401032,_0x596199){_0x401032=_0x401032-0xaa;const _0x542a58=_0x542a();let _0x34cf27=_0x542a58[_0x401032];if(_0x34cf['PMdRad']===undefined){var _0x23de33=function(_0x16953b){const _0x209fdd='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0xe3095a='',_0xe3f489='';for(let _0x56daf3=0x0,_0x5b11ce,_0x3bfabd,_0x34051f=0x0;_0x3bfabd=_0x16953b['charAt'](_0x34051f++);~_0x3bfabd&&(_0x5b11ce=_0x56daf3%0x4?_0x5b11ce*0x40+_0x3bfabd:_0x3bfabd,_0x56daf3++%0x4)?_0xe3095a+=String['fromCharCode'](0xff&_0x5b11ce>>(-0x2*_0x56daf3&0x6)):0x0){_0x3bfabd=_0x209fdd['indexOf'](_0x3bfabd);}for(let _0x17c5fd=0x0,_0x5534a9=_0xe3095a['length'];_0x17c5fd<_0x5534a9;_0x17c5fd++){_0xe3f489+='%'+('00'+_0xe3095a['charCodeAt'](_0x17c5fd)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0xe3f489);};_0x34cf['Pctywe']=_0x23de33,_0x34cf['QZKWtK']={},_0x34cf['PMdRad']=!![];}const _0x128ce3=_0x542a58[0x0];_0x34cf['bNAgcG']!==_0x128ce3&&(_0x34cf['QZKWtK']={},_0x34cf['bNAgcG']=_0x128ce3);const _0x38b2b4=_0x34cf['QZKWtK'][_0x401032];return _0x38b2b4===undefined?(_0x34cf27=_0x34cf['Pctywe'](_0x34cf27),_0x34cf['QZKWtK'][_0x401032]=_0x34cf27):_0x34cf27=_0x38b2b4,_0x34cf27;}function eliminaTarga(_0x10e453){const _0x516bf3=_0xed8232;if(!confirm(_0x516bf3(0x10a)))return;if(!dbIndexed)return;const _0x389b68=dbIndexed['transaction']([_0x516bf3(0x263)],_0x516bf3(0x14c)),_0x275523=_0x389b68[_0x516bf3(0x152)](_0x516bf3(0x263));_0x275523['delete'](_0x10e453),_0x389b68['oncomplete']=()=>{caricaTarghe();};}function richiediSvuotaTarghe(){const _0x5d01bf=_0xed8232;if(!confirm(_0x5d01bf(0x113)))return;if(!dbIndexed)return;const _0x985a60=dbIndexed[_0x5d01bf(0x20c)](['targhe'],_0x5d01bf(0x14c)),_0x558e55=_0x985a60[_0x5d01bf(0x152)](_0x5d01bf(0x263));_0x558e55[_0x5d01bf(0xc2)](),_0x985a60[_0x5d01bf(0x1df)]=()=>{caricaTarghe();};}function mostraCalcolatori(){const _0xdba7b9=_0xed8232;vibraTocco(),impostaTabNav(_0xdba7b9(0x177)),cambiaVista(_0xdba7b9(0x1bb));}function calcolaRendimentoCombustione(){const _0x3053cd=_0xed8232,_0x57a68a=document[_0x3053cd(0x201)](_0x3053cd(0x223)),_0xd32742=document[_0x3053cd(0x201)](_0x3053cd(0x16f)),_0x30bd74=document['getElementById'](_0x3053cd(0xba)),_0x3c1411=document[_0x3053cd(0x201)](_0x3053cd(0x25f)),_0x53764b=document[_0x3053cd(0x201)](_0x3053cd(0x19b));if(!_0x57a68a||!_0xd32742||!_0x30bd74||!_0x53764b)return;const _0x111e4e=parseFloat(_0x57a68a[_0x3053cd(0x262)]),_0x439a03=parseFloat(_0xd32742[_0x3053cd(0x262)])||0x14,_0x1be57c=parseFloat(_0x30bd74['value']),_0x397123=_0x3c1411?_0x3c1411[_0x3053cd(0x262)]:_0x3053cd(0x198);if(isNaN(_0x111e4e)||isNaN(_0x1be57c)||_0x1be57c<=0x0||_0x111e4e<=_0x439a03){_0x53764b[_0x3053cd(0x22c)]=_0x3053cd(0x238),_0x53764b[_0x3053cd(0xfa)][_0x3053cd(0x12d)]='#93c5fd';return;}let _0x4c29f1=0.37,_0x5c38ee=0.009;_0x397123===_0x3053cd(0x1b6)&&(_0x4c29f1=0.42,_0x5c38ee=0.008);const _0x2d3c6c=(_0x111e4e-_0x439a03)*(_0x4c29f1/_0x1be57c+_0x5c38ee),_0x3bd17b=0x64-_0x2d3c6c,_0x1b5171=_0x3bd17b['toFixed'](0x1),_0x4ae4e1=_0x2d3c6c['toFixed'](0x1);_0x3bd17b>=0x5a?(_0x53764b['textContent']=_0x3053cd(0xed)+_0x1b5171+_0x3053cd(0x14e)+_0x4ae4e1+'%',_0x53764b[_0x3053cd(0xfa)][_0x3053cd(0x12d)]=_0x3053cd(0x1b2)):(_0x53764b[_0x3053cd(0x22c)]='Rendimento\x20η:\x20'+_0x1b5171+_0x3053cd(0x1b8)+_0x4ae4e1+'%',_0x53764b[_0x3053cd(0xfa)][_0x3053cd(0x12d)]=_0x3053cd(0x210));}function calcolaPortataGas(){const _0x28d6d9=_0xed8232,_0x5d4ea3=document[_0x28d6d9(0x201)](_0x28d6d9(0x236)),_0x1b7919=document[_0x28d6d9(0x201)](_0x28d6d9(0xd8));if(!_0x5d4ea3||!_0x1b7919)return;const _0x872c84=parseFloat(_0x5d4ea3[_0x28d6d9(0x262)]);if(isNaN(_0x872c84)||_0x872c84<=0x0){_0x1b7919['textContent']=_0x28d6d9(0x257);return;}const _0x2a9dbe=(_0x872c84*0.06*9.6)['toFixed'](0x1);_0x1b7919[_0x28d6d9(0x22c)]=_0x2a9dbe+_0x28d6d9(0x178);}function calcolaVasoEspansione(){const _0x4eed9b=_0xed8232,_0x519e23=document['getElementById'](_0x4eed9b(0x145)),_0x5227e8=document[_0x4eed9b(0x201)](_0x4eed9b(0x1a0)),_0x3ec80b=document[_0x4eed9b(0x201)]('vasoResult');if(!_0x519e23||!_0x3ec80b)return;const _0x86195c=parseFloat(_0x519e23[_0x4eed9b(0x262)]),_0x1b6ebc=parseFloat(_0x5227e8?.['value'])||0x0;if(isNaN(_0x86195c)||_0x86195c<=0x0){_0x3ec80b[_0x4eed9b(0x22c)]=_0x4eed9b(0x111);return;}const _0x18eb56=Math[_0x4eed9b(0x19c)](_0x86195c*0.08),_0x43abf1=(0x1+_0x1b6ebc*0.1)[_0x4eed9b(0x27e)](0x1);_0x3ec80b['textContent']=_0x4eed9b(0x19f)+_0x18eb56+_0x4eed9b(0x1c9)+_0x43abf1+_0x4eed9b(0x26d);}function convertiPressione(_0x20179a){const _0x8a3c5e=_0xed8232,_0x29ff81=document[_0x8a3c5e(0x201)](_0x8a3c5e(0x1ee)),_0x2b8910=document['getElementById'](_0x8a3c5e(0xb4));if(!_0x29ff81||!_0x2b8910)return;if(_0x20179a===_0x8a3c5e(0x251)){const _0x2cd95f=parseFloat(_0x29ff81[_0x8a3c5e(0x262)]);_0x2b8910[_0x8a3c5e(0x262)]=isNaN(_0x2cd95f)?'':Math[_0x8a3c5e(0xd0)](_0x2cd95f*0x64);}else{const _0x5f2286=parseFloat(_0x2b8910['value']);_0x29ff81[_0x8a3c5e(0x262)]=isNaN(_0x5f2286)?'':(_0x5f2286/0x64)[_0x8a3c5e(0x27e)](0x2);}}function apriReportModal(_0x222c8b,_0x5c6533,_0x9f03ea){const _0x395d4b=_0xed8232;vibraTocco();const _0x6f6d6f=localStorage['getItem'](_0x395d4b(0x1b4))||'',_0x114e47=document['getElementById'](_0x395d4b(0x281)),_0x3f4101=document[_0x395d4b(0x201)](_0x395d4b(0x110)),_0x532034=document[_0x395d4b(0x201)](_0x395d4b(0x167)),_0x514c0f=document['getElementById'](_0x395d4b(0x1aa));if(_0x114e47)_0x114e47['value']=_0x6f6d6f;if(_0x3f4101)_0x3f4101['value']=_0x222c8b;if(_0x532034)_0x532034[_0x395d4b(0x262)]=_0x5c6533+_0x395d4b(0xcb)+_0x9f03ea;if(_0x514c0f)_0x514c0f[_0x395d4b(0xfa)][_0x395d4b(0x12f)]='flex';}function chiudiReportModal(){const _0x20dafc=_0xed8232,_0x37dc54=document['getElementById'](_0x20dafc(0x1aa));if(_0x37dc54)_0x37dc54[_0x20dafc(0xfa)][_0x20dafc(0x12f)]=_0x20dafc(0x16a);}function inviaRapportoWhatsApp(){const _0x4a0c0f=_0xed8232,_0xa8b01e=document[_0x4a0c0f(0x201)]('repCompany')?.[_0x4a0c0f(0x262)][_0x4a0c0f(0x25a)]()||'',_0x232095=document['getElementById'](_0x4a0c0f(0x180))?.['value']['trim']()||'',_0x4c8b99=document[_0x4a0c0f(0x201)](_0x4a0c0f(0x110))?.[_0x4a0c0f(0x262)][_0x4a0c0f(0x25a)]()||'',_0x17d591=document['getElementById']('repFault')?.[_0x4a0c0f(0x262)][_0x4a0c0f(0x25a)]()||'',_0x2b68d3=document[_0x4a0c0f(0x201)](_0x4a0c0f(0x218))?.[_0x4a0c0f(0x262)][_0x4a0c0f(0x25a)]()||'',_0x53dfc0=document[_0x4a0c0f(0x201)](_0x4a0c0f(0x101))?.[_0x4a0c0f(0x262)][_0x4a0c0f(0x25a)]()||'';let _0x45268c=_0x4a0c0f(0xfe);if(_0xa8b01e)_0x45268c+=_0x4a0c0f(0x172)+_0xa8b01e+'\x0a';if(_0x232095)_0x45268c+=_0x4a0c0f(0x106)+_0x232095+'\x0a';if(_0x4c8b99)_0x45268c+='🔥\x20Caldaia:\x20'+_0x4c8b99+'\x0a';if(_0x17d591)_0x45268c+=_0x4a0c0f(0x17e)+_0x17d591+'\x0a';if(_0x2b68d3)_0x45268c+='🛠️\x20Lavoro\x20Svolto:\x20'+_0x2b68d3+'\x0a';if(_0x53dfc0)_0x45268c+=_0x4a0c0f(0x204)+_0x53dfc0+'\x0a';_0x45268c+='\x0a_Inviato\x20da\x20CaldaiaFix\x20PRO_';const _0x1c70b3=_0x4a0c0f(0x19a)+encodeURIComponent(_0x45268c);window[_0x4a0c0f(0x224)](_0x1c70b3,'_blank'),chiudiReportModal();}function cambiaVista(_0x4f8cb2){const _0x3b44ae=_0xed8232;document[_0x3b44ae(0x21c)](_0x3b44ae(0x243))[_0x3b44ae(0x1f0)](_0x1dce57=>_0x1dce57[_0x3b44ae(0x267)][_0x3b44ae(0x1d7)](_0x3b44ae(0x161)));const _0x4eb132=document['getElementById'](_0x4f8cb2);if(_0x4eb132)_0x4eb132['classList'][_0x3b44ae(0x163)]('active');window[_0x3b44ae(0x268)](0x0,0x0);}function tornaHome(){const _0x1cfe76=_0xed8232;vibraTocco(),impostaTabNav(_0x1cfe76(0x1ce)),cambiaVista('home-view');}function mostraImpostazioni(){const _0x15b5d2=_0xed8232;vibraTocco(),impostaTabNav(_0x15b5d2(0x126)),cambiaVista(_0x15b5d2(0x1e6));}function toggleMenuTendina(){const _0x19e842=_0xed8232;vibraTocco();const _0x57ffa4=document['getElementById'](_0x19e842(0x17f)),_0x346fd2=document[_0x19e842(0x201)](_0x19e842(0x1eb));if(!_0x57ffa4||!_0x346fd2)return;_0x346fd2['classList'][_0x19e842(0x18c)]('active')?(_0x346fd2[_0x19e842(0x267)][_0x19e842(0x1d7)](_0x19e842(0x161)),_0x57ffa4['classList']['remove']('active')):(_0x57ffa4['classList']['add'](_0x19e842(0x161)),_0x346fd2['classList']['add'](_0x19e842(0x161)));}function impostaTabNav(_0x49b996){const _0x140aad=_0xed8232;document[_0x140aad(0x21c)](_0x140aad(0x1c7))[_0x140aad(0x1f0)](_0x361e11=>_0x361e11['classList'][_0x140aad(0x1d7)]('active'));const _0x564fb5=document[_0x140aad(0x201)](_0x140aad(0x233)+_0x49b996);if(_0x564fb5)_0x564fb5[_0x140aad(0x267)][_0x140aad(0x163)]('active');}function toggleTorch(){const _0x4dc945=_0xed8232;vibraTocco();if(!isTorchOn){if(!navigator[_0x4dc945(0x209)]||!navigator[_0x4dc945(0x209)][_0x4dc945(0x181)]){alert(_0x4dc945(0x207));return;}navigator[_0x4dc945(0x209)]['getUserMedia']({'video':{'facingMode':_0x4dc945(0x1ac)}})[_0x4dc945(0x266)](_0x1e01ca=>{const _0x30ad31=_0x4dc945;return torchTrack=_0x1e01ca[_0x30ad31(0x27d)]()[0x0],torchTrack['applyConstraints']({'advanced':[{'torch':!![]}]});})[_0x4dc945(0x266)](()=>{const _0x2d3047=_0x4dc945;isTorchOn=!![];const _0x392977=document[_0x2d3047(0x201)](_0x2d3047(0xae));if(_0x392977)_0x392977[_0x2d3047(0xfa)]['color']='#f97316';})[_0x4dc945(0x1d0)](_0x29f372=>{alert('Torcia\x20non\x20disponibile\x20o\x20permessi\x20negati.');});}else{if(torchTrack)torchTrack['stop']();isTorchOn=![];const _0x1f40cb=document[_0x4dc945(0x201)](_0x4dc945(0xae));if(_0x1f40cb)_0x1f40cb[_0x4dc945(0xfa)][_0x4dc945(0x12d)]='';}}function gestisciPwaInstall(){const _0x3ce57c=_0xed8232;window[_0x3ce57c(0x1da)](_0x3ce57c(0x195),_0x418f50=>{const _0x4eb5a1=_0x3ce57c;_0x418f50[_0x4eb5a1(0x134)](),deferredPrompt=_0x418f50;const _0x430ecf=document['getElementById']('pwa-install-banner');if(_0x430ecf)_0x430ecf[_0x4eb5a1(0xfa)][_0x4eb5a1(0x12f)]=_0x4eb5a1(0x237);});const _0x3b14a1=/iPad|iPhone|iPod/['test'](navigator['userAgent'])&&!window[_0x3ce57c(0xb5)],_0x5b96a8=window[_0x3ce57c(0x219)][_0x3ce57c(0x277)]||window[_0x3ce57c(0x22f)](_0x3ce57c(0x1a1))[_0x3ce57c(0x227)];if(_0x3b14a1&&!_0x5b96a8){const _0x4514a4=document[_0x3ce57c(0x201)]('ios-install-banner');if(_0x4514a4)_0x4514a4[_0x3ce57c(0xfa)][_0x3ce57c(0x12f)]='flex';}}function installaPWA(){const _0x2eca2d=_0xed8232;deferredPrompt&&(deferredPrompt['prompt'](),deferredPrompt[_0x2eca2d(0x103)]['then'](()=>{chiudiPwaBanner();}));}function chiudiPwaBanner(){const _0x3b9252=_0xed8232,_0x1a30c2=document[_0x3b9252(0x201)](_0x3b9252(0xfd));if(_0x1a30c2)_0x1a30c2[_0x3b9252(0xfa)][_0x3b9252(0x12f)]=_0x3b9252(0x16a);}function chiudiIosBanner(){const _0xbc215=_0xed8232,_0x30a4e0=document[_0xbc215(0x201)](_0xbc215(0x21e));if(_0x30a4e0)_0x30a4e0['style'][_0xbc215(0x12f)]=_0xbc215(0x16a);}function salvaImpostazioniDitta(){const _0x4146cb=_0xed8232,_0x1eb8e5=document['getElementById'](_0x4146cb(0x1d3));if(_0x1eb8e5)localStorage['setItem'](_0x4146cb(0x1b4),_0x1eb8e5[_0x4146cb(0x262)][_0x4146cb(0x25a)]());}function salvaImpostazioniVibrazione(){const _0xea4e4=_0xed8232,_0x5f0243=document[_0xea4e4(0x201)](_0xea4e4(0x22d));if(_0x5f0243)localStorage[_0xea4e4(0x13f)](_0xea4e4(0xad),_0x5f0243[_0xea4e4(0x139)]?_0xea4e4(0x232):'false');}function caricaImpostazioni(){const _0x33aa4c=_0xed8232,_0x2d536e=localStorage['getItem'](_0x33aa4c(0x1b4)),_0x3a306b=document[_0x33aa4c(0x201)](_0x33aa4c(0x1d3));if(_0x2d536e&&_0x3a306b)_0x3a306b[_0x33aa4c(0x262)]=_0x2d536e;const _0x39a638=localStorage[_0x33aa4c(0x109)](_0x33aa4c(0xad)),_0x435980=document['getElementById'](_0x33aa4c(0x22d));if(_0x39a638!==null&&_0x435980)_0x435980[_0x33aa4c(0x139)]=_0x39a638===_0x33aa4c(0x232);}function vibraTocco(){const _0x43dfb7=_0xed8232,_0x291eb5=localStorage[_0x43dfb7(0x109)](_0x43dfb7(0xad))!==_0x43dfb7(0xca);_0x291eb5&&navigator[_0x43dfb7(0x26e)]&&navigator[_0x43dfb7(0x26e)](0xf);}
+/* ==========================================================================
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, RENDIMENTO COMBUSTIONE & SCADENZARIO
+   ========================================================================== */
+
+// PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+            registration.unregister();
+        }
+    }).catch(err => console.warn('PWA SW Cleanup:', err));
+}
+
+// HELPER LOCALSTORAGE SICURO
+function safeGetStorage(key, defaultValue) {
+    try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultValue;
+    } catch (e) {
+        return defaultValue;
+    }
+}
+
+function safeSetStorage(key, value) {
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+        console.warn("Errore salvataggio localStorage:", e);
+    }
+}
+
+// STRUTTURA DATI LOCALE
+let currentFilterType = 'all';
+let currentBrand = '';
+let favorites = safeGetStorage('caldaiafix_favs', []);
+let historyGuasti = safeGetStorage('caldaiafix_history', []);
+let dbIndexed = null;
+let deferredPrompt = null;
+let torchTrack = null;
+let isTorchOn = false;
+
+// INIZIALIZZAZIONE
+function initApp() {
+    try {
+        aggiornaContatoreHeader();
+        initIndexedDB();
+        caricaImpostazioni();
+        filtraErrori(false);
+        gestisciPwaInstall();
+        verificaStatoRete();
+    } catch (err) {
+        console.error("Errore inizializzazione CaldaiaFix:", err);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
+
+window.addEventListener('online', verificaStatoRete);
+window.addEventListener('offline', verificaStatoRete);
+
+function verificaStatoRete() {
+    const netBadge = document.getElementById('netStatus');
+    if (!netBadge) return;
+    if (navigator.onLine) {
+        netBadge.className = 'net-badge online';
+        netBadge.textContent = '🟢 Online';
+    } else {
+        netBadge.className = 'net-badge offline';
+        netBadge.textContent = '🔴 Offline';
+    }
+}
+
+// FORZA AGGIORNAMENTO CACHE PWA E REFRESH
+async function forzaAggiornamentoCache() {
+    vibraTocco();
+    if (confirm("Vuoi svuotare la memoria cache dell'app e scaricare la versione più recente dal server?")) {
+        try {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (let key of keys) {
+                    await caches.delete(key);
+                }
+            }
+            window.location.reload(true);
+        } catch (err) {
+            window.location.reload(true);
+        }
+    }
+}
+
+// CONTATORE INTESTAZIONE
+function aggiornaContatoreHeader() {
+    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
+    const countBox = document.getElementById('resultsCount');
+    if (countBox) {
+        countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
+    }
+}
+
+// FILTRAGGIO E RENDERING LISTA GUASTI
+function filtraErrori(isFavOnly = false) {
+    const searchEl = document.getElementById('searchInput');
+    const brandEl = document.getElementById('brandFilter');
+
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : '';
+    const brandSel = brandEl ? brandEl.value : '';
+    currentBrand = brandSel;
+
+    if (isFavOnly) {
+        currentFilterType = 'fav';
+        aggiornaStatoTab('btn-fav');
+    }
+
+    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
+
+    const risultati = dbData.filter(item => {
+        if (!item) return false;
+        if (brandSel && item.brand !== brandSel) return false;
+
+        if (currentFilterType === 'digital' && item.type !== 'digital') return false;
+        if (currentFilterType === 'led' && item.type !== 'led') return false;
+        if (currentFilterType === 'fav' && !favorites.includes(item.id)) return false;
+
+        if (query !== '') {
+            const matchCode = item.code ? item.code.toLowerCase().includes(query) : false;
+            const matchDesc = item.desc ? item.desc.toLowerCase().includes(query) : false;
+            const matchModel = item.model ? item.model.toLowerCase().includes(query) : false;
+            const matchBrand = item.brand ? item.brand.toLowerCase().includes(query) : false;
+            return matchCode || matchDesc || matchModel || matchBrand;
+        }
+
+        return true;
+    });
+
+    renderListaErrori(risultati);
+}
+
+function renderListaErrori(lista) {
+    const container = document.getElementById('errors-list');
+    const countBox = document.getElementById('resultsCount');
+
+    if (!container) return;
+    if (countBox) countBox.textContent = `${lista.length} GUASTI PRESENTI NEL DATABASE`;
+
+    if (!lista || lista.length === 0) {
+        container.innerHTML = `
+            <div class="card" style="text-align:center; padding:30px 15px;">
+                <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+                <div style="font-weight:800; font-size:16px; color:#ffffff;">Nessun guasto trovato</div>
+                <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">Prova a cambiare la ricerca o i filtri.</div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    lista.forEach(item => {
+        const isFav = favorites.includes(item.id);
+        const chamberText = item.chamber || 'C/F';
+
+        html += `
+            <div class="error-item" onclick="mostraDettaglio(${item.id})">
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(${item.id}, event)" title="Preferito">
+                    ${isFav ? '★' : '☆'}
+                </button>
+
+                <div class="error-main-info">
+                    <div class="error-badges-row">
+                        <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                        <span class="error-model-text">${item.model}</span>
+                        <span class="badge-chamber">${chamberText}</span>
+                    </div>
+                    <div class="error-title">${item.desc}</div>
+                </div>
+
+                <div class="error-chevron">›</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function filtraTipo(tipo) {
+    currentFilterType = tipo;
+    const tabMap = { 'all': 'btn-all', 'digital': 'btn-dig', 'led': 'btn-led', 'fav': 'btn-fav' };
+    aggiornaStatoTab(tabMap[tipo]);
+    filtraErrori(false);
+}
+
+function aggiornaStatoTab(activeBtnId) {
+    ['btn-all', 'btn-dig', 'btn-led', 'btn-fav'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById(activeBtnId);
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+// ATTREZZI CONSIGLIATI
+function ottieniAttrezziGuasto(item) {
+    const desc = ((item.desc || "") + " " + (item.partName || "")).toLowerCase();
+    let attrezzi = ["🔧 Cacciaviti Isolati 1000V", "🛠️ Chiavi a Forchetta 10-17mm"];
+
+    if (desc.includes("pressione") || desc.includes("vaso") || desc.includes("acqua")) {
+        attrezzi.push("🪠 Pompa con Manometro per Vasi", "⚖️ Manometro Idraulico");
+    }
+    if (desc.includes("gas") || desc.includes("valvola") || desc.includes("fiamma") || desc.includes("elettrodo")) {
+        attrezzi.push("⚡ Multimetro Digitale", "🔥 Manometro Differenziale mbar", "🧹 Carta Abrasiva Fine");
+    }
+    if (desc.includes("fumi") || desc.includes("pressostato") || desc.includes("ventilatore") || desc.includes("venturi")) {
+        attrezzi.push("💨 Pompetta Prova Pressostati", "🪛 Chiave a Pipa / Millerighe");
+    }
+    if (desc.includes("ntc") || desc.includes("sonda") || desc.includes("termostato") || desc.includes("scheda")) {
+        attrezzi.push("⚡ Multimetro Digitale (Profe Ohm)", "🔌 Spray Pulisci Contatti");
+    }
+
+    return Array.from(new Set(attrezzi));
+}
+
+// DASHBOARD STATISTICHE
+function mostraStatistiche() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('stats-view');
+    calcolaEDisegnaStatistiche();
+}
+
+function calcolaEDisegnaStatistiche() {
+    const container = document.getElementById('stats-container');
+    if (!container) return;
+
+    const totalConsultazioni = historyGuasti.length;
+    
+    let brandMap = {};
+    historyGuasti.forEach(h => {
+        if (h.brand) {
+            brandMap[h.brand] = (brandMap[h.brand] || 0) + 1;
+        }
+    });
+
+    let topBrand = '-';
+    let topBrandCount = 0;
+    Object.keys(brandMap).forEach(b => {
+        if (brandMap[b] > topBrandCount) {
+            topBrandCount = brandMap[b];
+            topBrand = b;
+        }
+    });
+
+    const generaHTML = (numTarghe) => {
+        let brandBarsHTML = '';
+        const total = totalConsultazioni || 1;
+
+        Object.keys(brandMap).forEach(b => {
+            const pct = Math.round((brandMap[b] / total) * 100);
+            brandBarsHTML += `
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+                        <span>${b}</span>
+                        <span>${pct}% (${brandMap[b]})</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (!brandBarsHTML) {
+            brandBarsHTML = `<p style="font-size:13px; color:var(--text-sub);">Consulta alcuni guasti per iniziare a generare le statistiche per marca.</p>`;
+        }
+
+        container.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${numTarghe}</div>
+                    <div class="stat-label">Targhe Impianto</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalConsultazioni}</div>
+                    <div class="stat-label">Guasti Consultati</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:15px; font-weight:800; color:#38bdf8; margin-bottom:10px;">🏆 Marca Più Trattata</h3>
+                <div style="font-size:20px; font-weight:900; color:#ffffff;">${topBrand}</div>
+                <div style="font-size:13px; color:var(--text-sub); margin-top:2px;">Basato sullo storico delle tue ricerche recenti.</div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:15px; font-weight:800; color:#ffffff; margin-bottom:12px;">📊 Ripartizione Interventi per Marca</h3>
+                ${brandBarsHTML}
+            </div>
+        `;
+    };
+
+    if (dbIndexed) {
+        const tx = dbIndexed.transaction(['targhe'], 'readonly');
+        const store = tx.objectStore('targhe');
+        const req = store.count();
+        req.onsuccess = () => generaHTML(req.result);
+        req.onerror = () => generaHTML(0);
+    } else {
+        generaHTML(0);
+    }
+}
+
+// DETTAGLIO GUASTO & STORICO
+function mostraDettaglio(id) {
+    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
+    const item = dbData.find(e => e.id === id);
+    if (!item) return;
+
+    vibraTocco();
+    salvaInStorico(item);
+
+    const detailContent = document.getElementById('detail-content');
+    if (!detailContent) return;
+
+    const isFav = favorites.includes(item.id);
+
+    let htmlSteps = '';
+    if (item.steps && item.steps.length > 0) {
+        htmlSteps = '<ol style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.steps.map(step => `<li style="margin-bottom:6px;">${step}</li>`).join('') + '</ol>';
+    }
+
+    let htmlCauses = '';
+    if (item.causes && item.causes.length > 0) {
+        htmlCauses = '<ul style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.causes.map(c => `<li style="margin-bottom:4px;">${c}</li>`).join('') + '</ul>';
+    }
+
+    const listaAttrezzi = ottieniAttrezziGuasto(item);
+    const htmlAttrezzi = listaAttrezzi.map(attrezzo => {
+        const cleanToolName = attrezzo.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+        const toolSearchQuery = encodeURIComponent(cleanToolName);
+        const toolAmazonUrl = `https://www.amazon.it/s?k=${toolSearchQuery}&tag=dbsolution-21`;
+        return `<a href="${toolAmazonUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" onclick="event.stopPropagation();">${attrezzo} ↗</a>`;
+    }).join('');
+
+    const searchQuery = encodeURIComponent(`${item.brand} ${item.partName || item.code} ricambio caldaia`);
+    const amazonAffiliateUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=dbsolution-21`;
+
+    detailContent.innerHTML = `
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                <div>
+                    <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                    <h2 style="font-size:22px; font-weight:800; color:#ffffff; margin-top:8px;">${item.desc}</h2>
+                    <p style="font-size:14px; color:var(--text-sub); font-weight:600; margin-top:2px;">Modelli: ${item.model}</p>
+                </div>
+                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:32px;" onclick="toggleFav(${item.id}, event); mostraDettaglio(${item.id});">
+                    ${isFav ? '★' : '☆'}
+                </button>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:6px;">⚠️ Possibili Cause:</h3>
+                ${htmlCauses}
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:800; color:#22c55e; text-transform:uppercase; margin-bottom:6px;">🛠️ Procedura di Risoluzione:</h3>
+                ${htmlSteps}
+            </div>
+
+            <div class="tools-box">
+                <div style="font-size:12px; font-weight:900; color:#cbd5e1; text-transform:uppercase;">🧰 Attrezzatura Consigliata (Clicca per acquistare su Amazon):</div>
+                <div class="tools-list">
+                    ${htmlAttrezzi}
+                </div>
+            </div>
+
+            ${item.partName ? `
+                <div style="background:#064e3b; border:1px solid #059669; padding:14px; border-radius:14px; margin-bottom:16px;">
+                    <div style="font-size:12px; font-weight:800; color:#a7f3d0; text-transform:uppercase;">Ricambio Consigliato:</div>
+                    <div style="font-size:16px; font-weight:800; color:#ffffff; margin-top:2px;">${item.partName}</div>
+                    <div style="font-size:14px; color:#6ee7b7; font-family:monospace; margin-top:2px;">Codice: ${item.partCode}</div>
+                </div>
+            ` : ''}
+
+            <a href="${amazonAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon">
+                🛒 Cerca Ricambio Principale su Amazon
+            </a>
+
+            ${item.gasParams && item.gasParams !== '-' ? `
+                <div style="background:#451a03; border:1px solid #f97316; padding:14px; border-radius:14px; margin-top:16px; font-size:15px; color:#ffedd5;">
+                    🔥 Parametri Combustione / Gas: <br>
+                    <strong>${item.gasParams}</strong>
+                </div>
+            ` : ''}
+
+            <div style="margin-top:16px;">
+                <button class="btn-whatsapp" onclick="apriReportModal('${item.brand}', '${item.code}', '${item.desc}')">
+                    💬 Crea Rapporto Cliente
+                </button>
+            </div>
+        </div>
+    `;
+
+    cambiaVista('detail-view');
+}
+
+function salvaInStorico(item) {
+    historyGuasti = historyGuasti.filter(h => h.id !== item.id);
+    historyGuasti.unshift({ ...item, timestamp: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) });
+    if (historyGuasti.length > 20) historyGuasti.pop();
+    safeSetStorage('caldaiafix_history', historyGuasti);
+}
+
+function mostraStorico() {
+    vibraTocco();
+    impostaTabNav('history');
+    const container = document.getElementById('history-list');
+    if (!container) return;
+
+    if (historyGuasti.length === 0) {
+        container.innerHTML = `
+            <div class="card" style="text-align:center; padding:20px;">
+                <p style="font-size:14px; color:var(--text-sub);">Nessun guasto consultato di recente.</p>
+            </div>
+        `;
+    } else {
+        let html = '';
+        historyGuasti.forEach(item => {
+            html += `
+                <div class="error-item" onclick="mostraDettaglio(${item.id})">
+                    <div class="error-main-info">
+                        <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                        <div class="error-title">${item.desc}</div>
+                    </div>
+                    <span style="font-size:12px; color:var(--text-sub); font-weight:600;">${item.timestamp}</span>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    cambiaVista('history-view');
+}
+
+function richiediSvuotaStorico() {
+    historyGuasti = [];
+    localStorage.removeItem('caldaiafix_history');
+    mostraStorico();
+}
+
+function toggleFav(id, event) {
+    if (event) event.stopPropagation();
+    vibraTocco();
+
+    const idx = favorites.indexOf(id);
+    if (idx > -1) {
+        favorites.splice(idx, 1);
+    } else {
+        favorites.push(id);
+    }
+    safeSetStorage('caldaiafix_favs', favorites);
+    filtraErrori(false);
+}
+
+// AREA TECNICA & GESTIONE PIN
+function apriPin() {
+    vibraTocco();
+    const modal = document.getElementById('pin-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const input = document.getElementById('pinInput');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 100);
+        }
+    }
+}
+
+function chiudiPin() {
+    const modal = document.getElementById('pin-modal');
+    const err = document.getElementById('pinError');
+    const inp = document.getElementById('pinInput');
+
+    if (modal) modal.style.display = 'none';
+    if (err) err.style.display = 'none';
+    if (inp) inp.value = '';
+}
+
+function verificaPin() {
+    const pin = document.getElementById('pinInput')?.value.trim() || '';
+    if (pin === '1234' || pin === '0000' || pin.length >= 4) {
+        chiudiPin();
+        renderAreaTecnica();
+        cambiaVista('area-tecnica-view');
+    } else {
+        const err = document.getElementById('pinError');
+        if (err) err.style.display = 'block';
+    }
+}
+
+function renderAreaTecnica() {
+    const container = document.getElementById('installer-content-main');
+    if (!container) return;
+
+    const menus = (typeof installerMenus !== 'undefined' && Array.isArray(installerMenus)) ? installerMenus : [];
+
+    let html = `
+        <div class="card" style="background:#2e1065; border-color:#7c3aed;">
+            <h3 style="color:#d8b4fe; font-size:15px; font-weight:800; text-transform:uppercase; margin-bottom:12px;">🔑 Parametri Tecnici & Menu Segreti</h3>
+    `;
+
+    if (menus.length === 0) {
+        html += `<p style="color:var(--text-sub); font-size:14px;">Nessun menu tecnico presente nel database.</p>`;
+    } else {
+        menus.forEach(m => {
+            html += `
+                <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:14px; margin-bottom:10px;">
+                    <div style="font-size:15px; font-weight:800; color:#c084fc;">${m.brand} (${m.model})</div>
+                    <div style="font-size:14px; color:#ffffff; margin-top:6px; line-height:1.4;"><strong>Procedura:</strong> ${m.sequence}</div>
+                    <div style="font-size:12px; color:var(--text-sub); margin-top:4px;"><em>${m.notes}</em></div>
+                </div>
+            `;
+        });
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// QUICK-VIEWER MORSETTIERE
+const morsettiereData = {
+    "Baxi": {
+        title: "Baxi - Luna3 / Duo-Tec / Eco",
+        pins: [
+            { num: "1 - 2", func: "Termostato Ambiente (TA)", note: "Tensione 230V. Rimuovere ponticello di serie." },
+            { num: "3 - 4", func: "Comando Remoto / BUS OpenTherm", note: "Basso voltaggio (Polarizzato)." },
+            { num: "5 - 6", func: "Sonda Esterna (SE)", note: "NTC 10k Ohm a 25°C." }
+        ]
+    },
+    "Vaillant": {
+        title: "Vaillant - ecoTEC pro / plus / AtmoTEC",
+        pins: [
+            { num: "3 - 4", func: "Termostato Ambiente 230V", note: "Rimuovere il cavetto ponticello rosso." },
+            { num: "7 - 8 - 9", func: "Termostato Analogico Vaillant (24V)", note: "Collegare 7-8-9." },
+            { num: "+ eBUS -", func: "Cronotermostato vRT / eBUS", note: "Polarizzato eBUS digitale." }
+        ]
+    },
+    "Immergas": {
+        title: "Immergas - Victrix TT / Avio / Maior",
+        pins: [
+            { num: "40 - 41", func: "Termostato Ambiente (TA)", note: "Contatto pulito (Rimuovere ponticello)." },
+            { num: "42 - 43", func: "Comando Remoto CAR V2 (BUS)", note: "Basso voltaggio non polarizzato." },
+            { num: "38 - 39", func: "Sonda Esterna", note: "NTC temperatura esterna." }
+        ]
+    },
+    "Ariston": {
+        title: "Ariston - Clas One / Genus / Cares",
+        pins: [
+            { num: "TA1", func: "Termostato Ambiente 1", note: "Contatto pulito. Rimuovere bridge verde." },
+            { num: "B - T", func: "BUS BridgeNet Sensys", note: "Comunicazione digitale Ariston." },
+            { num: "SOLAR", func: "Sonda Collettore Solare", note: "Ingresso sensore dedicato." }
+        ]
+    },
+    "Beretta": {
+        title: "Beretta - Mynute / Ciao / Paros",
+        pins: [
+            { num: "TA - TA", func: "Termostato Ambiente", note: "Morsettiera M2. Rimuovere cavetto." },
+            { num: "OT - OT", func: "OpenTherm / BeSMART", note: "Contatto BUS Basso voltaggio." },
+            { num: "SE - SE", func: "Sonda Esterna", note: "Morsetti sonda climatica." }
+        ]
+    },
+    "Ferroli": {
+        title: "Ferroli - Bluehelix / Divacondens",
+        pins: [
+            { num: "1 - 2", func: "Termostato Ambiente (TA)", note: "Contatto pulito. Rimuovere ponticello." },
+            { num: "3 - 4", func: "Sonda Esterna / OpenTherm", note: "Configurabile da parametro scheda." }
+        ]
+    },
+    "Hermann Saunier Duval": {
+        title: "Hermann Saunier Duval - Thema / Saunier",
+        pins: [
+            { num: "24V = RT", func: "Termostato Ambiente 24V", note: "Togliere il ponte di fabbrica." },
+            { num: "BUS (+ -)", func: "Cronotermostato Exacontrol", note: "Interfaccia BUS eBUS." }
+        ]
+    }
+};
+
+function mostraMorsettiere() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('morsettiere-view');
+    const filter = document.getElementById('morsettiereBrandFilter');
+    if (filter) renderMorsettieraBrand(filter.value);
+}
+
+function renderMorsettieraBrand(brandKey) {
+    const container = document.getElementById('morsettiere-container');
+    if (!container) return;
+
+    const item = morsettiereData[brandKey] || morsettiereData["Baxi"];
+
+    let htmlPins = item.pins.map(p => `
+        <div class="terminal-pin-box">
+            <span class="pin-num">${p.num}</span>
+            <div class="pin-func">${p.func}</div>
+            <div class="pin-note">${p.note}</div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="terminal-card">
+            <h3 style="font-size:18px; font-weight:800; color:#38bdf8; margin-bottom:8px;">${item.title}</h3>
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:14px;">Morsettiera principale di collegamento sulla scheda madre:</p>
+            <div class="terminal-pin-grid">
+                ${htmlPins}
+            </div>
+        </div>
+    `;
+}
+
+// STAMPA & GENERATORE REPORT PDF
+function stampaReportPDF() {
+    vibraTocco();
+
+    const company = document.getElementById('repCompany')?.value.trim() || 'Ditta Assistenza Tecnica';
+    const client = document.getElementById('repClient')?.value.trim() || 'Cliente Generico';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '-';
+    const fault = document.getElementById('repFault')?.value.trim() || '-';
+    const work = document.getElementById('repWork')?.value.trim() || 'Nessuna nota aggiuntiva';
+    const price = document.getElementById('repPrice')?.value.trim() || '0.00';
+    const dateStr = new Date().toLocaleDateString('it-IT');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert("Attiva i pop-up sul browser per generare il PDF.");
+        return;
+    }
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="it">
+        <head>
+            <meta charset="UTF-8">
+            <title>Rapporto_Intervento_${dateStr}.pdf</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; line-height: 1.5; }
+                .header-box { border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+                .company-name { font-size: 22px; font-weight: bold; color: #ea580c; }
+                .doc-title { font-size: 18px; font-weight: bold; text-align: right; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+                .field-label { font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+                .field-value { font-size: 15px; font-weight: bold; color: #0f172a; margin-top: 2px; }
+                .section-title { font-size: 14px; font-weight: bold; color: #ea580c; text-transform: uppercase; margin-top: 20px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+                .work-box { background: #ffffff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 8px; font-size: 14px; min-height: 100px; }
+                .total-box { margin-top: 30px; text-align: right; font-size: 20px; font-weight: bold; color: #166534; }
+                .footer-text { margin-top: 50px; font-size: 11px; text-align: center; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="header-box">
+                <div>
+                    <div class="company-name">${company}</div>
+                    <div style="font-size:12px; color:#64748b;">Rapporto Tecnico di Manutenzione / Riparazione</div>
+                </div>
+                <div class="doc-title">
+                    <div>Data: ${dateStr}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div>
+                    <div class="field-label">Cliente / Riferimento:</div>
+                    <div class="field-value">${client}</div>
+                </div>
+                <div>
+                    <div class="field-label">Caldaia / Impianto:</div>
+                    <div class="field-value">${boiler}</div>
+                </div>
+            </div>
+
+            <div class="section-title">Anomalia / Codice Guasto Riscontrato</div>
+            <div class="work-box" style="min-height:auto;">
+                <strong>${fault}</strong>
+            </div>
+
+            <div class="section-title">Intervento Svolto & Ricambi Sostituiti</div>
+            <div class="work-box">
+                ${work.replace(/\n/g, '<br>')}
+            </div>
+
+            <div class="total-box">
+                IMPORTO TOTALE: € ${price}
+            </div>
+
+            <div class="footer-text">
+                Documento generato tramite CaldaiaFix PRO • Copia Cliente
+            </div>
+
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            </script>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    chiudiReportModal();
+}
+
+// TROUBLESHOOTING WIZARD
+const wizardTree = {
+    start: {
+        title: "Quale sintomo presenta la caldaia?",
+        options: [
+            { text: "💧 Acqua calda sanitaria tiepida o altalenante", next: "sanitaria" },
+            { text: "🔌 Caldaia completamente spenta (Nessun LED/Display)", next: "spenta" },
+            { text: "🔊 Rumori anomali (Ebollizione / Colpi d'ariete / Fischi)", next: "rumori" },
+            { text: "📈 Pressione acqua instabile (Sale alta o cade a 0)", next: "pressione" },
+            { text: "💦 Perdita d'acqua idraulica sotto la caldaia", next: "perdita" }
+        ]
+    },
+    sanitaria: {
+        title: "L'acqua riscalda quando il riscaldamento è acceso?",
+        options: [
+            { text: "Sì, l'acqua scalda bene solo con i termosifoni accesi", solution: "Valvola a 3 vie bloccata in posizione riscaldamento o attuatore guasto. Verificare lo spillo e la cartuccia sferica.", part: "Valvola 3 vie caldaia", tool: "⚡ Multimetro Digitale" },
+            { text: "No, l'acqua cambia continuamente temperatura da calda a fredda", solution: "Scambiatore secondario a piastre intasato da calcare o Sonda NTC Sanitario ritarata.", part: "Scambiatore piastre sanitario", tool: "🛠️ Chiavi per Raccordi" },
+            { text: "Il bruciatore non si accende proprio aprendo il rubinetto", solution: "Flussostato / Flussometro o microinterruttore sanitario guasto. Non rileva il flusso d'acqua.", part: "Flussostato sanitario caldaia", tool: "⚡ Multimetro Digitale" }
+        ]
+    },
+    spenta: {
+        title: "Hai verificato se c'è tensione sulla presa o sull'interruttore bipolare?",
+        options: [
+            { text: "C'è tensione 230V alla presa ma la caldaia è morta", solution: "Fusibile di protezione sulla scheda madre bruciato o scheda di alimentazione guasta a causa di sbalzo di tensione.", part: "Scheda madre caldaia", tool: "⚡ Multimetro Digitale" },
+            { text: "Il salvavita generale di casa scatta subito appena accendo la caldaia", solution: "Dispersione verso terra. Verificare in ordine: Circolatore pompa in corto, Resistenza candeletta o Ventilatore fumi.", part: "Pompa circolatore caldaia", tool: "⚡ Multimetro Digitale" }
+        ]
+    },
+    rumori: {
+        title: "Che tipo di rumore senti durante il funzionamento?",
+        options: [
+            { text: "Ebollizione violenta / Gorgoglio tipo pentola a pressione", solution: "Mancanza di circolazione acqua. Pompa bloccata (sbloccare la vite centrale) o Scambiatore primario ostruito.", part: "Pompa circolatore caldaia", tool: "🪛 Cacciavite a Taglio Grosso" },
+            { text: "Fischio acuto continuo durante la ventilazione", solution: "Cuscinetti del ventilatore esausti o tubetto Venturi / Pressostato fumi ostruito.", part: "Ventilatore fumi caldaia", tool: "💨 Pompetta Prova Pressostati" }
+        ]
+    },
+    pressione: {
+        title: "Cosa fa esattamente il manometro della pressione?",
+        options: [
+            { text: "La pressione sale oltre 2.5 - 3 bar solo quando accendo i termosifoni", solution: "Vaso d'espansione scarico d'aria o membrana bucata. Ripristinare precarica a 1.0 bar o sostituire vaso.", part: "Vaso espansione caldaia", tool: "🪠 Pompa con Manometro per Vasi" },
+            { text: "La pressione scende continuamente a 0 bar ogni giorno", solution: "Perdita sull'impianto di riscaldamento o Scambiatore primario bucato con scarico in camera di combustione.", part: "Valvola sicurezza 3 bar", tool: "⚖️ Manometro Idraulico" }
+        ]
+    },
+    perdita: {
+        title: "Da dove proviene la perdita d'acqua?",
+        options: [
+            { text: "Dalla valvola di sicurezza con il tappino rosso (gocciola)", solution: "Valvola di sicurezza 3 bar sporca di calcare sotto la sede o pressione impianto troppo alta (> 3 bar).", part: "Valvola sicurezza 3 bar caldaia", tool: "🛠️ Chiavi per Raccordi" },
+            { text: "Dal rubinetto di riempimento sotto la caldaia", solution: "Guarnizioni / OR del rubinetto di carico usurate o corpo in plastica crepato.", part: "Rubinetto di carico caldaia", tool: "🛠️ Chiavi per Raccordi" }
+        ]
+    }
+};
+
+function avviaWizard() {
+    vibraTocco();
+    impostaTabNav('home');
+    cambiaVista('wizard-view');
+    renderStepWizard('start');
+}
+
+function renderStepWizard(stepKey) {
+    const container = document.getElementById('wizard-container');
+    if (!container) return;
+
+    const data = wizardTree[stepKey];
+    if (!data) return;
+
+    let html = `
+        <div class="wizard-card">
+            <div class="wizard-step-title">${data.title}</div>
+            <div class="wizard-options-list">
+    `;
+
+    if (data.options) {
+        data.options.forEach(opt => {
+            if (opt.next) {
+                html += `
+                    <button class="wizard-option-btn" onclick="renderStepWizard('${opt.next}')">
+                        <span>${opt.text}</span>
+                        <span>›</span>
+                    </button>
+                `;
+            } else if (opt.solution) {
+                const searchPartUrl = `https://www.amazon.it/s?k=${encodeURIComponent(opt.part || "ricambio caldaia")}&tag=dbsolution-21`;
+                const searchToolUrl = `https://www.amazon.it/s?k=${encodeURIComponent((opt.tool || "").replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim())}&tag=dbsolution-21`;
+
+                html += `
+                    <div class="wizard-solution-box">
+                        <div style="font-size:12px; font-weight:900; color:#34d399; text-transform:uppercase; margin-bottom:6px;">🎯 Risultato Diagnostica:</div>
+                        <div style="font-size:16px; font-weight:700; color:#ffffff; line-height:1.4; margin-bottom:12px;">${opt.solution}</div>
+
+                        ${opt.tool ? `
+                            <div style="margin-top:10px;">
+                                <div style="font-size:12px; font-weight:800; color:#94a3b8;">🧰 Attrezzo Consigliato:</div>
+                                <a href="${searchToolUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" style="margin-top:4px;">${opt.tool} ↗</a>
+                            </div>
+                        ` : ''}
+
+                        ${opt.part ? `
+                            <a href="${searchPartUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon" style="margin-top:14px;">
+                                🛒 Cerca "${opt.part}" su Amazon
+                            </a>
+                        ` : ''}
+
+                        <button class="btn-clear" style="width:100%; margin-top:12px;" onclick="renderStepWizard('start')">🔄 Ricomincia Diagnosi</button>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// BACKUP & RIPRISTINO JSON TARGHE
+function esportaBackupJSON() {
+    if (!dbIndexed) {
+        alert("Banca dati non ancora pronta o non supportata dal browser.");
+        return;
+    }
+    vibraTocco();
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        const data = request.result;
+        if (!data || data.length === 0) {
+            alert("Nessuna targa salvata nell'archivio da esportare.");
+            return;
+        }
+
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CaldaiaFix_Backup_Targhe_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+}
+
+function ripristinaBackupJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) {
+                alert("File di backup non valido: deve contenere un elenco di targhe.");
+                return;
+            }
+
+            if (!confirm(`Trovate ${importedData.length} targhe nel file. Vuoi aggiungerle all'archivio locale?`)) {
+                return;
+            }
+
+            if (!dbIndexed) {
+                alert("Banca dati non disponibile.");
+                return;
+            }
+
+            const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+            const store = transaction.objectStore('targhe');
+
+            importedData.forEach(item => {
+                delete item.id;
+                store.add(item);
+            });
+
+            transaction.oncomplete = () => {
+                alert("Ripristino completato con successo!");
+                mostraTarghe();
+            };
+        } catch (err) {
+            alert("Errore nel caricamento del file JSON: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// ARCHIVIO TARGHE, INDEXED DB & SCADENZARIO
+function initIndexedDB() {
+    try {
+        const request = indexedDB.open('CaldaiaFixTargheDB', 1);
+
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('targhe')) {
+                db.createObjectStore('targhe', { keyPath: 'id', autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = (e) => {
+            dbIndexed = e.target.result;
+        };
+    } catch(e) {
+        console.warn("IndexedDB non disponibile:", e);
+    }
+}
+
+function apriTargaModal() {
+    vibraTocco();
+    const modal = document.getElementById('targa-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function chiudiTargaModal() {
+    const modal = document.getElementById('targa-modal');
+    if (modal) modal.style.display = 'none';
+    ['tagClient', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const img = document.getElementById('tagImgPreview');
+    if (img) {
+        img.style.display = 'none';
+        img.src = '';
+    }
+}
+
+function anteprimaFotoTarga(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('tagImgPreview');
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function salvaSchedaTarga() {
+    if (!dbIndexed) return;
+
+    const client = document.getElementById('tagClient')?.value.trim() || '';
+    const address = document.getElementById('tagAddress')?.value.trim() || '';
+    const boiler = document.getElementById('tagBoiler')?.value.trim() || '';
+    const serial = document.getElementById('tagSerial')?.value.trim() || '';
+    const notes = document.getElementById('tagNotes')?.value.trim() || '';
+    const nextMaint = document.getElementById('tagNextMaintenance')?.value || '';
+    const imgEl = document.getElementById('tagImgPreview');
+    const imgSrc = imgEl ? imgEl.src : '';
+
+    if (!client && !boiler) {
+        alert("Inserisci almeno il Nome Cliente o il Modello Caldaia.");
+        return;
+    }
+
+    const item = {
+        client: client || "Cliente Generico",
+        address: address,
+        boiler: boiler,
+        serial: serial,
+        notes: notes,
+        nextMaintenance: nextMaint,
+        image: (imgSrc && imgSrc.startsWith('data:image')) ? imgSrc : null,
+        date: new Date().toLocaleDateString('it-IT')
+    };
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+    const store = transaction.objectStore('targhe');
+    store.add(item);
+
+    transaction.oncomplete = () => {
+        chiudiTargaModal();
+        mostraTarghe();
+    };
+}
+
+function mostraTarghe() {
+    vibraTocco();
+    impostaTabNav('targhe');
+    cambiaVista('targhe-view');
+    caricaTarghe();
+}
+
+function caricaTarghe() {
+    if (!dbIndexed) return;
+
+    const container = document.getElementById('targhe-list');
+    if (!container) return;
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        const items = request.result;
+        if (!items || items.length === 0) {
+            container.innerHTML = `
+                <div class="card" style="text-align:center; padding:20px;">
+                    <p style="font-size:14px; color:var(--text-sub);">Nessuna targa salvata nell'archivio.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const oggi = new Date();
+        oggi.setHours(0,0,0,0);
+
+        let html = '';
+        items.reverse().forEach(item => {
+            let statusBadge = '';
+            if (item.nextMaintenance) {
+                const dataScad = new Date(item.nextMaintenance);
+                const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
+                const dateFormatted = dataScad.toLocaleDateString('it-IT');
+
+                if (diffDays < 0) {
+                    statusBadge = `<div class="maint-badge maint-alert">🔴 Manutenzione Scaduta (${dateFormatted})</div>`;
+                } else if (diffDays <= 30) {
+                    statusBadge = `<div class="maint-badge maint-warn">🟡 In Scadenza (Mancano ${diffDays} gg)</div>`;
+                } else {
+                    statusBadge = `<div class="maint-badge maint-ok">🟢 Regolare (Scade il ${dateFormatted})</div>`;
+                }
+            }
+
+            html += `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:17px; font-weight:800; color:#ffffff;">${item.client}</div>
+                            <div style="font-size:13px; color:var(--text-sub); font-weight:600;">📍 ${item.address || 'Nessun indirizzo'}</div>
+                        </div>
+                        <button style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;" onclick="eliminaTarga(${item.id})">🗑️</button>
+                    </div>
+
+                    <div style="margin-top:10px; font-size:14px; color:#ffffff;">
+                        <div>🔥 Caldaia: <strong>${item.boiler || '-'}</strong></div>
+                        <div>🏷️ Matricola: <strong>${item.serial || '-'}</strong></div>
+                        ${statusBadge}
+                        ${item.notes ? `<div style="margin-top:6px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
+                    </div>
+
+                    ${item.image ? `<img src="${item.image}" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; margin-top:10px;" alt="Targa">` : ''}
+
+                    <div style="font-size:11px; color:var(--text-sub); margin-top:8px; text-align:right;">Salvato il: ${item.date}</div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    };
+}
+
+function eliminaTarga(id) {
+    if (!confirm("Vuoi davvero eliminare questa scheda targa?")) return;
+    if (!dbIndexed) return;
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+    const store = transaction.objectStore('targhe');
+    store.delete(id);
+
+    transaction.oncomplete = () => {
+        caricaTarghe();
+    };
+}
+
+function richiediSvuotaTarghe() {
+    if (!confirm("Sei sicuro di voler cancellare TUTTA la banca dati delle targhe salvate?")) return;
+    if (!dbIndexed) return;
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+    const store = transaction.objectStore('targhe');
+    store.clear();
+
+    transaction.oncomplete = () => {
+        caricaTarghe();
+    };
+}
+
+// CALCOLATORI TECNICI & RENDIMENTO COMBUSTIONE (UNI 10389-1)
+function mostraCalcolatori() {
+    vibraTocco();
+    impostaTabNav('calc');
+    cambiaVista('calc-view');
+}
+
+function calcolaRendimentoCombustione() {
+    const tfEl = document.getElementById('tempFumi');
+    const taEl = document.getElementById('tempAmbiente');
+    const co2El = document.getElementById('valoreCO2');
+    const fuelEl = document.getElementById('tipoCombustibile');
+    const resBox = document.getElementById('rendimentoResult');
+
+    if (!tfEl || !taEl || !co2El || !resBox) return;
+
+    const Tf = parseFloat(tfEl.value);
+    const Ta = parseFloat(taEl.value) || 20;
+    const CO2 = parseFloat(co2El.value);
+    const fuel = fuelEl ? fuelEl.value : 'metano';
+
+    if (isNaN(Tf) || isNaN(CO2) || CO2 <= 0 || Tf <= Ta) {
+        resBox.textContent = 'Rendimento \u03B7: -- % | Perdita qA: -- %';
+        resBox.style.color = '#93c5fd';
+        return;
+    }
+
+    // Parametri Siegert / UNI 10389-1
+    let A2 = 0.37;
+    let B = 0.009;
+
+    if (fuel === 'gpl') {
+        A2 = 0.42;
+        B = 0.008;
+    }
+
+    const qA = (Tf - Ta) * ((A2 / CO2) + B);
+    const eta = 100 - qA;
+
+    const etaFormatted = eta.toFixed(1);
+    const qAFormatted = qA.toFixed(1);
+
+    if (eta >= 90) {
+        resBox.textContent = `Rendimento \u03B7: ${etaFormatted}% (CONFORME) | Perdita qA: ${qAFormatted}%`;
+        resBox.style.color = '#86efac';
+    } else {
+        resBox.textContent = `Rendimento \u03B7: ${etaFormatted}% (NON CONFORME <90%) | Perdita qA: ${qAFormatted}%`;
+        resBox.style.color = '#fca5a5';
+    }
+}
+
+function calcolaPortataGas() {
+    const input = document.getElementById('gasLiters');
+    const resultBox = document.getElementById('gasResult');
+    if (!input || !resultBox) return;
+
+    const litri = parseFloat(input.value);
+    if (isNaN(litri) || litri <= 0) {
+        resultBox.textContent = '0.0 kW Termici';
+        return;
+    }
+
+    const kw = (litri * 0.06 * 9.6).toFixed(1);
+    resultBox.textContent = `${kw} kW Termici`;
+}
+
+function calcolaVasoEspansione() {
+    const volInput = document.getElementById('waterVolume');
+    const heightInput = document.getElementById('buildingHeight');
+    const resultBox = document.getElementById('vasoResult');
+    if (!volInput || !resultBox) return;
+
+    const vol = parseFloat(volInput.value);
+    const height = parseFloat(heightInput?.value) || 0;
+
+    if (isNaN(vol) || vol <= 0) {
+        resultBox.textContent = 'Vaso Minimo: 0 L | Precarica: 1.0 bar';
+        return;
+    }
+
+    const vasoLitri = Math.ceil(vol * 0.08);
+    const precaricaBar = (1.0 + (height * 0.1)).toFixed(1);
+
+    resultBox.textContent = `Vaso Minimo: ${vasoLitri} L | Precarica: ${precaricaBar} bar`;
+}
+
+function convertiPressione(type) {
+    const mbarInput = document.getElementById('inputMbar');
+    const paInput = document.getElementById('inputPascal');
+    if (!mbarInput || !paInput) return;
+
+    if (type === 'mbar') {
+        const val = parseFloat(mbarInput.value);
+        paInput.value = isNaN(val) ? '' : Math.round(val * 100);
+    } else {
+        const val = parseFloat(paInput.value);
+        mbarInput.value = isNaN(val) ? '' : (val / 100).toFixed(2);
+    }
+}
+
+// RAPPORTO INTERVENTO WHATSAPP
+function apriReportModal(brand, code, desc) {
+    vibraTocco();
+    const company = localStorage.getItem('caldaiafix_company') || '';
+    const repCompany = document.getElementById('repCompany');
+    const repBoiler = document.getElementById('repBoiler');
+    const repFault = document.getElementById('repFault');
+    const modal = document.getElementById('report-modal');
+
+    if (repCompany) repCompany.value = company;
+    if (repBoiler) repBoiler.value = brand;
+    if (repFault) repFault.value = `${code} - ${desc}`;
+    if (modal) modal.style.display = 'flex';
+}
+
+function chiudiReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function inviaRapportoWhatsApp() {
+    const company = document.getElementById('repCompany')?.value.trim() || '';
+    const client = document.getElementById('repClient')?.value.trim() || '';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '';
+    const fault = document.getElementById('repFault')?.value.trim() || '';
+    const work = document.getElementById('repWork')?.value.trim() || '';
+    const price = document.getElementById('repPrice')?.value.trim() || '';
+
+    let testo = `*RAPPORTO INTERVENTO TECNICO*\n`;
+    if (company) testo += `🏢 Ditta: ${company}\n`;
+    if (client) testo += `👤 Cliente: ${client}\n`;
+    if (boiler) testo += `🔥 Caldaia: ${boiler}\n`;
+    if (fault) testo += `⚠️ Guasto: ${fault}\n`;
+    if (work) testo += `🛠️ Lavoro Svolto: ${work}\n`;
+    if (price) testo += `💶 Importo Totale: € ${price}\n`;
+    testo += `\n_Inviato da CaldaiaFix PRO_`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
+    window.open(url, '_blank');
+    chiudiReportModal();
+}
+
+// NAVIGAZIONE, VISTE & MENU TENDINA
+function cambiaVista(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(viewId);
+    if (target) target.classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function tornaHome() {
+    vibraTocco();
+    impostaTabNav('home');
+    cambiaVista('home-view');
+}
+
+function mostraImpostazioni() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('settings-view');
+}
+
+function toggleMenuTendina() {
+    vibraTocco();
+    const overlay = document.getElementById('dropup-overlay');
+    const menu = document.getElementById('dropup-menu');
+
+    if (!overlay || !menu) return;
+
+    if (menu.classList.contains('active')) {
+        menu.classList.remove('active');
+        overlay.classList.remove('active');
+    } else {
+        overlay.classList.add('active');
+        menu.classList.add('active');
+    }
+}
+
+function impostaTabNav(tab) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    const navBtn = document.getElementById(`nav-${tab}`);
+    if (navBtn) navBtn.classList.add('active');
+}
+
+// TORCIA FLASH & PWA
+function toggleTorch() {
+    vibraTocco();
+    if (!isTorchOn) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Torcia non disponibile su questo browser.");
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                torchTrack = stream.getVideoTracks()[0];
+                return torchTrack.applyConstraints({ advanced: [{ torch: true }] });
+            })
+            .then(() => {
+                isTorchOn = true;
+                const btn = document.getElementById('menu-torch-btn');
+                if (btn) btn.style.color = '#f97316';
+            })
+            .catch(err => {
+                alert("Torcia non disponibile o permessi negati.");
+            });
+    } else {
+        if (torchTrack) torchTrack.stop();
+        isTorchOn = false;
+        const btn = document.getElementById('menu-torch-btn');
+        if (btn) btn.style.color = '';
+    }
+}
+
+function gestisciPwaInstall() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'flex';
+    });
+
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isIos && !isStandalone) {
+        const iosBanner = document.getElementById('ios-install-banner');
+        if (iosBanner) iosBanner.style.display = 'flex';
+    }
+}
+
+function installaPWA() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+            chiudiPwaBanner();
+        });
+    }
+}
+
+function chiudiPwaBanner() {
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+function chiudiIosBanner() {
+    const banner = document.getElementById('ios-install-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+// UTILITY & IMPOSTAZIONI DITTA
+function salvaImpostazioniDitta() {
+    const el = document.getElementById('settingCompany');
+    if (el) localStorage.setItem('caldaiafix_company', el.value.trim());
+}
+
+function salvaImpostazioniVibrazione() {
+    const el = document.getElementById('settingVibration');
+    if (el) localStorage.setItem('caldaiafix_vibration', el.checked ? 'true' : 'false');
+}
+
+function caricaImpostazioni() {
+    const comp = localStorage.getItem('caldaiafix_company');
+    const compEl = document.getElementById('settingCompany');
+    if (comp && compEl) compEl.value = comp;
+
+    const vib = localStorage.getItem('caldaiafix_vibration');
+    const vibEl = document.getElementById('settingVibration');
+    if (vib !== null && vibEl) vibEl.checked = (vib === 'true');
+}
+
+function vibraTocco() {
+    const enabled = localStorage.getItem('caldaiafix_vibration') !== 'false';
+    if (enabled && navigator.vibrate) {
+        navigator.vibrate(15);
+    }
+}
