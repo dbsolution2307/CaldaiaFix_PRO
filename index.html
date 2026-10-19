@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
-    <link rel="stylesheet" href="style.css?v=3.8">
+    <link rel="stylesheet" href="style.css?v=3.9">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0e131f">
 </head>
@@ -270,7 +270,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 3.8</p>
+            <p>© 2026 CaldaiaFix PRO - Version 3.9</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -283,6 +283,7 @@
             <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
         <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="forzaAggiornamentoCache(); toggleMenuTendina();">🔄 Forza Aggiornamento App (Reset Cache)</button>
+        <button class="dropup-item" style="color:#f59e0b; border-color:#d97706;" onclick="apriFeedbackModal(); toggleMenuTendina();">📩 Segnala Bug / Proponi Codice</button>
         <button class="dropup-item" onclick="mostraStatistiche(); toggleMenuTendina();">📊 Dashboard Statistiche Interventi</button>
         <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Quick-Viewer Morsettiere TA/Bus</button>
         <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
@@ -376,9 +377,40 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=3.8 -->
-    <script src="db.js?v=3.8"></script>
-    <script src="app.js?v=3.8"></script>
+    <!-- MODALE SEGNALAZIONE BUG & NUOVI CODICI VIA EMAIL -->
+    <div id="feedback-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>📩 Assistenza & Suggerimenti</h3>
+            
+            <div class="tabs" style="margin-top:10px; margin-bottom:15px;">
+                <button id="tab-code-btn" class="tab-btn active" onclick="cambiaTabFeedback('code')">➕ Nuovo Codice</button>
+                <button id="tab-bug-btn" class="tab-btn" onclick="cambiaTabFeedback('bug')">🐛 Segnala Bug</button>
+            </div>
+
+            <!-- FORM NUOVO CODICE -->
+            <div id="form-feedback-code">
+                <p style="font-size:13px; color:var(--text-sub); margin-bottom:8px;">Aiutaci ad ampliare il database! Il codice verrà verificato prima dell'inserimento.</p>
+                <input type="text" id="fbBrand" placeholder="Marca Caldaia (es. Baxi, Vaillant)">
+                <input type="text" id="fbModel" placeholder="Modello (es. Luna3, ecoTEC)">
+                <input type="text" id="fbCode" placeholder="Codice Errore (es. E01, F28)">
+                <textarea id="fbSolution" placeholder="Descrizione o Soluzione proposta..."></textarea>
+                <button class="btn-email" style="margin-top:12px;" onclick="inviaFeedbackEmail('code')">📧 Invia Nuovo Codice via Email</button>
+            </div>
+
+            <!-- FORM SEGNALAZIONE BUG -->
+            <div id="form-feedback-bug" style="display:none;">
+                <p style="font-size:13px; color:var(--text-sub); margin-bottom:8px;">Hai riscontrato un problema o un errore nell'applicazione?</p>
+                <textarea id="fbBugDesc" placeholder="Descrivi brevemente il problema riscontrato..."></textarea>
+                <button class="btn-email" style="margin-top:12px;" onclick="inviaFeedbackEmail('bug')">📧 Segnala Bug via Email</button>
+            </div>
+
+            <button class="btn-clear" style="width:100%; margin-top:10px;" onclick="chiudiFeedbackModal()">Annulla</button>
+        </div>
+    </div>
+
+    <!-- SCRIPT CON VERSIONING ?v=3.9 -->
+    <script src="db.js?v=3.9"></script>
+    <script src="app.js?v=3.9"></script>
 
 </body>
 </html>
