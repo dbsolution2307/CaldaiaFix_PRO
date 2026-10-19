@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, RENDIMENTO COMBUSTIONE & SCADENZARIO
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, FEEDBACK EMAIL & SCADENZARIO
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -1130,7 +1130,6 @@ function calcolaRendimentoCombustione() {
         return;
     }
 
-    // Parametri Siegert / UNI 10389-1
     let A2 = 0.37;
     let B = 0.009;
 
@@ -1243,6 +1242,84 @@ function inviaRapportoWhatsApp() {
     const url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
     window.open(url, '_blank');
     chiudiReportModal();
+}
+
+// GESTIONE SEGNALAZIONE BUG E NUOVI CODICI VIA EMAIL
+function apriFeedbackModal() {
+    vibraTocco();
+    const modal = document.getElementById('feedback-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function chiudiFeedbackModal() {
+    const modal = document.getElementById('feedback-modal');
+    if (modal) modal.style.display = 'none';
+    ['fbBrand', 'fbModel', 'fbCode', 'fbSolution', 'fbBugDesc'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
+function cambiaTabFeedback(tab) {
+    vibraTocco();
+    const formCode = document.getElementById('form-feedback-code');
+    const formBug = document.getElementById('form-feedback-bug');
+    const btnCode = document.getElementById('tab-code-btn');
+    const btnBug = document.getElementById('tab-bug-btn');
+
+    if (tab === 'code') {
+        formCode.style.display = 'block';
+        formBug.style.display = 'none';
+        btnCode.classList.add('active');
+        btnBug.classList.remove('active');
+    } else {
+        formCode.style.display = 'none';
+        formBug.style.display = 'block';
+        btnBug.classList.add('active');
+        btnCode.classList.remove('active');
+    }
+}
+
+function inviaFeedbackEmail(tipo) {
+    const emailAziendale = "caldaiafixassistenza@libero.it";
+    let subject = "";
+    let body = "";
+
+    if (tipo === 'code') {
+        const brand = document.getElementById('fbBrand')?.value.trim();
+        const model = document.getElementById('fbModel')?.value.trim();
+        const code = document.getElementById('fbCode')?.value.trim();
+        const solution = document.getElementById('fbSolution')?.value.trim();
+
+        if (!brand || !code) {
+            alert("Inserisci almeno la Marca e il Codice Errore.");
+            return;
+        }
+
+        subject = `PROPOSTA NUOVO CODICE GUASTO: ${brand} - ${code}`;
+        body = `PROPOSTA NUOVO CODICE GUASTO - CaldaiaFix PRO\n\n` +
+               `Marca: ${brand}\n` +
+               `Modello: ${model || '-'}\n` +
+               `Codice: ${code}\n` +
+               `Soluzione Proposta:\n${solution || '-'}\n\n` +
+               `Inviato da un tecnico tramite l'app CaldaiaFix PRO`;
+    } else {
+        const bugDesc = document.getElementById('fbBugDesc')?.value.trim();
+
+        if (!bugDesc) {
+            alert("Inserisci una breve descrizione del problema.");
+            return;
+        }
+
+        subject = `SEGNALAZIONE BUG / ANOMALIA - CaldaiaFix PRO`;
+        body = `SEGNALAZIONE BUG / ANOMALIA - CaldaiaFix PRO\n\n` +
+               `Descrizione Problema:\n${bugDesc}\n\n` +
+               `Inviato tramite l'app CaldaiaFix PRO`;
+    }
+
+    const mailtoUrl = `mailto:${emailAziendale}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+    chiudiFeedbackModal();
 }
 
 // NAVIGAZIONE, VISTE & MENU TENDINA
