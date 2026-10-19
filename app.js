@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, FEEDBACK EMAIL & SCADENZARIO
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, ONBOARDING PROGRESSIVO & SCADENZARIO
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -29,11 +29,13 @@ function safeSetStorage(key, value) {
     }
 }
 
-// STRUTTURA DATI LOCALE
+// STRUTTURA DATI LOCALE & ONBOARDING
 let currentFilterType = 'all';
 let currentBrand = '';
 let favorites = safeGetStorage('caldaiafix_favs', []);
 let historyGuasti = safeGetStorage('caldaiafix_history', []);
+let onboardingSeen = safeGetStorage('caldaiafix_onboard', {});
+let currentOnboardKey = null;
 let dbIndexed = null;
 let deferredPrompt = null;
 let torchTrack = null;
@@ -48,6 +50,11 @@ function initApp() {
         filtraErrori(false);
         gestisciPwaInstall();
         verificaStatoRete();
+        
+        // Onboarding iniziale in ricerca
+        setTimeout(() => {
+            mostraOnboarding('home_search', 'Ricerca Rapida & Vocale', 'Cerca per codice errore (es. E01, F28) oppure usa il microfono 🎙️ per dettare il guasto a voce!', '🔍');
+        }, 1200);
     } catch (err) {
         console.error("Errore inizializzazione CaldaiaFix:", err);
     }
@@ -71,6 +78,36 @@ function verificaStatoRete() {
     } else {
         netBadge.className = 'net-badge offline';
         netBadge.textContent = '🔴 Offline';
+    }
+}
+
+// GESTIONE ONBOARDING PROGRESSIVO
+function mostraOnboarding(key, title, text, icon = '💡') {
+    if (onboardingSeen[key]) return;
+
+    currentOnboardKey = key;
+    const tooltip = document.getElementById('onboarding-tooltip');
+    const titleEl = document.getElementById('onboarding-title');
+    const textEl = document.getElementById('onboarding-text');
+    const iconEl = document.getElementById('onboarding-icon');
+
+    if (tooltip && titleEl && textEl) {
+        titleEl.textContent = title;
+        textEl.textContent = text;
+        if (iconEl) iconEl.textContent = icon;
+        tooltip.style.display = 'block';
+    }
+}
+
+function chiudiOnboarding() {
+    vibraTocco();
+    const tooltip = document.getElementById('onboarding-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+
+    if (currentOnboardKey) {
+        onboardingSeen[currentOnboardKey] = true;
+        safeSetStorage('caldaiafix_onboard', onboardingSeen);
+        currentOnboardKey = null;
     }
 }
 
@@ -410,6 +447,11 @@ function mostraDettaglio(id) {
     `;
 
     cambiaVista('detail-view');
+    
+    // Onboarding per report e ricambi
+    setTimeout(() => {
+        mostraOnboarding('detail_report', 'Rapporti & Ricambi', 'Da qui puoi creare un report in PDF o inviarlo al cliente su WhatsApp, oppure cercare il ricambio originale su Amazon!', '📄');
+    }, 600);
 }
 
 function salvaInStorico(item) {
@@ -1006,6 +1048,11 @@ function mostraTarghe() {
     impostaTabNav('targhe');
     cambiaVista('targhe-view');
     caricaTarghe();
+
+    // Onboarding per Archivio Targhe
+    setTimeout(() => {
+        mostraOnboarding('targhe_maint', 'Scadenzario Clienti', 'Aggiungi una scheda targa col pulsante "+ Nuova Targa" per tenere traccia delle scadenze dei controlli fumi con avvisi automatici!', '📅');
+    }, 600);
 }
 
 function caricaTarghe() {
@@ -1108,6 +1155,11 @@ function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
     cambiaVista('calc-view');
+
+    // Onboarding per Calcolatori
+    setTimeout(() => {
+        mostraOnboarding('calc_combustion', 'Calcolatore UNI 10389-1', 'Inserisci la temperatura fumi, ambiente e CO₂ per calcolare istantaneamente il rendimento η% e la perdita qA.', '🔥');
+    }, 600);
 }
 
 function calcolaRendimentoCombustione() {
@@ -1355,6 +1407,11 @@ function toggleMenuTendina() {
     } else {
         overlay.classList.add('active');
         menu.classList.add('active');
+        
+        // Onboarding per Menu
+        setTimeout(() => {
+            mostraOnboarding('menu_tools', 'Strumenti Rapidi', 'In questo menu trovi la Torcia Flash, i codici morsettiere, il reset cache per aggiornamenti e l\'invio di segnalazioni!', '🛠️');
+        }, 300);
     }
 }
 
