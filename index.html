@@ -11,7 +11,7 @@
     <!-- ICONE PWA E PER SCHERMATA HOME (ANDROID & IOS) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json?v=4.0">
+    <link rel="manifest" href="manifest.json?v=4.1">
 
     <!-- CONFIGURAZIONE PER IPHONE / SAFARI PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
     <meta name="theme-color" content="#0e131f">
 
     <!-- FOGLIO DI STILE -->
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=4.1">
 </head>
 <body>
 
@@ -75,6 +75,18 @@
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
         
+        <!-- BANNER ALLERTA SCADENZE MANUTENZIONE (VISIBILE AD APERTURA APP SE CI SONO SCADENZE) -->
+        <div id="maint-alert-banner" class="maint-alert-banner" style="display:none; background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 1px solid #ef4444; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; cursor: pointer; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);" onclick="mostraTarghe()">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:26px;">⚠️</span>
+                <div>
+                    <strong id="maint-alert-title" style="color:#ffffff; font-size:15px; display:block;">Attenzione: Scadenze Manutenzione!</strong>
+                    <small id="maint-alert-desc" style="color:#fca5a5; font-size:13px; font-weight:600;"></small>
+                </div>
+            </div>
+            <div style="font-weight:800; color:#ffffff; font-size:14px; background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:8px;">Vedi ›</div>
+        </div>
+
         <!-- CARD DIAGNOSI DA SINTOMO (WIZARD) -->
         <div class="wizard-banner-card" onclick="avviaWizard()">
             <div class="wizard-banner-icon">🩺</div>
@@ -205,11 +217,11 @@
         <div id="history-list"></div>
     </section>
 
-    <!-- VISTA ARCHIVIO TARGHE -->
+    <!-- VISTA GESTIONE CLIENTI & SCADENZARIO -->
     <section id="targhe-view" class="view">
         <div class="view-header">
-            <h2>📑 Archivio Targhe & Scadenzario</h2>
-            <button class="btn-action" onclick="apriTargaModal()">+ Nuova Targa</button>
+            <h2>📑 Gestione Clienti & Scadenzario</h2>
+            <button class="btn-action" onclick="apriTargaModal()">+ Nuovo Cliente</button>
         </div>
 
         <div class="backup-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px;">
@@ -222,7 +234,7 @@
         </div>
 
         <div id="targhe-list"></div>
-        <button class="btn-clear" style="margin-top:20px; width:100%;" onclick="richiediSvuotaTarghe()">Cancella Tutto l'Archivio</button>
+        <button class="btn-clear" style="margin-top:20px; width:100%;" onclick="richiediSvuotaTarghe()">Cancella Tutti i Clienti</button>
     </section>
 
     <!-- VISTA CALCOLATORI -->
@@ -287,7 +299,7 @@
 
         <div class="card" style="margin-top:15px;">
             <h3>💾 Gestione Dati & Backup</h3>
-            <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Salva o ripristina le targhe dei clienti in un file esterno:</p>
+            <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Salva o ripristina la lista dei clienti in un file esterno:</p>
             <div style="display:flex; gap:10px;">
                 <button class="btn-backup" style="flex:1;" onclick="esportaBackupJSON()">💾 Esporta JSON</button>
                 <button class="btn-restore" style="flex:1;" onclick="document.getElementById('importJsonInputSettings').click()">📥 Importa JSON</button>
@@ -300,7 +312,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 4.0</p>
+            <p>© 2026 CaldaiaFix PRO - Version 4.1</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -318,7 +330,7 @@
         <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Quick-Viewer Morsettiere TA/Bus</button>
         <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
-        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Archivio Targhe & Scadenzario</button>
+        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Gestione Clienti & Scadenzario</button>
         <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
         <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
         <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
@@ -332,7 +344,7 @@
         </button>
         <button id="nav-targhe" class="nav-item" onclick="mostraTarghe()">
             <span class="nav-icon">📑</span>
-            <span class="nav-label">Targhe</span>
+            <span class="nav-label">Gest. Clienti</span>
         </button>
         <button id="nav-calc" class="nav-item" onclick="mostraCalcolatori()">
             <span class="nav-icon">🧮</span>
@@ -363,9 +375,10 @@
         </div>
     </div>
 
+    <!-- MODALE SCHEDA CLIENTE (INSERIMENTO & MODIFICA) -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <h3>📑 Scheda Targa & Manutenzione</h3>
+            <h3 id="targa-modal-title">📑 Scheda Cliente & Manutenzione</h3>
             <input type="text" id="tagClient" placeholder="Nome Cliente / Riferimento">
             <input type="tel" id="tagPhone" placeholder="Cellulare Cliente (es. 3331234567)">
             <input type="text" id="tagAddress" placeholder="Indirizzo">
@@ -408,7 +421,6 @@
         </div>
     </div>
 
-    <!-- MODALE SEGNALAZIONE BUG & NUOVI CODICI VIA EMAIL -->
     <div id="feedback-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>📩 Assistenza & Suggerimenti</h3>
@@ -418,7 +430,6 @@
                 <button id="tab-bug-btn" class="tab-btn" onclick="cambiaTabFeedback('bug')">🐛 Segnala Bug</button>
             </div>
 
-            <!-- FORM NUOVO CODICE -->
             <div id="form-feedback-code">
                 <p style="font-size:13px; color:var(--text-sub); margin-bottom:8px;">Aiutaci ad ampliare il database! Il codice verrà verificato prima dell'inserimento.</p>
                 <input type="text" id="fbBrand" placeholder="Marca Caldaia (es. Baxi, Vaillant)">
@@ -428,7 +439,6 @@
                 <button class="btn-email" style="margin-top:12px;" onclick="inviaFeedbackEmail('code')">📧 Invia Nuovo Codice via Email</button>
             </div>
 
-            <!-- FORM SEGNALAZIONE BUG -->
             <div id="form-feedback-bug" style="display:none;">
                 <p style="font-size:13px; color:var(--text-sub); margin-bottom:8px;">Hai riscontrato un problema o un errore nell'applicazione?</p>
                 <textarea id="fbBugDesc" placeholder="Descrivi brevemente il problema riscontrato..."></textarea>
@@ -439,9 +449,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=4.0 -->
-    <script src="db.js?v=4.0"></script>
-    <script src="app.js?v=4.0"></script>
+    <!-- SCRIPT CON VERSIONING ?v=4.1 -->
+    <script src="db.js?v=4.1"></script>
+    <script src="app.js?v=4.1"></script>
 
 </body>
 </html>
