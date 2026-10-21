@@ -11,7 +11,7 @@
     <!-- ICONE PWA E PER SCHERMATA HOME (ANDROID & IOS) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json?v=5.0">
+    <link rel="manifest" href="manifest.json?v=4.5">
 
     <!-- CONFIGURAZIONE PER IPHONE / SAFARI PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
     <meta name="theme-color" content="#0e131f">
 
     <!-- FOGLIO DI STILE -->
-    <link rel="stylesheet" href="style.css?v=5.0">
+    <link rel="stylesheet" href="style.css?v=4.5">
 </head>
 <body>
 
@@ -43,7 +43,20 @@
         <button class="btn-pwa-close" onclick="chiudiIosBanner()">✕</button>
     </div>
 
-    <!-- INTESTAZIONE SCURA CON LOGO E ICONA HELP -->
+    <!-- TOOLTIP ONBOARDING PROGRESSIVO -->
+    <div id="onboarding-tooltip" class="onboarding-tooltip" style="display:none;">
+        <div class="onboarding-content">
+            <div class="onboarding-header">
+                <span id="onboarding-icon">💡</span>
+                <strong id="onboarding-title">Suggerimento</strong>
+                <button onclick="chiudiOnboarding()" class="onboarding-close">✕</button>
+            </div>
+            <p id="onboarding-text"></p>
+            <button onclick="chiudiOnboarding()" class="btn-onboarding-ok">Ho capito!</button>
+        </div>
+    </div>
+
+    <!-- INTESTAZIONE SCURA CON LOGO -->
     <header class="header">
         <div class="header-top">
             <div class="header-brand" onclick="tornaHome()">
@@ -53,23 +66,15 @@
                     <p class="logo-sub">Diagnostica & Assistenza Tecnica</p>
                 </div>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <button class="btn-help-icon" onclick="apriHelpModal()" title="FAQ, Assistenza e Note Legali">❓</button>
-                <button class="btn-area-tecnica" onclick="apriPin()">
-                    <span>⚙️ Area Tecnica</span>
-                </button>
-            </div>
+            <button class="btn-area-tecnica" onclick="apriPin()">
+                <span>⚙️ Area Tecnica</span>
+            </button>
         </div>
     </header>
 
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
         
-        <!-- BANNER STATO LICENZA PROVA -->
-        <div id="license-status-banner" class="license-status-banner" style="display:none;">
-            <span>⏳ Periodo di prova attivo: <strong id="trial-days-left">--</strong> giorni rimasti</span>
-        </div>
-
         <!-- BANNER ALLERTA SCADENZE MANUTENZIONE -->
         <div id="maint-alert-banner" class="maint-alert-banner" style="display:none;" onclick="mostraTarghe()">
             <div style="display:flex; align-items:center; gap:12px;">
@@ -87,6 +92,7 @@
             <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" placeholder="Cerca guasto, modello o LED (es. E01, F28)..." oninput="filtraErrori(false)">
+                <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()" title="Ricerca Vocale">🎙️</button>
             </div>
 
             <div class="filter-row">
@@ -129,12 +135,10 @@
         <!-- LISTA ERRORI -->
         <div id="errors-list" class="errors-container"></div>
 
-        <!-- FOOTER COPYRIGHT E HELP LINK -->
+        <!-- FOOTER COPYRIGHT -->
         <footer class="copyright-footer">
-            <p>© 2026 CaldaiaFix di Davide Buonocore. Tutti i diritti riservati.</p>
-            <p style="margin-top:6px;">
-                <a href="#" onclick="apriHelpModal(); return false;" style="color:var(--accent); text-decoration:underline;">❓ FAQ, Assistenza & Note Legali GDPR</a>
-            </p>
+            <p>© 2026 CaldaiaFix PRO. Tutti i diritti riservati.</p>
+            <p>Banca dati e algoritmi di diagnostica protetti da copyright.</p>
         </footer>
     </main>
 
@@ -210,6 +214,7 @@
             <button class="btn-action" onclick="apriTargaModal()">+ Nuovo Cliente</button>
         </div>
 
+        <!-- BARRA RICERCA CLIENTI DINAMICA -->
         <div class="search-box" style="margin-bottom:14px;">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchClientInput" placeholder="Cerca cliente, telefono, indirizzo, caldaia o matricola..." oninput="caricaTarghe()">
@@ -278,14 +283,6 @@
         <div class="view-header">
             <h2>⚙️ Impostazioni</h2>
         </div>
-        
-        <div class="card">
-            <h3>🔐 Stato Licenza Applicazione</h3>
-            <p id="settings-license-info" style="font-size:14px; color:var(--text-sub); margin-top:4px; margin-bottom:10px;">Attivazione della licenza d'uso</p>
-            <input type="text" id="activationCodeInput" placeholder="Inserisci Codice Licenza PRO (es. CFPRO-...)" style="text-transform:uppercase;">
-            <button class="btn-action" style="width:100%; margin-top:10px;" onclick="sbloccaAppConCodice()">Attiva Licenza Illimitata</button>
-        </div>
-
         <div class="card">
             <label style="font-weight:700; font-size:15px; color:var(--text-main);">Nome Ditta per Rapporti WhatsApp & PDF:</label>
             <input type="text" id="settingCompany" placeholder="Es. Mario Rossi Termoidraulica" oninput="salvaImpostazioniDitta()">
@@ -307,17 +304,12 @@
         </div>
 
         <div class="card" style="margin-top:15px;">
-            <h3>❓ Centro Info, FAQ & Note Legali</h3>
-            <button class="btn-clear" style="width:100%; margin-top:8px;" onclick="apriHelpModal()">❓ Apri FAQ, Assistenza & Note Legali</button>
-        </div>
-
-        <div class="card" style="margin-top:15px;">
             <button class="btn-action" style="width:100%; font-size:16px; padding:14px; background:linear-gradient(135deg, #7c3aed, #4c1d95);" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix di Davide Buonocore v5.0</p>
-            <p>Tutti i diritti riservati.</p>
+            <p>© 2026 CaldaiaFix PRO - Version 4.5</p>
+            <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
 
@@ -328,7 +320,6 @@
             <span>🛠️ Strumenti Rapidi</span>
             <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
         </div>
-        <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="apriHelpModal(); toggleMenuTendina();">❓ FAQ, Assistenza & Note Legali</button>
         <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="forzaAggiornamentoCache(); toggleMenuTendina();">🔄 Forza Aggiornamento App (Reset Cache)</button>
         <button class="dropup-item" style="color:#f59e0b; border-color:#d97706;" onclick="apriFeedbackModal(); toggleMenuTendina();">📩 Segnala Bug / Proponi Codice</button>
         <button class="dropup-item" onclick="mostraStatistiche(); toggleMenuTendina();">📊 Dashboard Statistiche Interventi</button>
@@ -338,7 +329,7 @@
         <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Gestione Clienti & Scadenzario</button>
         <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
         <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
-        <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta & Licenza</button>
+        <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
     </div>
 
     <!-- BARRA NAVIGAZIONE SCURA IN BASSO -->
@@ -365,119 +356,6 @@
         </button>
     </nav>
 
-    <!-- MODALE UNIFICATO HELP: FAQ, ASSISTENZA & NOTE LEGALI GDPR -->
-    <div id="help-modal" class="modal" style="display:none;">
-        <div class="modal-content" style="max-width:520px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:10px; margin-bottom:12px;">
-                <h3 style="font-size:18px; margin:0;">❓ FAQ, Assistenza & Legali</h3>
-                <button onclick="chiudiHelpModal()" style="background:none; border:none; color:#ffffff; font-size:22px; cursor:pointer;">✕</button>
-            </div>
-
-            <!-- SEZIONI HELP -->
-            <div class="tabs" style="margin-bottom:14px;">
-                <button id="tab-faq-btn" class="tab-btn active" onclick="cambiaTabHelp('faq')">❓ FAQ</button>
-                <button id="tab-legal-btn" class="tab-btn" onclick="cambiaTabHelp('legal')">⚖️ Legali GDPR</button>
-                <button id="tab-contact-btn" class="tab-btn" onclick="cambiaTabHelp('contact')">📞 Assistenza</button>
-            </div>
-
-            <!-- SEZIONE FAQ -->
-            <div id="help-section-faq" style="font-size:13px; color:var(--text-sub); line-height:1.5;">
-                <div style="margin-bottom:12px; background:#0f172a; padding:10px; border-radius:10px; border:1px solid #334155;">
-                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: Come funziona la prova di 60 giorni?</strong>
-                    <span>L'applicazione consente un utilizzo completo e gratuito per 60 giorni dal primo avvio. Allo scadere, è necessario inserire il Codice di Sblocco Licenza.</span>
-                </div>
-                <div style="margin-bottom:12px; background:#0f172a; padding:10px; border-radius:10px; border:1px solid #334155;">
-                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: I dati dei miei clienti sono al sicuro?</strong>
-                    <span>Sì! Tutti i dati rimangono registrati esclusivamente sul tuo dispositivo (IndexedDB locale). Nessun dato cliente viene inviato su server esterni.</span>
-                </div>
-                <div style="margin-bottom:12px; background:#0f172a; padding:10px; border-radius:10px; border:1px solid #334155;">
-                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: L'app funziona senza connessione internet?</strong>
-                    <span>Sì, CaldaiaFix PRO è una Progressive Web App (PWA) progettata per funzionare offline in cantiere senza segnale.</span>
-                </div>
-                <div style="margin-bottom:12px; background:#0f172a; padding:10px; border-radius:10px; border:1px solid #334155;">
-                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: Come posso fare un backup dei clienti?</strong>
-                    <span>Puoi esportare o ripristinare i clienti in formato JSON o Excel/CSV dalla sezione Gestione Clienti o Impostazioni.</span>
-                </div>
-            </div>
-
-            <!-- SEZIONE NOTE LEGALI GDPR -->
-            <div id="help-section-legal" style="display:none; font-size:13px; color:var(--text-sub); line-height:1.6;">
-                <p style="color:#ffffff; font-weight:700;">1. Titolare del Trattamento</p>
-                <p>Il Titolare del trattamento dei dati è <strong>CaldaiaFix di Davide Buonocore</strong> (Ditta Individuale / Partita IVA Forfettaria).</p>
-
-                <p style="color:#ffffff; font-weight:700; margin-top:10px;">2. Tipologia di Dati Trattati e Finalità</p>
-                <p>L'applicazione CaldaiaFix PRO permette la memorizzazione di dati identificativi del cliente (nome, telefono, indirizzo), dati dell'impianto termico (marca, modello, matricola, note) e foto delle targhette/impianti. La finalità è esclusivamente l'assistenza tecnica, la diagnostica e la gestione delle scadenze di manutenzione.</p>
-
-                <p style="color:#ffffff; font-weight:700; margin-top:10px;">3. Archiviazione Locale & Sicurezza</p>
-                <p>Tutti i dati personali registrati nell'app risiedono esclusivamente nel database locale del dispositivo dell'utente (IndexedDB / LocalStorage). L'applicazione non trasmette i dati a server centrali. L'utente è il solo custode del proprio dispositivo e dei dati ivi contenuti.</p>
-
-                <p style="color:#ffffff; font-weight:700; margin-top:10px;">4. Diritti dell'Interessato (Art. 15-22 GDPR)</p>
-                <p>L'utente ha il diritto in qualsiasi momento di accedere, modificare, esportare (via backup JSON/Excel) o eliminare definitivamente tutti i dati memorizzati nell'applicazione tramite le apposite funzioni integrate.</p>
-            </div>
-
-            <!-- SEZIONE ASSISTENZA & CONTATTI -->
-            <div id="help-section-contact" style="display:none; font-size:13px; color:var(--text-sub); line-height:1.5;">
-                <div style="background:#0f172a; padding:14px; border-radius:12px; border:1px solid #334155; text-align:center;">
-                    <div style="font-size:32px; margin-bottom:6px;">✉️</div>
-                    <strong style="color:#ffffff; font-size:16px; display:block;">Servizio Assistenza Tecnica</strong>
-                    <p style="margin-top:6px;">Per supporto, chiarimenti o per richiedere la chiave di attivazione licenza:</p>
-                    <a href="mailto:caldaiafixassistenza@libero.it" style="display:inline-block; margin-top:10px; background:#0284c7; color:#ffffff; padding:10px 16px; border-radius:10px; font-weight:700; text-decoration:none;">
-                        📧 caldaiafixassistenza@libero.it
-                    </a>
-                </div>
-            </div>
-
-            <button class="btn-clear" style="width:100%; margin-top:15px;" onclick="chiudiHelpModal()">Chiudi</button>
-        </div>
-    </div>
-
-    <!-- MODALE BANNER CONSENSO GDPR (PRIMO AVVIO OBLIGATORIO) -->
-    <div id="gdpr-consent-modal" class="modal-blocked" style="display:none;">
-        <div class="modal-blocked-content" style="border-color:#0284c7; max-width:460px;">
-            <div style="font-size:36px; margin-bottom:6px;">🛡️</div>
-            <h2 style="color:#ffffff; font-size:20px; font-weight:800;">Informativa Privacy & Termini GDPR</h2>
-            <div style="font-size:13px; color:#cbd5e1; text-align:left; margin-top:12px; line-height:1.5; max-height:220px; overflow-y:auto; padding:10px; background:#0f172a; border-radius:10px; border:1px solid #334155;">
-                <p><strong>Benvenuto in CaldaiaFix PRO!</strong></p>
-                <p style="margin-top:6px;">Prima di utilizzare l'applicazione, ti preghiamo di prendere visione dell'Informativa sul trattamento dei dati (Regolamento UE 2016/679 - GDPR):</p>
-                <ul style="padding-left:16px; margin-top:6px;">
-                    <li><strong>Titolare del Trattamento:</strong> CaldaiaFix di Davide Buonocore.</li>
-                    <li><strong>Trattamento Locale dei Dati:</strong> Tutti i dati inseriti (anagrafiche clienti, recapiti, indirizzi, matricole e foto) vengono memorizzati esclusivamente in locale sul tuo dispositivo tramite memoria browser (IndexedDB). Nessun dato cliente viene inviato o salvato su server esterni a meno che tu non decida spontaneamente di esportarlo.</li>
-                    <li><strong>Responsabilità dell'Utente:</strong> L'utente è l'unico responsabile del trattamento dei dati dei propri clienti salvati all'interno dell'applicazione e della richiesta dei relativi consensi al cliente finale.</li>
-                </ul>
-            </div>
-
-            <label style="display:flex; align-items:flex-start; gap:10px; text-align:left; font-size:13px; color:#ffffff; margin-top:15px; cursor:pointer;">
-                <input type="checkbox" id="chkGdprAccept" style="width:20px; height:20px; margin-top:2px; flex-shrink:0;">
-                <span>Dichiaro di aver letto e accettato l'Informativa Privacy e i Termini d'Uso di CaldaiaFix PRO.</span>
-            </label>
-
-            <button class="btn-action" style="width:100%; padding:14px; margin-top:15px; font-size:15px; background:linear-gradient(135deg, #0284c7, #0369a1);" onclick="confermaConsensoGDPR()">
-                Accetta & Continua
-            </button>
-        </div>
-    </div>
-
-    <!-- MODALE BLOCCO LICENZA SCADUTA -->
-    <div id="license-blocked-modal" class="modal-blocked" style="display:none;">
-        <div class="modal-blocked-content">
-            <div style="font-size:48px; margin-bottom:10px;">🔒</div>
-            <h2 style="color:#ef4444; font-size:22px; font-weight:900;">Periodo di Prova Scaduto!</h2>
-            <p style="font-size:14px; color:#cbd5e1; margin-top:10px; line-height:1.5;">
-                I <strong>60 giorni di prova gratuita</strong> di CaldaiaFix PRO sono terminati.<br>
-                Per continuare ad utilizzare la banca dati guasti e la gestione clienti, inserisci il <strong>Codice di Sblocco Licenza</strong>.
-            </p>
-
-            <div style="margin-top:20px;">
-                <input type="text" id="blockedActivationCodeInput" placeholder="CFPRO-XXXX-XX" style="font-size:18px; text-align:center; text-transform:uppercase; font-weight:800; letter-spacing:1px;">
-                <p id="licenseBlockedError" style="color:#ef4444; font-size:13px; font-weight:bold; display:none; margin-top:6px;">Codice Licenza Non Valido!</p>
-                
-                <button class="btn-action" style="width:100%; padding:14px; margin-top:14px; font-size:16px; background:linear-gradient(135deg, #16a34a, #15803d);" onclick="sbloccaAppDaModaleBlocco()">
-                    🔓 Sblocca Applicazione
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODALE INGRANDIMENTO FOTO A TUTTO SCHERMO (LIGHTBOX) -->
     <div id="photo-lightbox-modal" class="modal" style="display:none; z-index:3000; background:rgba(0,0,0,0.92);" onclick="chiudiLightbox()">
         <div style="position:relative; max-width:95%; max-height:95%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -487,7 +365,7 @@
         </div>
     </div>
 
-    <!-- MODALI PIN E SCHEDE -->
+    <!-- MODALI -->
     <div id="pin-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>🔑 Codice Sblocco Tecnico</h3>
@@ -502,6 +380,7 @@
         </div>
     </div>
 
+    <!-- MODALE SCHEDA CLIENTE -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3 id="targa-modal-title">📑 Scheda Cliente & Manutenzione</h3>
@@ -575,9 +454,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=5.0 -->
-    <script src="db.js?v=5.0"></script>
-    <script src="app.js?v=5.0"></script>
+    <!-- SCRIPT CON VERSIONING ?v=4.5 -->
+    <script src="db.js?v=4.5"></script>
+    <script src="app.js?v=4.5"></script>
 
 </body>
 </html>
