@@ -11,7 +11,7 @@
     <!-- ICONE PWA E PER SCHERMATA HOME (ANDROID & IOS) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json?v=4.1">
+    <link rel="manifest" href="manifest.json?v=4.2">
 
     <!-- CONFIGURAZIONE PER IPHONE / SAFARI PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
     <meta name="theme-color" content="#0e131f">
 
     <!-- FOGLIO DI STILE -->
-    <link rel="stylesheet" href="style.css?v=4.1">
+    <link rel="stylesheet" href="style.css?v=4.2">
 </head>
 <body>
 
@@ -75,8 +75,8 @@
     <!-- VISTA PRINCIPALE (HOME) -->
     <main id="home-view" class="view active">
         
-        <!-- BANNER ALLERTA SCADENZE MANUTENZIONE (VISIBILE AD APERTURA APP SE CI SONO SCADENZE) -->
-        <div id="maint-alert-banner" class="maint-alert-banner" style="display:none; background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 1px solid #ef4444; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; cursor: pointer; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);" onclick="mostraTarghe()">
+        <!-- BANNER ALLERTA SCADENZE MANUTENZIONE -->
+        <div id="maint-alert-banner" class="maint-alert-banner" style="display:none;" onclick="mostraTarghe()">
             <div style="display:flex; align-items:center; gap:12px;">
                 <span style="font-size:26px;">⚠️</span>
                 <div>
@@ -312,7 +312,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 4.1</p>
+            <p>© 2026 CaldaiaFix PRO - Version 4.2</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -360,6 +360,15 @@
         </button>
     </nav>
 
+    <!-- MODALE INGRANDIMENTO FOTO A TUTTO SCHERMO (LIGHTBOX) -->
+    <div id="photo-lightbox-modal" class="modal" style="display:none; z-index:3000; background:rgba(0,0,0,0.92);" onclick="chiudiLightbox()">
+        <div style="position:relative; max-width:95%; max-height:95%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <button onclick="chiudiLightbox()" style="position:absolute; top:-42px; right:0; background:#ef4444; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:15px; cursor:pointer;">✕ Chiudi</button>
+            <img id="lightbox-img" src="" style="max-width:100%; max-height:82vh; object-fit:contain; border-radius:12px; border:2px solid #334155; box-shadow:0 10px 30px rgba(0,0,0,0.8);" alt="Foto Ingrandita">
+            <p style="color:#94a3b8; font-size:12px; margin-top:10px; font-weight:600;">Tocca un punto qualsiasi per chiudere</p>
+        </div>
+    </div>
+
     <!-- MODALI -->
     <div id="pin-modal" class="modal" style="display:none;">
         <div class="modal-content">
@@ -375,7 +384,7 @@
         </div>
     </div>
 
-    <!-- MODALE SCHEDA CLIENTE (INSERIMENTO & MODIFICA) -->
+    <!-- MODALE SCHEDA CLIENTE -->
     <div id="targa-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3 id="targa-modal-title">📑 Scheda Cliente & Manutenzione</h3>
@@ -394,7 +403,7 @@
                 📷 Scatta/Carica Foto Targa
                 <input type="file" accept="image/*" capture="environment" onchange="anteprimaFotoTarga(event)">
             </label>
-            <img id="tagImgPreview" class="client-img-preview" style="display:none;" alt="Anteprima">
+            <img id="tagImgPreview" class="client-img-preview" style="display:none; cursor:pointer;" alt="Anteprima" onclick="ingrandisciFoto(this.src)" title="Clicca per ingrandire">
 
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-action" onclick="salvaSchedaTarga()">Salva</button>
@@ -449,9 +458,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=4.1 -->
-    <script src="db.js?v=4.1"></script>
-    <script src="app.js?v=4.1"></script>
+    <!-- SCRIPT CON VERSIONING ?v=4.2 -->
+    <script src="db.js?v=4.2"></script>
+    <script src="app.js?v=4.2"></script>
 
 </body>
 </html>
