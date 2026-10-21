@@ -3,336 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CaldaiaFix PRO</title>
-
-    <!-- LIBRERIA SHEETJS PER IMPORTAZIONE EXCEL & CSV -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <!-- ICONE PWA E PER SCHERMATA HOME (ANDROID & IOS) -->
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json?v=4.5">
-
-    <!-- CONFIGURAZIONE PER IPHONE / SAFARI PWA -->
+    <title>CaldaiaFix PRO - Banca Dati Guasti & Gestione Clienti</title>
+    
+    <!-- PWA & MOBILE CONFIG -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CaldaiaFix PRO">
-    <meta name="theme-color" content="#0e131f">
+    <meta name="apple-mobile-web-app-title" content="CaldaiaFix">
 
-    <!-- FOGLIO DI STILE -->
-    <link rel="stylesheet" href="style.css?v=4.5">
+    <!-- LIBRERIA EXCEL / XLSX PER IMPORTAZIONE CLIENTI -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+
+    <!-- STILI CSS APPLICAZIONE -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- BANNER INSTALLAZIONE PWA (ANDROID / CHROME) -->
-    <div id="pwa-install-banner" class="pwa-banner" style="display:none;">
-        <div class="pwa-banner-text">
-            <strong>📲 Installa CaldaiaFix PRO</strong>
-            <small>Usa l'app offline anche senza segnale in cantiere.</small>
+    <!-- NOTIFICA ALLERTA SCADENZE MANUTENZIONE -->
+    <div id="maint-alert-banner" class="maint-alert-banner" style="display:none;" onclick="mostraTarghe()">
+        <span style="font-size:18px;">⚠️</span>
+        <div style="flex:1; margin-left:10px;">
+            <div id="maint-alert-title" style="font-weight:800; font-size:13px;">Scadenze Manutenzione</div>
+            <div id="maint-alert-desc" style="font-size:12px; color:#cbd5e1;">Verifica i clienti in scadenza nei prossimi giorni.</div>
         </div>
-        <button class="btn-pwa-install" onclick="installaPWA()">Installa</button>
-        <button class="btn-pwa-close" onclick="chiudiPwaBanner()">✕</button>
+        <span style="font-size:16px;">›</span>
     </div>
 
-    <!-- BANNER INSTALLAZIONE PWA (IOS / SAFARI) -->
-    <div id="ios-install-banner" class="pwa-banner" style="display:none;">
-        <div class="pwa-banner-text">
-            <strong>📲 Installa su iPhone</strong>
-            <small>Premi Condividi ⎘ e poi "Aggiungi a Schermata Home".</small>
-        </div>
-        <button class="btn-pwa-close" onclick="chiudiIosBanner()">✕</button>
-    </div>
-
-    <!-- TOOLTIP ONBOARDING PROGRESSIVO -->
-    <div id="onboarding-tooltip" class="onboarding-tooltip" style="display:none;">
-        <div class="onboarding-content">
-            <div class="onboarding-header">
-                <span id="onboarding-icon">💡</span>
-                <strong id="onboarding-title">Suggerimento</strong>
-                <button onclick="chiudiOnboarding()" class="onboarding-close">✕</button>
+    <!-- ==========================================
+         VISTA 1: HOME (RICERCA GUASTI)
+         ========================================== -->
+    <div id="home-view" class="view active">
+        <header class="app-header">
+            <div class="logo-area">
+                <h1 class="app-title">🔥 CaldaiaFix <span class="badge-pro">PRO</span></h1>
+                <span id="resultsCount" style="font-size:11px; color:var(--text-sub);">Caricamento database...</span>
             </div>
-            <p id="onboarding-text"></p>
-            <button onclick="chiudiOnboarding()" class="btn-onboarding-ok">Ho capito!</button>
-        </div>
-    </div>
+            <button class="btn-help-icon" onclick="apriHelpModal()" title="FAQ, Assistenza & Note Legali">❓</button>
+        </header>
 
-    <!-- INTESTAZIONE SCURA CON LOGO -->
-    <header class="header">
-        <div class="header-top">
-            <div class="header-brand" onclick="tornaHome()">
-                <div class="logo-icon-box">🔥</div>
-                <div>
-                    <h1 class="logo">CaldaiaFix <span class="badge-pro">PRO</span></h1>
-                    <p class="logo-sub">Diagnostica & Assistenza Tecnica</p>
-                </div>
-            </div>
-            <button class="btn-area-tecnica" onclick="apriPin()">
-                <span>⚙️ Area Tecnica</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- VISTA PRINCIPALE (HOME) -->
-    <main id="home-view" class="view active">
-        
-        <!-- BANNER ALLERTA SCADENZE MANUTENZIONE -->
-        <div id="maint-alert-banner" class="maint-alert-banner" style="display:none;" onclick="mostraTarghe()">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-size:26px;">⚠️</span>
-                <div>
-                    <strong id="maint-alert-title" style="color:#ffffff; font-size:15px; display:block;">Attenzione: Scadenze Manutenzione!</strong>
-                    <small id="maint-alert-desc" style="color:#fca5a5; font-size:13px; font-weight:600;"></small>
-                </div>
-            </div>
-            <div style="font-weight:800; color:#ffffff; font-size:14px; background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:8px;">Vedi ›</div>
-        </div>
-
-        <!-- CARD CONTENITORE RICERCA E FILTRI -->
-        <div class="filter-card">
+        <div class="search-sticky-container">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Cerca guasto, modello o LED (es. E01, F28)..." oninput="filtraErrori(false)">
-                <button id="micBtn" class="mic-btn" onclick="avviaRicercaVocale()" title="Ricerca Vocale">🎙️</button>
+                <input type="text" id="searchInput" placeholder="Cerca codice (es. E01, 01, F.20) o descrizione..." oninput="filtraErrori(false)">
+                <button class="clear-search-btn" onclick="document.getElementById('searchInput').value=''; filtraErrori(false);">✕</button>
             </div>
 
-            <div class="filter-row">
+            <div class="filters-row">
                 <select id="brandFilter" class="brand-select" onchange="filtraErrori(false)">
-                    <option value="">Tutte le Marche</option>
-                    <option value="Baxi">Baxi</option>
-                    <option value="Vaillant">Vaillant</option>
-                    <option value="Immergas">Immergas</option>
+                    <option value="">🔥 Tutte le Marche</option>
                     <option value="Ariston">Ariston</option>
+                    <option value="Baxi">Baxi</option>
                     <option value="Beretta">Beretta</option>
+                    <option value="Biasi">Biasi</option>
+                    <option value="Bosch">Bosch</option>
+                    <option value="Chaffoteaux">Chaffoteaux</option>
+                    <option value="Cosmogas">Cosmogas</option>
                     <option value="Ferroli">Ferroli</option>
                     <option value="Hermann Saunier Duval">Hermann Saunier Duval</option>
-                    <option value="Riello">Riello</option>
-                    <option value="Bosch">Bosch / Junkers</option>
-                    <option value="Biasi">Biasi</option>
-                    <option value="Cosmogas">Cosmogas</option>
-                    <option value="Unical">Unical</option>
-                    <option value="Viessmann">Viessmann</option>
+                    <option value="Immergas">Immergas</option>
+                    <option value=" Riello">Riello</option>
                     <option value="Sime">Sime</option>
-                    <option value="Italtherm">Italtherm</option>
-                    <option value="Chaffoteaux">Chaffoteaux</option>
-                    <option value="Lamborghini">Lamborghini</option>
-                    <option value="Buderus">Buderus</option>
-                    <option value="Wolf">Wolf</option>
-                    <option value="Silber">Silber</option>
-                    <option value="Climatizzatori">Climatizzatori</option>
+                    <option value="Vaillant">Vaillant</option>
+                    <option value="Viessmann">Viessmann</option>
                 </select>
 
-                <div class="tabs">
-                    <button id="btn-all" class="tab-btn active" onclick="filtraTipo('all')">Tutti</button>
-                    <button id="btn-dig" class="tab-btn" onclick="filtraTipo('digital')">Dig.</button>
-                    <button id="btn-led" class="tab-btn" onclick="filtraTipo('led')">LED</button>
-                    <button id="btn-fav" class="tab-btn" onclick="filtraTipo('fav')">★</button>
+                <div class="filter-tabs">
+                    <button id="btn-all" class="filter-tab active" onclick="filtraTipo('all')">Tutti</button>
+                    <button id="btn-dig" class="filter-tab" onclick="filtraTipo('digital')">Digitale</button>
+                    <button id="btn-led" class="filter-tab" onclick="filtraTipo('led')">LED</button>
+                    <button id="btn-fav" class="filter-tab" onclick="filtraErrori(true)">★</button>
                 </div>
             </div>
         </div>
 
-        <div id="resultsCount" class="results-count">306 GUASTI PRESENTI NEL DATABASE</div>
-
-        <!-- LISTA ERRORI -->
-        <div id="errors-list" class="errors-container"></div>
-
-        <!-- FOOTER COPYRIGHT -->
-        <footer class="copyright-footer">
-            <p>© 2026 CaldaiaFix PRO. Tutti i diritti riservati.</p>
-            <p>Banca dati e algoritmi di diagnostica protetti da copyright.</p>
-        </footer>
-    </main>
-
-    <!-- VISTA DASHBOARD STATISTICHE -->
-    <section id="stats-view" class="view">
-        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
-        <div class="view-header">
-            <h2>📊 Dashboard Statistiche Interventi</h2>
-        </div>
-        <div id="stats-container"></div>
-    </section>
-
-    <!-- VISTA AREA TECNICA DEDICATA -->
-    <section id="area-tecnica-view" class="view">
-        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
-        <div class="view-header">
-            <h2>🔑 Area Tecnica & Menu Segreti</h2>
-        </div>
-        <div id="installer-content-main"></div>
-    </section>
-
-    <!-- VISTA DIAGNOSI GUIDATA DA SINTOMO (WIZARD) -->
-    <section id="wizard-view" class="view">
-        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
-        <div class="view-header">
-            <h2>🩺 Diagnosi Guidata da Sintomo</h2>
-        </div>
-        <div id="wizard-container"></div>
-    </section>
-
-    <!-- VISTA QUICK-VIEWER MORSETTIERE -->
-    <section id="morsettiere-view" class="view">
-        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla Home</button>
-        <div class="view-header">
-            <h2>🔌 Quick-Viewer Morsettiere TA / Bus</h2>
-        </div>
-        
-        <div class="filter-card" style="margin-bottom:16px;">
-            <label style="font-size:14px; font-weight:700; color:var(--text-sub);">Seleziona Marca Caldaia:</label>
-            <select id="morsettiereBrandFilter" class="brand-select" style="width:100%; margin-top:6px;" onchange="renderMorsettieraBrand(this.value)">
-                <option value="Baxi">Baxi (Luna / Duo-Tec / Eco)</option>
-                <option value="Vaillant">Vaillant (ecoTEC / AtmoTEC)</option>
-                <option value="Immergas">Immergas (Victrix / Avio)</option>
-                <option value="Ariston">Ariston (Clas / Genus / Cares)</option>
-                <option value="Beretta">Beretta (Mynute / Ciao / Paros)</option>
-                <option value="Ferroli">Ferroli (Bluehelix / Divacondens)</option>
-                <option value="Hermann Saunier Duval">Hermann Saunier Duval (Thema / Saunier)</option>
-            </select>
-        </div>
-
-        <div id="morsettiere-container"></div>
-    </section>
-
-    <!-- VISTA DETTAGLIO GUASTO -->
-    <section id="detail-view" class="view">
-        <button class="back-btn" onclick="tornaHome()">⬅ Torna alla ricerca</button>
-        <div id="detail-content"></div>
-    </section>
-
-    <!-- VISTA STORICO -->
-    <section id="history-view" class="view">
-        <div class="view-header">
-            <h2>📜 Storico Recenti</h2>
-            <button class="btn-clear" onclick="richiediSvuotaStorico()">Svuota</button>
-        </div>
-        <div id="history-list"></div>
-    </section>
-
-    <!-- VISTA GESTIONE CLIENTI & SCADENZARIO -->
-    <section id="targhe-view" class="view">
-        <div class="view-header">
-            <h2>📑 Gestione Clienti & Scadenzario</h2>
-            <button class="btn-action" onclick="apriTargaModal()">+ Nuovo Cliente</button>
-        </div>
-
-        <!-- BARRA RICERCA CLIENTI DINAMICA -->
-        <div class="search-box" style="margin-bottom:14px;">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchClientInput" placeholder="Cerca cliente, telefono, indirizzo, caldaia o matricola..." oninput="caricaTarghe()">
-        </div>
-
-        <div class="backup-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px;">
-            <button class="btn-backup" style="flex:1;" onclick="esportaBackupJSON()">💾 Esporta JSON</button>
-            <button class="btn-restore" style="flex:1;" onclick="document.getElementById('importJsonInput').click()">📥 Importa JSON</button>
-            <button class="btn-action" style="flex:1; background:#0284c7; margin:0;" onclick="document.getElementById('importExcelInput').click()">📊 Importa Excel / CSV</button>
-            
-            <input type="file" id="importJsonInput" accept=".json" onchange="ripristinaBackupJSON(event)" style="display:none;">
-            <input type="file" id="importExcelInput" accept=".xlsx, .xls, .csv" onchange="importaClientiExcel(event)" style="display:none;">
-        </div>
-
-        <div id="targhe-list"></div>
-        <button class="btn-clear" style="margin-top:20px; width:100%;" onclick="richiediSvuotaTarghe()">Cancella Tutti i Clienti</button>
-    </section>
-
-    <!-- VISTA CALCOLATORI -->
-    <section id="calc-view" class="view">
-        <div class="view-header">
-            <h2>🧮 Calcolatori Tecnici HVAC</h2>
-        </div>
-
-        <div class="card">
-            <h3>🔥 Calcolo Rendimento Combustione (&eta;%)</h3>
-            <div style="display:flex; gap:10px; margin-top:8px;">
-                <input type="number" id="tempFumi" placeholder="Temp. Fumi °C" oninput="calcolaRendimentoCombustione()">
-                <input type="number" id="tempAmbiente" placeholder="Temp. Amb. °C" value="20" oninput="calcolaRendimentoCombustione()">
-            </div>
-            <div style="display:flex; gap:10px; margin-top:8px;">
-                <input type="number" id="valoreCO2" step="0.1" placeholder="CO₂ (%) es. 9.0" oninput="calcolaRendimentoCombustione()">
-                <select id="tipoCombustibile" class="brand-select" onchange="calcolaRendimentoCombustione()">
-                    <option value="metano">Metano (G20)</option>
-                    <option value="gpl">GPL (G31)</option>
-                </select>
-            </div>
-            <div id="rendimentoResult" class="calc-result">Rendimento &eta;: -- % | Perdita qA: -- %</div>
-        </div>
-
-        <div class="card">
-            <h3>🔥 Calcolo Portata Gas (kW)</h3>
-            <p style="font-size:14px; color:var(--text-sub); margin-top:4px;">Litri contati sul contatore in 60 secondi:</p>
-            <input type="number" id="gasLiters" placeholder="Litri in 60 sec (es. 40)" oninput="calcolaPortataGas()">
-            <div id="gasResult" class="calc-result">0.0 kW Termici</div>
-        </div>
-
-        <div class="card">
-            <h3>🪠 Vaso Espansione & Precarica</h3>
-            <input type="number" id="waterVolume" placeholder="Litri acqua impianto (es. 100)" oninput="calcolaVasoEspansione()">
-            <input type="number" id="buildingHeight" placeholder="Altezza punto più alto (m)" oninput="calcolaVasoEspansione()" style="margin-top:8px;">
-            <div id="vasoResult" class="calc-result">Vaso Minimo: 0 L | Precarica: 1.0 bar</div>
-        </div>
-
-        <div class="card">
-            <h3>⚖️ Conversione mbar / Pascal</h3>
-            <div style="display:flex; gap:10px;">
-                <input type="number" id="inputMbar" placeholder="mbar" oninput="convertiPressione('mbar')">
-                <input type="number" id="inputPascal" placeholder="Pa" oninput="convertiPressione('pascal')">
-            </div>
-        </div>
-    </section>
-
-    <!-- VISTA IMPOSTAZIONI -->
-    <section id="settings-view" class="view">
-        <div class="view-header">
-            <h2>⚙️ Impostazioni</h2>
-        </div>
-        <div class="card">
-            <label style="font-weight:700; font-size:15px; color:var(--text-main);">Nome Ditta per Rapporti WhatsApp & PDF:</label>
-            <input type="text" id="settingCompany" placeholder="Es. Mario Rossi Termoidraulica" oninput="salvaImpostazioniDitta()">
-            
-            <label style="margin-top:15px; display:flex; align-items:center; gap:10px; font-size:16px; color:var(--text-main);">
-                <input type="checkbox" id="settingVibration" onchange="salvaImpostazioniVibrazione()" checked style="width:22px; height:22px;">
-                Vibrazione al tocco (Feedback)
-            </label>
-        </div>
-
-        <div class="card" style="margin-top:15px;">
-            <h3>💾 Gestione Dati & Backup</h3>
-            <p style="font-size:13px; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">Salva o ripristina la lista dei clienti in un file esterno:</p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-backup" style="flex:1;" onclick="esportaBackupJSON()">💾 Esporta JSON</button>
-                <button class="btn-restore" style="flex:1;" onclick="document.getElementById('importJsonInputSettings').click()">📥 Importa JSON</button>
-                <input type="file" id="importJsonInputSettings" accept=".json" onchange="ripristinaBackupJSON(event)" style="display:none;">
-            </div>
-        </div>
-
-        <div class="card" style="margin-top:15px;">
-            <button class="btn-action" style="width:100%; font-size:16px; padding:14px; background:linear-gradient(135deg, #7c3aed, #4c1d95);" onclick="apriPin()">🔑 Area Tecnica / Menu Segreti</button>
-        </div>
-
-        <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 4.5</p>
-            <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
-        </footer>
-    </section>
-
-    <!-- OVERLAY & MENU A TENDINA STRUMENTI -->
-    <div id="dropup-overlay" class="dropup-overlay" onclick="toggleMenuTendina()"></div>
-    <div id="dropup-menu" class="dropup-menu">
-        <div class="dropup-header">
-            <span>🛠️ Strumenti Rapidi</span>
-            <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-main); font-size:22px; font-weight:bold; padding:5px;">✕</button>
-        </div>
-        <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="forzaAggiornamentoCache(); toggleMenuTendina();">🔄 Forza Aggiornamento App (Reset Cache)</button>
-        <button class="dropup-item" style="color:#f59e0b; border-color:#d97706;" onclick="apriFeedbackModal(); toggleMenuTendina();">📩 Segnala Bug / Proponi Codice</button>
-        <button class="dropup-item" onclick="mostraStatistiche(); toggleMenuTendina();">📊 Dashboard Statistiche Interventi</button>
-        <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Quick-Viewer Morsettiere TA/Bus</button>
-        <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
-        <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
-        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Gestione Clienti & Scadenzario</button>
-        <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
-        <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
-        <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
+        <main class="main-content" id="errors-list">
+            <!-- La lista guasti viene iniettata dinamicamente via JS -->
+        </main>
     </div>
 
-    <!-- BARRA NAVIGAZIONE SCURA IN BASSO -->
+    <!-- ==========================================
+         VISTA 2: DETTAGLIO GUASTO
+         ========================================== -->
+    <div id="detail-view" class="view">
+        <header class="app-header">
+            <button class="back-btn" onclick="tornaHome()">⬅ Indietro</button>
+            <h1 class="app-title" style="font-size:16px;">Dettaglio Anomalia</h1>
+            <div style="width:40px;"></div>
+        </header>
+
+        <main class="main-content" id="detail-content">
+            <!-- Dettagli guasto dinamici -->
+        </main>
+    </div>
+
+    <!-- ==========================================
+         VISTA 3: ARCHIVIO CLIENTI & TARGHETTE
+         ========================================== -->
+    <div id="targhe-view" class="view">
+        <header class="app-header">
+            <h1 class="app-title">📑 Archivio Clienti & Caldaie</h1>
+            <button class="btn-action" style="padding:6px 12px; font-size:13px;" onclick="apriTargaModal()">+ Nuovo</button>
+        </header>
+
+        <div class="search-sticky-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchClientInput" placeholder="Cerca cliente, telefono, indirizzo, caldaia..." oninput="caricaTarghe()">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn-action" style="flex:1; font-size:12px; padding:8px; background:#0284c7;" onclick="esportaBackupJSON()">💾 Backup JSON</button>
+                <label class="btn-action" style="flex:1; font-size:12px; padding:8px; background:#059669; text-align:center; cursor:pointer; margin:0;">
+                    📂 Ripristina <input type="file" accept=".json" style="display:none;" onchange="ripristinaBackupJSON(event)">
+                </label>
+                <label class="btn-action" style="flex:1; font-size:12px; padding:8px; background:#d97706; text-align:center; cursor:pointer; margin:0;">
+                    📊 Importa Excel <input type="file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importaClientiExcel(event)">
+                </label>
+            </div>
+        </div>
+
+        <main class="main-content" id="targhe-list">
+            <!-- Lista clienti dinamica -->
+        </main>
+    </div>
+
+    <!-- ==========================================
+         VISTA 4: CALCOLATORI TECNICI HVAC
+         ========================================== -->
+    <div id="calc-view" class="view">
+        <header class="app-header">
+            <h1 class="app-title">🧮 Calcolatori & Utility</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <h3>🧪 Rendimento di Combustione</h3>
+                <div class="form-group">
+                    <label>Temperatura Fumi (°C)</label>
+                    <input type="number" id="tempFumi" placeholder="es. 180" oninput="calcolaRendimentoCombustione()">
+                </div>
+                <div class="form-group">
+                    <label>Temperatura Aria Amb. (°C)</label>
+                    <input type="number" id="tempAmbiente" value="20" oninput="calcolaRendimentoCombustione()">
+                </div>
+                <div class="form-group">
+                    <label>Valore CO2 (%) o O2</label>
+                    <input type="number" step="0.1" id="valoreCO2" placeholder="es. 7.5" oninput="calcolaRendimentoCombustione()">
+                </div>
+                <div class="form-group">
+                    <label>Combustibile</label>
+                    <select id="tipoCombustibile" onchange="calcolaRendimentoCombustione()">
+                        <option value="metano">Gas Metano (G20)</option>
+                        <option value="gpl">GPL (G31)</option>
+                    </select>
+                </div>
+                <div id="rendimentoResult" style="margin-top:10px; font-weight:800; color:#38bdf8; font-size:15px;">Inserisci i parametri della prova fumi.</div>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Calcolo Portata Gas (Contatore)</h3>
+                <div class="form-group">
+                    <label>Litri consumati in 60 secondi (es. 2 giri contatore)</label>
+                    <input type="number" step="1" id="gasLiters" placeholder="es. 18" oninput="calcolaPortataGas()">
+                </div>
+                <div id="gasResult" style="margin-top:10px; font-weight:800; color:#38bdf8; font-size:15px;">Inserisci i litri rilevati.</div>
+            </div>
+
+            <div class="card">
+                <h3>💧 Dimensionamento Vaso d'Espansione</h3>
+                <div class="form-group">
+                    <label>Contenuto d'Acqua Impianto Stimato (Litri)</label>
+                    <input type="number" id="waterVolume" placeholder="es. 150" oninput="calcolaVasoEspansione()">
+                </div>
+                <div class="form-group">
+                    <label>Altezza Massima Impianto (Metri)</label>
+                    <input type="number" id="buildingHeight" placeholder="es. 5" oninput="calcolaVasoEspansione()">
+                </div>
+                <div id="vasoResult" style="margin-top:10px; font-weight:800; color:#38bdf8; font-size:15px;">Inserisci i dati dell'impianto.</div>
+            </div>
+
+            <div class="card">
+                <h3>🔄 Tabella Conversione Pressione</h3>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1;" class="form-group">
+                        <label>mbar</label>
+                        <input type="number" id="inputMbar" placeholder="es. 20" oninput="convertiPressione('mbar')">
+                    </div>
+                    <div style="flex:1;" class="form-group">
+                        <label>Pascal (Pa)</label>
+                        <input type="number" id="inputPascal" placeholder="es. 2000" oninput="convertiPressione('pa')">
+                    </div>
+                </div>
+                <small style="color:var(--text-sub);">1 mbar = 100 Pa | 20 mbar (Metano G20) = 2000 Pa</small>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         VISTA 5: STORICO CONSULTAZIONI
+         ========================================== -->
+    <div id="history-view" class="view">
+        <header class="app-header">
+            <h1 class="app-title">📜 Storico Consultazioni</h1>
+            <button class="btn-clear" style="padding:6px 10px; font-size:12px;" onclick="richiediSvuotaStorico()">Svuota</button>
+        </header>
+
+        <main class="main-content" id="history-list">
+            <!-- Storico dinamico -->
+        </main>
+    </div>
+
+    <!-- ==========================================
+         VISTA 6: IMPOSTAZIONI & MENU
+         ========================================== -->
+    <div id="settings-view" class="view">
+        <header class="app-header">
+            <h1 class="app-title">⚙️ Impostazioni & Utilità</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <h3>🏢 Dati Ditta / Intestazione Report</h3>
+                <p style="font-size:13px; color:var(--text-sub); margin-top:4px;">Inserisci il nome della tua ditta che comparirà nei rapporti di intervento.</p>
+                <div class="form-group" style="margin-top:12px;">
+                    <label>Nome Ditta / Installatore</label>
+                    <input type="text" id="settingCompany" placeholder="es. Termoidraulica Rossi" oninput="salvaImpostazioniDitta()">
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📳 Feedback aptico & Vibrazione</h3>
+                <label style="display:flex; align-items:center; justify-content:space-between; margin-top:10px; cursor:pointer;">
+                    <span>Vibrazione al tocco pulsanti</span>
+                    <input type="checkbox" id="settingVibration" checked onchange="salvaImpostazioniVibrazione()" style="width:20px; height:20px;">
+                </label>
+            </div>
+
+            <div class="card">
+                <h3>❓ Informazioni & Note Legali</h3>
+                <p style="font-size:13px; color:var(--text-sub); margin-top:4px;">Consulta le FAQ, le note legali e l'informativa GDPR.</p>
+                <button class="btn-action" style="width:100%; margin-top:12px;" onclick="apriHelpModal()">⚖️ Apri Centro Info & Note Legali</button>
+            </div>
+
+            <div class="card">
+                <h3>📊 Statistiche Applicazione</h3>
+                <button class="btn-action" style="width:100%; margin-top:10px; background:#0284c7;" onclick="mostraStatistiche()">📊 Visualizza Statistiche</button>
+            </div>
+
+            <div class="card">
+                <h3>🔌 Morsettiere & Connessioni</h3>
+                <button class="btn-action" style="width:100%; margin-top:10px; background:#059669;" onclick="mostraMorsettiere()">🔌 Consulta Morsettiere Caldaie</button>
+            </div>
+
+            <div class="card">
+                <h3>🩺 Diagnosi Guidata (Wizard)</h3>
+                <button class="btn-action" style="width:100%; margin-top:10px; background:#d97706;" onclick="avviaWizard()">🩺 Avvia Wizard Diagnosi Sintomi</button>
+            </div>
+
+            <div class="card" style="text-align:center; padding:20px;">
+                <p style="font-size:13px; color:var(--text-sub);">CaldaiaFix PRO v4.5</p>
+                <button class="btn-clear" style="margin-top:10px; width:100%;" onclick="forzaAggiornamentoCache()">🔄 Forza Aggiornamento PWA</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         VISTE SPECIALI (STATISTICHE, MORSETTIERE, WIZARD, AREA TECNICA)
+         ========================================== -->
+    <div id="stats-view" class="view">
+        <header class="app-header">
+            <button class="back-btn" onclick="mostraImpostazioni()">⬅ Indietro</button>
+            <h1 class="app-title" style="font-size:16px;">Statistiche</h1>
+            <div style="width:40px;"></div>
+        </header>
+        <main class="main-content" id="stats-container">
+            <!-- Statistiche dinamiche -->
+        </main>
+    </div>
+
+    <div id="morsettiere-view" class="view">
+        <header class="app-header">
+            <button class="back-btn" onclick="mostraImpostazioni()">⬅ Indietro</button>
+            <h1 class="app-title" style="font-size:16px;">Morsettiere</h1>
+            <div style="width:40px;"></div>
+        </header>
+        <div class="search-sticky-container" style="padding:10px;">
+            <div style="display:flex; gap:6px; overflow-x:auto;">
+                <button class="btn-action" style="padding:6px 12px; font-size:12px;" onclick="renderMorsettieraBrand('Baxi')">Baxi</button>
+                <button class="btn-action" style="padding:6px 12px; font-size:12px;" onclick="renderMorsettieraBrand('Vaillant')">Vaillant</button>
+                <button class="btn-action" style="padding:6px 12px; font-size:12px;" onclick="renderMorsettieraBrand('Immergas')">Immergas</button>
+                <button class="btn-action" style="padding:6px 12px; font-size:12px;" onclick="renderMorsettieraBrand('Ariston')">Ariston</button>
+            </div>
+        </div>
+        <main class="main-content" id="morsettiere-container">
+            <!-- Morsettiere dinamiche -->
+        </main>
+    </div>
+
+    <div id="wizard-view" class="view">
+        <header class="app-header">
+            <button class="back-btn" onclick="mostraImpostazioni()">⬅ Indietro</button>
+            <h1 class="app-title" style="font-size:16px;">Wizard Sintomi</h1>
+            <div style="width:40px;"></div>
+        </header>
+        <main class="main-content" id="wizard-container">
+            <!-- Wizard dinamico -->
+        </main>
+    </div>
+
+    <div id="area-tecnica-view" class="view">
+        <header class="app-header">
+            <button class="back-btn" onclick="mostraImpostazioni()">⬅ Indietro</button>
+            <h1 class="app-title" style="font-size:16px;">Area Tecnica</h1>
+            <div style="width:40px;"></div>
+        </header>
+        <main class="main-content" id="installer-content-main">
+            <!-- Area tecnica -->
+        </main>
+    </div>
+
+    <!-- ==========================================
+         BARRA DI NAVIGAZIONE INFERIORE
+         ========================================== -->
     <nav class="bottom-nav">
         <button id="nav-home" class="nav-item active" onclick="tornaHome()">
             <span class="nav-icon">🔍</span>
@@ -340,11 +332,11 @@
         </button>
         <button id="nav-targhe" class="nav-item" onclick="mostraTarghe()">
             <span class="nav-icon">📑</span>
-            <span class="nav-label">Gest. Clienti</span>
+            <span class="nav-label">Clienti</span>
         </button>
         <button id="nav-calc" class="nav-item" onclick="mostraCalcolatori()">
             <span class="nav-icon">🧮</span>
-            <span class="nav-label">Calcoli</span>
+            <span class="nav-label">Calcolatori</span>
         </button>
         <button id="nav-history" class="nav-item" onclick="mostraStorico()">
             <span class="nav-icon">📜</span>
@@ -356,107 +348,214 @@
         </button>
     </nav>
 
-    <!-- MODALE INGRANDIMENTO FOTO A TUTTO SCHERMO (LIGHTBOX) -->
-    <div id="photo-lightbox-modal" class="modal" style="display:none; z-index:3000; background:rgba(0,0,0,0.92);" onclick="chiudiLightbox()">
-        <div style="position:relative; max-width:95%; max-height:95%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-            <button onclick="chiudiLightbox()" style="position:absolute; top:-42px; right:0; background:#ef4444; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:15px; cursor:pointer;">✕ Chiudi</button>
-            <img id="lightbox-img" src="" style="max-width:100%; max-height:82vh; object-fit:contain; border-radius:12px; border:2px solid #334155; box-shadow:0 10px 30px rgba(0,0,0,0.8);" alt="Foto Ingrandita">
-            <p style="color:#94a3b8; font-size:12px; margin-top:10px; font-weight:600;">Tocca un punto qualsiasi per chiudere</p>
+    <!-- MENU A TENDINA (DROPUP) -->
+    <div id="dropup-overlay" class="dropup-overlay" onclick="toggleMenuTendina()"></div>
+    <div id="dropup-menu" class="dropup-menu">
+        <div class="dropup-header">
+            <span>Menu Rapido</span>
+            <button onclick="toggleMenuTendina()" style="background:none; border:none; color:var(--text-sub); font-size:18px;">✕</button>
         </div>
+        <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="apriHelpModal(); toggleMenuTendina();">⚖️ FAQ, Legale & Privacy</button>
+        <button class="dropup-item" style="color:#38bdf8; border-color:#0284c7;" onclick="apriFeedbackModal(); toggleMenuTendina();">💬 Segnala Codice / Bug</button>
+        <button class="dropup-item" onclick="mostraStatistiche(); toggleMenuTendina();">📊 Dashboard Statistiche</button>
+        <button class="dropup-item" onclick="mostraMorsettiere(); toggleMenuTendina();">🔌 Morsettiere Caldaie</button>
+        <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi Guidata Sintomi</button>
+        <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
+        <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Gestione Clienti & Targhette</button>
+        <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
+        <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica</button>
+        <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni</button>
     </div>
 
-    <!-- MODALI -->
-    <div id="pin-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h3>🔑 Codice Sblocco Tecnico</h3>
-            <p style="font-size:14px; color:var(--text-sub);">Inserisci il PIN (predefinito: 1234):</p>
-            <input type="password" id="pinInput" placeholder="1234" style="font-size:22px; text-align:center;" onkeydown="if(event.key==='Enter') verificaPin()">
-            <p id="pinError" style="color:#ef4444; font-size:14px; display:none; font-weight:bold; margin-top:8px;">PIN Errato!</p>
+    <!-- ==========================================
+         MODALI COMPLEMENTARI
+         ========================================== -->
 
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button type="button" class="btn-action" onclick="verificaPin()">Entra</button>
-                <button type="button" class="btn-clear" onclick="chiudiPin()">Annulla</button>
+    <!-- MODALE HELP, FAQ, GDPR & NOTE LEGALI -->
+    <div id="help-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card" style="max-width:550px; max-height:85vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:10px; margin-bottom:15px;">
+                <h3 style="margin:0; color:#ffffff; font-size:18px;">⚖️ Note Legali & Assistenza</h3>
+                <button onclick="chiudiHelpModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
             </div>
+
+            <!-- TAB NAVIGAZIONE INTERNA -->
+            <div style="display:flex; gap:6px; margin-bottom:15px;">
+                <button id="tab-faq-btn" class="btn-action active" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('faq')">❓ FAQ</button>
+                <button id="tab-legal-btn" class="btn-action" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('legal')">📜 Privacy & Note</button>
+                <button id="tab-contact-btn" class="btn-action" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('contact')">💬 Assistenza</button>
+            </div>
+
+            <!-- SEZIONE FAQ -->
+            <div id="help-section-faq">
+                <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: L'applicazione funziona offline?</strong>
+                    <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">Sì, tutto il database dei codici errore e le schede clienti risiedono sulla memoria locale del tuo dispositivo.</span>
+                </div>
+                <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: Dove vengono salvati i dati dei clienti?</strong>
+                    <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">I dati sono archiviati esclusivamente nel database interno del browser (IndexedDB). Nessun dato personale viene inviato a server esterni.</span>
+                </div>
+                <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: Come posso fare il backup delle schede clienti?</strong>
+                    <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">Accedi al Menu > Area Tecnica / Backup per esportare o ripristinare il file JSON dei tuoi clienti.</span>
+                </div>
+            </div>
+
+            <!-- SEZIONE PRIVACY, GDPR & DISCLAIMER LEGALE -->
+            <div id="help-section-legal" style="display:none; font-size:13px; color:#cbd5e1; line-height:1.5;">
+                <h4 style="color:#38bdf8; margin-top:0;">🔒 Informativa Privacy (GDPR - Art. 13)</h4>
+                <p>La presente applicazione tratta i dati nel rispetto del Regolamento UE 2016/679 (GDPR). Tutti i dati inseriti (schede clienti, targhette, note di intervento) sono conservati esclusivamente in locale nel dispositivo dell'utente. Il titolare del trattamento non raccoglie né profila dati personali a fini commerciali.</p>
+
+                <h4 style="color:#38bdf8; margin-top:12px;">⚠️ Disclaimer & Esclusione di Responsabilità</h4>
+                <p>Le informazioni, le procedure di ricerca guasti e i codici di errore contenuti nell'applicazione sono forniti a puro scopo informativo e di supporto tecnico. L'utente (tecnico/installatore) è l'unico responsabile della corretta e sicura esecuzione degli interventi sugli impianti a gas e termoidraulici, in conformità alle normative CEI, UNI e alle direttive di sicurezza vigenti.</p>
+
+                <h4 style="color:#38bdf8; margin-top:12px;">🏷️ Marchi e Proprietà Intellettuale</h4>
+                <p>Tutti i marchi citati (es. Baxi, Vaillant, Immergas, Ariston, Beretta, Ferroli, ecc.) appartengono ai rispettivi legittimi proprietari. La citazione di tali marchi ha funzione unicamente descrittiva e di identificazione delle compatibilità per l'attività di manutenzione ed assistenza tecnica.</p>
+            </div>
+
+            <!-- SEZIONE ASSISTENZA & CONTATTI -->
+            <div id="help-section-contact" style="display:none; text-align:center;">
+                <p style="font-size:14px; color:#ffffff;">Hai bisogno di supporto tecnico, riscontri un'anomalia o vuoi richiedere informazioni?</p>
+                <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                    <a href="mailto:caldaiafixassistenza@libero.it" class="btn-action" style="text-decoration:none; display:block; padding:12px;">✉️ Invia una Mail all'Assistenza</a>
+                    <button class="btn-action" style="background:#22c55e; color:#ffffff;" onclick="apriFeedbackModal(); chiudiHelpModal();">💬 Segnala un Codice Errore o Bug</button>
+                </div>
+            </div>
+
+            <button class="btn-clear" style="width:100%; margin-top:15px;" onclick="chiudiHelpModal()">Chiudi</button>
         </div>
     </div>
 
-    <!-- MODALE SCHEDA CLIENTE -->
-    <div id="targa-modal" class="modal" style="display:none;">
-        <div class="modal-content">
+    <!-- MODALE RAPPORTO INTERVENTO CLIENTE -->
+    <div id="report-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <h3>💬 Rapporto Intervento Cliente</h3>
+            <div class="form-group" style="margin-top:10px;">
+                <label>Intestazione Ditta</label>
+                <input type="text" id="repCompany">
+            </div>
+            <div class="form-group">
+                <label>Nome Cliente</label>
+                <input type="text" id="repClient" placeholder="es. Mario Rossi">
+            </div>
+            <div class="form-group">
+                <label>Caldaia / Modello</label>
+                <input type="text" id="repBoiler">
+            </div>
+            <div class="form-group">
+                <label>Anomalia Riscontrata</label>
+                <input type="text" id="repFault">
+            </div>
+            <div class="form-group">
+                <label>Lavoro Svolto / Ricambi</label>
+                <textarea id="repWork" rows="3" placeholder="Descrivi l'intervento..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Prezzo / Totale (€)</label>
+                <input type="number" id="repPrice" placeholder="es. 120">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action" style="flex:1; background:#22c55e;" onclick="inviaRapportoWhatsApp()">📲 WhatsApp</button>
+                <button class="btn-action" style="flex:1; background:#0284c7;" onclick="stampaReportPDF()">🖨️ Stampa PDF</button>
+            </div>
+            <button class="btn-clear" style="width:100%; margin-top:10px;" onclick="chiudiReportModal()">Annulla</button>
+        </div>
+    </div>
+
+    <!-- MODALE NUOVA / MODIFICA SCHEDA CLIENTE -->
+    <div id="targa-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
             <h3 id="targa-modal-title">📑 Scheda Cliente & Manutenzione</h3>
-            <input type="text" id="tagClient" placeholder="Nome Cliente / Riferimento">
-            <input type="tel" id="tagPhone" placeholder="Cellulare Cliente (es. 3331234567)">
-            <input type="text" id="tagAddress" placeholder="Indirizzo">
-            <input type="text" id="tagBoiler" placeholder="Marca e Modello Caldaia">
-            <input type="text" id="tagSerial" placeholder="Numero Matricola">
-            
-            <label style="font-size:13px; font-weight:700; color:var(--text-sub); margin-top:10px; display:block;">📅 Prossimo Controllo Fumi / Manutenzione:</label>
-            <input type="date" id="tagNextMaintenance">
-
-            <textarea id="tagNotes" placeholder="Note tecniche..."></textarea>
-            
-            <label class="btn-file">
-                📷 Scatta/Carica Foto Targa
-                <input type="file" accept="image/*" capture="environment" onchange="anteprimaFotoTarga(event)">
-            </label>
-            <img id="tagImgPreview" class="client-img-preview" style="display:none; cursor:pointer;" alt="Anteprima" onclick="ingrandisciFoto(this.src)" title="Clicca per ingrandire">
-
+            <div class="form-group" style="margin-top:10px;">
+                <label>Nome e Cognome Cliente</label>
+                <input type="text" id="tagClient" placeholder="es. Mario Rossi">
+            </div>
+            <div class="form-group">
+                <label>Telefono</label>
+                <input type="tel" id="tagPhone" placeholder="es. 3331234567">
+            </div>
+            <div class="form-group">
+                <label>Indirizzo / Città</label>
+                <input type="text" id="tagAddress" placeholder="es. Via Roma 10, Cerveteri">
+            </div>
+            <div class="form-group">
+                <label>Modello Caldaia</label>
+                <input type="text" id="tagBoiler" placeholder="es. Baxi Luna3 24FF">
+            </div>
+            <div class="form-group">
+                <label>Numero Matricola</label>
+                <input type="text" id="tagSerial" placeholder="es. AB12345678">
+            </div>
+            <div class="form-group">
+                <label>Prossima Scadenza Manutenzione</label>
+                <input type="date" id="tagNextMaintenance">
+            </div>
+            <div class="form-group">
+                <label>Note Impianto</label>
+                <textarea id="tagNotes" rows="2" placeholder="Note su canna fumaria, locale..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Foto Targhetta / Impianto</label>
+                <input type="file" accept="image/*" capture="environment" onchange="anteprimaFotoTarga(event)" style="font-size:12px; color:#cbd5e1;">
+                <img id="tagImgPreview" style="width:100%; max-height:140px; object-fit:cover; border-radius:8px; margin-top:8px; display:none;">
+            </div>
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn-action" onclick="salvaSchedaTarga()">Salva</button>
-                <button class="btn-clear" onclick="chiudiTargaModal()">Annulla</button>
+                <button class="btn-action" style="flex:1;" onclick="salvaSchedaTarga()">Salva Scheda</button>
+                <button class="btn-clear" style="flex:1;" onclick="chiudiTargaModal()">Annulla</button>
             </div>
         </div>
     </div>
 
-    <div id="report-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h3>💬 Crea Rapporto Cliente</h3>
-            <input type="text" id="repCompany" placeholder="Nome Tua Ditta">
-            <input type="text" id="repClient" placeholder="Nome Cliente">
-            <input type="text" id="repBoiler" placeholder="Modello Caldaia" readonly>
-            <input type="text" id="repFault" placeholder="Guasto Riscontrato" readonly>
-            <textarea id="repWork" placeholder="Lavoro svolto / Ricambi sostituiti..."></textarea>
-            <input type="text" id="repPrice" placeholder="Importo Totale (€)">
-
-            <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
-                <button class="btn-whatsapp" onclick="inviaRapportoWhatsApp()">💬 Invia WhatsApp</button>
-                <button class="btn-action" style="background:#0284c7;" onclick="stampaReportPDF()">📄 Genera & Stampa PDF</button>
-                <button class="btn-clear" onclick="chiudiReportModal()">Annulla</button>
+    <!-- MODALE PIN AREA TECNICA -->
+    <div id="pin-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card" style="text-align:center;">
+            <h3>🔑 Area Riservata Tecnici</h3>
+            <p style="font-size:13px; color:var(--text-sub); margin-top:6px;">Inserisci il PIN di sblocco.</p>
+            <input type="password" id="pinInput" placeholder="PIN (es. 1234)" style="text-align:center; font-size:20px; letter-spacing:4px; margin:15px 0;">
+            <p id="pinError" style="color:#ef4444; font-size:13px; display:none; margin-bottom:10px;">PIN errato.</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" style="flex:1;" onclick="verificaPin()">Accedi</button>
+                <button class="btn-clear" style="flex:1;" onclick="chiudiPin()">Annulla</button>
             </div>
         </div>
     </div>
 
-    <div id="feedback-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h3>📩 Assistenza & Suggerimenti</h3>
-            
-            <div class="tabs" style="margin-top:10px; margin-bottom:15px;">
-                <button id="tab-code-btn" class="tab-btn active" onclick="cambiaTabFeedback('code')">➕ Nuovo Codice</button>
-                <button id="tab-bug-btn" class="tab-btn" onclick="cambiaTabFeedback('bug')">🐛 Segnala Bug</button>
+    <!-- MODALE FEEDBACK / SEGNALAZIONE BUG -->
+    <div id="feedback-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px; margin-bottom:12px;">
+                <h3 style="margin:0; font-size:16px;">💬 Segnala Codice o Problema</h3>
+                <button onclick="chiudiFeedbackModal()" style="background:none; border:none; color:#cbd5e1; font-size:18px;">✕</button>
             </div>
-
+            <div style="display:flex; gap:6px; margin-bottom:12px;">
+                <button id="tab-code-btn" class="btn-action active" style="flex:1; font-size:12px; padding:6px;" onclick="cambiaTabFeedback('code')">Nuovo Codice</button>
+                <button id="tab-bug-btn" class="btn-action" style="flex:1; font-size:12px; padding:6px;" onclick="cambiaTabFeedback('bug')">Segnala Bug</button>
+            </div>
             <div id="form-feedback-code">
-                <p style="font-size:13px; color:var(--text-sub); margin-bottom:8px;">Aiutaci ad ampliare il database! Il codice verrà verificato prima dell'inserimento.</p>
-                <input type="text" id="fbBrand" placeholder="Marca Caldaia (es. Baxi, Vaillant)">
-                <input type="text" id="fbModel" placeholder="Modello (es. Luna3, ecoTEC)">
-                <input type="text" id="fbCode" placeholder="Codice Errore (es. E01, F28)">
-                <textarea id="fbSolution" placeholder="Descrizione o Soluzione proposta..."></textarea>
-                <button class="btn-email" style="margin-top:12px;" onclick="inviaFeedbackEmail('code')">📧 Invia Nuovo Codice via Email</button>
+                <div class="form-group"><label>Marca Caldaia</label><input type="text" id="fbBrand" placeholder="es. Baxi"></div>
+                <div class="form-group"><label>Modello</label><input type="text" id="fbModel" placeholder="es. Luna3"></div>
+                <div class="form-group"><label>Codice Errore</label><input type="text" id="fbCode" placeholder="es. E01"></div>
+                <div class="form-group"><label>Soluzione / Procedura</label><textarea id="fbSolution" rows="3" placeholder="Come hai risolto?"></textarea></div>
+                <button class="btn-action" style="width:100%; margin-top:10px;" onclick="inviaFeedbackEmail('code')">Invia via Email</button>
             </div>
-
             <div id="form-feedback-bug" style="display:none;">
-                <p style="font-size:13px; color:var(--text-sub); margin-bottom:8px;">Hai riscontrato un problema o un errore nell'applicazione?</p>
-                <textarea id="fbBugDesc" placeholder="Descrivi brevemente il problema riscontrato..."></textarea>
-                <button class="btn-email" style="margin-top:12px;" onclick="inviaFeedbackEmail('bug')">📧 Segnala Bug via Email</button>
+                <div class="form-group"><label>Descrizione Problema</label><textarea id="fbBugDesc" rows="4" placeholder="Descrivi l'anomalia riscontrata..."></textarea></div>
+                <button class="btn-action" style="width:100%; margin-top:10px;" onclick="inviaFeedbackEmail('bug')">Invia Segnalazione Bug</button>
             </div>
-
-            <button class="btn-clear" style="width:100%; margin-top:10px;" onclick="chiudiFeedbackModal()">Annulla</button>
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=4.5 -->
-    <script src="db.js?v=4.5"></script>
-    <script src="app.js?v=4.5"></script>
+    <!-- LIGHTBOX FOTO TARGHETTA -->
+    <div id="photo-lightbox-modal" class="modal-overlay" style="display:none; background:rgba(0,0,0,0.9);" onclick="chiudiLightbox()">
+        <div style="position:relative; max-width:90%; max-height:90%;">
+            <img id="lightbox-img" style="width:100%; max-height:85vh; object-fit:contain; border-radius:8px;">
+            <button style="position:absolute; top:-10px; right:-10px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold;" onclick="chiudiLightbox()">✕</button>
+        </div>
+    </div>
 
+    <!-- SCRIPT DATI & LOGICA -->
+    <script src="db_errori.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
