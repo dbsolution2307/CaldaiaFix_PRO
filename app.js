@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & ZOOM FOTO
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & RICERCA DINAMICA
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -986,7 +986,7 @@ function ripristinaBackupJSON(event) {
     event.target.value = '';
 }
 
-// ARCHIVIO CLIENTI, INDEXED DB & SCADENZARIO
+// ARCHIVIO CLIENTI, INDEXED DB, RICERCA & SCADENZARIO
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -1169,16 +1169,42 @@ function caricaTarghe() {
     const container = document.getElementById('targhe-list');
     if (!container) return;
 
+    const searchEl = document.getElementById('searchClientInput');
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : '';
+
     const transaction = dbIndexed.transaction(['targhe'], 'readonly');
     const store = transaction.objectStore('targhe');
     const request = store.getAll();
 
     request.onsuccess = () => {
-        const items = request.result;
+        let items = request.result;
+
         if (!items || items.length === 0) {
             container.innerHTML = `
                 <div class="card" style="text-align:center; padding:20px;">
                     <p style="font-size:14px; color:var(--text-sub);">Nessun cliente salvato nell'archivio.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // FILTRAGGIO DINAMICO PER RICERCA CLIENTE
+        if (query !== '') {
+            items = items.filter(item => {
+                const matchClient = item.client ? item.client.toLowerCase().includes(query) : false;
+                const matchPhone = item.phone ? item.phone.toLowerCase().includes(query) : false;
+                const matchAddress = item.address ? item.address.toLowerCase().includes(query) : false;
+                const matchBoiler = item.boiler ? item.boiler.toLowerCase().includes(query) : false;
+                const matchSerial = item.serial ? item.serial.toLowerCase().includes(query) : false;
+                const matchNotes = item.notes ? item.notes.toLowerCase().includes(query) : false;
+                return matchClient || matchPhone || matchAddress || matchBoiler || matchSerial || matchNotes;
+            });
+        }
+
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="card" style="text-align:center; padding:20px;">
+                    <p style="font-size:14px; color:var(--text-sub);">Nessun cliente trovato corrispondente a "${query}".</p>
                 </div>
             `;
             return;
