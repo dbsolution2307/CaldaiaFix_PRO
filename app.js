@@ -21,7 +21,7 @@ if ('serviceWorker' in navigator) {
 function safeGetStorage(key, defaultValue) {
     try {
         const val = localStorage.getItem(key);
-        return val ? JSON.parse(val) : defaultValue;
+        return val !== null ? JSON.parse(val) : defaultValue;
     } catch (e) {
         return defaultValue;
     }
@@ -44,21 +44,20 @@ let dbIndexed = null;
 let deferredPrompt = null;
 let torchTrack = null;
 let isTorchOn = false;
-
-// ID CLIENTE IN FASE DI MODIFICA
+let currentReportError = null;
 let editingClientId = null;
 
-// INIZIALIZZAZIONE
+// INIZIALIZZAZIONE APPLICAZIONE
 function initApp() {
     try {
-        if (!verificaConsensoGDPR()) return; // Blocco se consenso non dato
-        verificaStatoLicenza60Giorni();
-        aggiornaContatoreHeader();
-        initIndexedDB();
-        caricaImpostazioni();
         filtraErrori(false);
+        aggiornaContatoreHeader();
+        caricaImpostazioni();
+        initIndexedDB();
         gestisciPwaInstall();
         verificaStatoRete();
+        verificaStatoLicenza60Giorni();
+        verificaConsensoGDPR();
     } catch (err) {
         console.error("Errore inizializzazione CaldaiaFix:", err);
     }
@@ -80,7 +79,7 @@ function vibraTocco() {
     }
 }
 
-// NAVIGATIONI E VISTE
+// NAVIGAZIONE E VISTE
 function impostaTabNav(tabId) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const targetNav = document.getElementById(`nav-${tabId}`);
@@ -144,7 +143,7 @@ function toggleMenuTendina() {
     }
 }
 
-// GESTIONE CENTRO HELP (❓ FAQ, NOTE LEGALI GDPR & ASSISTENZA)
+// CENTRO HELP: FAQ, ASSISTENZA & GDPR
 function apriHelpModal() {
     vibraTocco();
     const modal = document.getElementById('help-modal');
@@ -156,9 +155,7 @@ function apriHelpModal() {
 
 function chiudiHelpModal() {
     const modal = document.getElementById('help-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    if (modal) modal.style.display = 'none';
 }
 
 function cambiaTabHelp(tabName) {
@@ -176,7 +173,6 @@ function cambiaTabHelp(tabName) {
     if (activeSec) activeSec.style.display = 'block';
 }
 
-// GESTIONE CONSENSO GDPR & NOTE LEGALI AL PRIMO AVVIO
 function verificaConsensoGDPR() {
     const isAccepted = localStorage.getItem('caldaiafix_gdpr_accepted') === 'true';
     const consentModal = document.getElementById('gdpr-consent-modal');
@@ -201,10 +197,10 @@ function confermaConsensoGDPR() {
     vibraTocco();
     const consentModal = document.getElementById('gdpr-consent-modal');
     if (consentModal) consentModal.style.display = 'none';
-    initApp();
+    filtraErrori(false);
 }
 
-// GESTIONE LICENZA PROVA 60 GIORNI E SBLOCCO
+// LICENZA PROVA 60 GIORNI
 function verificaStatoLicenza60Giorni() {
     const isUnlocked = localStorage.getItem('caldaiafix_unlocked') === 'true';
     const settingsInfo = document.getElementById('settings-license-info');
@@ -226,8 +222,7 @@ function verificaStatoLicenza60Giorni() {
     }
 
     const now = Date.now();
-    const elapsedMs = now - installTimestamp;
-    const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
+    const elapsedDays = Math.floor((now - installTimestamp) / (1000 * 60 * 60 * 24));
     const remainingDays = TRIAL_DAYS - elapsedDays;
 
     if (remainingDays <= 0) {
@@ -248,10 +243,10 @@ function sbloccaAppConCodice() {
     const input = document.getElementById('activationCodeInput')?.value.trim().toUpperCase() || '';
     if (input === MASTER_LICENSE_KEY) {
         localStorage.setItem('caldaiafix_unlocked', 'true');
-        alert("🎉 Licenza PRO Attivata con successo! L'applicazione è ora sbloccata in modo illimitato.");
+        alert("🎉 Licenza PRO Attivata con successo!");
         location.reload();
     } else {
-        alert("❌ Codice Licenza Errato. Verifica il codice e riprova.");
+        alert("❌ Codice Licenza Errato.");
     }
 }
 
@@ -267,13 +262,11 @@ function sbloccaAppDaModaleBlocco() {
     }
 }
 
-// FILTRAGGIO E RENDERING LISTA ERRORI HOME
+// RENDERING E FILTRO ERRORI
 function aggiornaContatoreHeader() {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
     const countBox = document.getElementById('resultsCount');
-    if (countBox) {
-        countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
-    }
+    if (countBox) countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
 }
 
 function filtraErrori(isFavOnly = false) {
@@ -379,21 +372,19 @@ function toggleFav(id, event) {
     if (event) event.stopPropagation();
     vibraTocco();
     const index = favorites.indexOf(id);
-    if (index > -1) {
-        favorites.splice(index, 1);
-    } else {
-        favorites.push(id);
-    }
+    if (index > -1) favorites.splice(index, 1);
+    else favorites.push(id);
     safeSetStorage('caldaiafix_favs', favorites);
     filtraErrori(false);
 }
 
-// DETTAGLIO GUASTO
+// DETTAGLIO GUASTO & RAPPORTO CLIENTE
 function mostraDettaglio(id) {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
     const item = dbData.find(e => e.id === id);
     if (!item) return;
 
+    currentReportError = item;
     vibraTocco();
     salvaInStorico(item);
 
@@ -401,15 +392,9 @@ function mostraDettaglio(id) {
     if (!detailContent) return;
 
     const isFav = favorites.includes(item.id);
-
-    let htmlSteps = '';
-    if (item.steps && item.steps.length > 0) {
-        htmlSteps = '<ol style="padding-left:20px; font-size:14px; line-height:1.6; margin-top:8px;">' + 
-                    item.steps.map(s => `<li style="margin-bottom:6px; color:#e2e8f0;">${s}</li>`).join('') + 
-                    '</ol>';
-    } else {
-        htmlSteps = '<p style="font-size:14px; color:var(--text-sub); margin-top:6px;">Procedura standard di verifica componenti.</p>';
-    }
+    let htmlSteps = item.steps && item.steps.length > 0
+        ? '<ol style="padding-left:20px; font-size:14px; line-height:1.6; margin-top:8px;">' + item.steps.map(s => `<li style="margin-bottom:6px; color:#e2e8f0;">${s}</li>`).join('') + '</ol>'
+        : '<p style="font-size:14px; color:var(--text-sub); margin-top:6px;">Procedura standard di verifica componenti.</p>';
 
     const searchQuery = encodeURIComponent(`${item.brand} ${item.partName || item.code} ricambio caldaia`);
     const amazonUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=${AMAZON_AFFILIATE_TAG}`;
@@ -451,16 +436,166 @@ function mostraDettaglio(id) {
     cambiaVista('detail-view');
 }
 
-// STORICO GUASTI RECENTI
+function apriReportModal(id) {
+    vibraTocco();
+    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
+    const item = dbData.find(e => e.id === id) || currentReportError;
+    if (!item) return;
+
+    currentReportError = item;
+    const company = safeGetStorage('caldaiafix_company', '');
+
+    const repCompany = document.getElementById('repCompany');
+    const repClient = document.getElementById('repClient');
+    const repBoiler = document.getElementById('repBoiler');
+    const repFault = document.getElementById('repFault');
+
+    if (repCompany) repCompany.value = company;
+    if (repClient) repClient.value = '';
+    if (repBoiler) repBoiler.value = `${item.brand} ${item.model}`;
+    if (repFault) repFault.value = `Errore ${item.code} - ${item.desc}`;
+
+    const modal = document.getElementById('report-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function chiudiReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function inviaRapportoWhatsApp() {
+    vibraTocco();
+    const company = document.getElementById('repCompany')?.value.trim() || 'Assistenza Tecnica';
+    const client = document.getElementById('repClient')?.value.trim() || 'Gentile Cliente';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '';
+    const fault = document.getElementById('repFault')?.value.trim() || '';
+    const work = document.getElementById('repWork')?.value.trim() || '';
+    const price = document.getElementById('repPrice')?.value.trim() || '';
+
+    let text = `*RAPPORTO INTERVENTO TECNICO*\n*Ditta:* ${company}\n*Cliente:* ${client}\n`;
+    if (boiler) text += `*Caldaia:* ${boiler}\n`;
+    if (fault) text += `*Anomalia:* ${fault}\n`;
+    if (work) text += `*Intervento:* ${work}\n`;
+    if (price) text += `*Totale:* € ${price}\n`;
+
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    chiudiReportModal();
+}
+
+function stampaReportPDF() {
+    vibraTocco();
+    const company = document.getElementById('repCompany')?.value.trim() || 'CaldaiaFix PRO';
+    const client = document.getElementById('repClient')?.value.trim() || 'Cliente';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '-';
+    const fault = document.getElementById('repFault')?.value.trim() || '-';
+    const work = document.getElementById('repWork')?.value.trim() || '-';
+    const price = document.getElementById('repPrice')?.value.trim() || '-';
+
+    const printWin = window.open('', '_blank');
+    if (!printWin) return alert("Abilita i popup nel browser.");
+
+    printWin.document.write(`
+        <!DOCTYPE html><html><head><title>Report - ${client}</title>
+        <style>body{font-family:Arial,sans-serif;padding:25px;} h1{color:#0284c7;}</style></head>
+        <body><h1>${company}</h1><p><strong>Cliente:</strong> ${client}</p><p><strong>Caldaia:</strong> ${boiler}</p><p><strong>Guasto:</strong> ${fault}</p><p><strong>Lavoro Svolto:</strong> ${work}</p><h3>Totale: € ${price}</h3>
+        <script>window.onload=function(){window.print();}</script></body></html>
+    `);
+    printWin.document.close();
+    chiudiReportModal();
+}
+
+function ingrandisciFoto(src) {
+    if (!src) return;
+    vibraTocco();
+    const modal = document.getElementById('photo-lightbox-modal');
+    const img = document.getElementById('lightbox-img');
+    if (modal && img) {
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+}
+
+function chiudiLightbox() {
+    const modal = document.getElementById('photo-lightbox-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function mostraStatistiche() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('stats-view');
+
+    const container = document.getElementById('stats-container');
+    if (!container) return;
+
+    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
+    container.innerHTML = `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">${dbData.length}</div>
+                <div class="stat-label">Guasti in Database</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#f59e0b;">${favorites.length}</div>
+                <div class="stat-label">Preferiti Salvati</div>
+            </div>
+        </div>
+    `;
+}
+
+function controllaScadenzeAllerta() {
+    if (!dbIndexed) return;
+    try {
+        const tx = dbIndexed.transaction(['targhe'], 'readonly');
+        const req = tx.objectStore('targhe').getAll();
+        req.onsuccess = () => {
+            const items = req.result || [];
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            let inScadenza = 0, scaduti = 0;
+
+            items.forEach(item => {
+                if (item.nextMaintenance) {
+                    const diffDays = Math.ceil((new Date(item.nextMaintenance) - oggi) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0) scaduti++;
+                    else if (diffDays <= 14) inScadenza++;
+                }
+            });
+
+            const banner = document.getElementById('maint-alert-banner');
+            if (banner && (inScadenza > 0 || scaduti > 0)) {
+                banner.style.display = 'flex';
+                document.getElementById('maint-alert-desc').textContent = `${scaduti} manutenzioni scadute | ${inScadenza} nei prossimi 14 giorni.`;
+            } else if (banner) {
+                banner.style.display = 'none';
+            }
+        };
+    } catch(e) {}
+}
+
+function verificaStatoRete() {
+    window.addEventListener('online', () => console.log('Online'));
+    window.addEventListener('offline', () => console.log('Offline'));
+}
+
+function forzaAggiornamentoCache() {
+    vibraTocco();
+    if (confirm("Reset cache per aggiornare all'ultima versione?")) {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                for (let r of regs) r.unregister();
+            });
+        }
+        location.reload(true);
+    }
+}
+
+// STORICO RECENTI
 function salvaInStorico(item) {
     historyGuasti = historyGuasti.filter(h => h.id !== item.id);
     historyGuasti.unshift({
-        id: item.id,
-        brand: item.brand,
-        code: item.code,
-        desc: item.desc,
-        model: item.model,
-        date: new Date().toLocaleDateString('it-IT')
+        id: item.id, brand: item.brand, code: item.code, desc: item.desc, model: item.model, date: new Date().toLocaleDateString('it-IT')
     });
     if (historyGuasti.length > 20) historyGuasti.pop();
     safeSetStorage('caldaiafix_history', historyGuasti);
@@ -471,13 +606,7 @@ function renderStorico() {
     if (!listEl) return;
 
     if (!historyGuasti || historyGuasti.length === 0) {
-        listEl.innerHTML = `
-            <div class="card" style="text-align:center; padding:30px 15px;">
-                <div style="font-size:32px; margin-bottom:8px;">📜</div>
-                <div style="font-weight:800; font-size:16px; color:#ffffff;">Storico vuoto</div>
-                <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">I guasti che consulterai appariranno qui.</div>
-            </div>
-        `;
+        listEl.innerHTML = `<div class="card" style="text-align:center; padding:20px;">📜 Storico vuoto</div>`;
         return;
     }
 
@@ -486,12 +615,8 @@ function renderStorico() {
         html += `
             <div class="error-item" onclick="mostraDettaglio(${h.id})">
                 <div class="error-main-info">
-                    <div class="error-badges-row">
-                        <span class="badge-brand-code">${h.brand} - ${h.code}</span>
-                        <span class="error-model-text">${h.model}</span>
-                    </div>
+                    <span class="badge-brand-code">${h.brand} - ${h.code}</span>
                     <div class="error-title">${h.desc}</div>
-                    <small style="color:var(--text-sub); font-size:11px; margin-top:4px; display:block;">Consultato il ${h.date}</small>
                 </div>
                 <div class="error-chevron">›</div>
             </div>
@@ -501,7 +626,7 @@ function renderStorico() {
 }
 
 function richiediSvuotaStorico() {
-    if (confirm("Vuoi cancellare lo storico delle ricerche recenti?")) {
+    if (confirm("Cancellare lo storico recente?")) {
         vibraTocco();
         historyGuasti = [];
         safeSetStorage('caldaiafix_history', historyGuasti);
@@ -509,28 +634,20 @@ function richiediSvuotaStorico() {
     }
 }
 
-// INDEXEDDB GESTIONE CLIENTI & FOTO TARGHETTA
+// INDEXEDDB GESTIONE CLIENTI
 function initIndexedDB() {
     const request = indexedDB.open('CaldaiaFixDB', 1);
-
     request.onupgradeneeded = (e) => {
         dbIndexed = e.target.result;
         if (!dbIndexed.objectStoreNames.contains('targhe')) {
             const store = dbIndexed.createObjectStore('targhe', { keyPath: 'id', autoIncrement: true });
             store.createIndex('client', 'client', { unique: false });
-            store.createIndex('boiler', 'boiler', { unique: false });
-            store.createIndex('phone', 'phone', { unique: false });
         }
     };
-
     request.onsuccess = (e) => {
         dbIndexed = e.target.result;
         caricaTarghe();
         controllaScadenzeAllerta();
-    };
-
-    request.onerror = (e) => {
-        console.warn('IndexedDB non disponibile o errore:', e);
     };
 }
 
@@ -538,108 +655,45 @@ function caricaTarghe() {
     if (!dbIndexed) return;
     const searchVal = document.getElementById('searchClientInput')?.value.toLowerCase().trim() || '';
 
-    try {
-        const tx = dbIndexed.transaction(['targhe'], 'readonly');
-        const store = tx.objectStore('targhe');
-        const req = store.getAll();
+    const tx = dbIndexed.transaction(['targhe'], 'readonly');
+    const req = tx.objectStore('targhe').getAll();
 
-        req.onsuccess = () => {
-            const listEl = document.getElementById('targhe-list');
-            if (!listEl) return;
+    req.onsuccess = () => {
+        const listEl = document.getElementById('targhe-list');
+        if (!listEl) return;
+        let items = req.result || [];
 
-            let items = req.result || [];
-            if (searchVal !== '') {
-                items = items.filter(item => {
-                    const c = (item.client || '').toLowerCase();
-                    const p = (item.phone || '').toLowerCase();
-                    const a = (item.address || '').toLowerCase();
-                    const b = (item.boiler || '').toLowerCase();
-                    const s = (item.serial || '').toLowerCase();
-                    return c.includes(searchVal) || p.includes(searchVal) || a.includes(searchVal) || b.includes(searchVal) || s.includes(searchVal);
-                });
-            }
+        if (searchVal !== '') {
+            items = items.filter(i => (i.client || '').toLowerCase().includes(searchVal) || (i.boiler || '').toLowerCase().includes(searchVal));
+        }
 
-            if (items.length === 0) {
-                listEl.innerHTML = `
-                    <div class="card" style="text-align:center; padding:30px 15px;">
-                        <div style="font-size:32px; margin-bottom:8px;">📑</div>
-                        <div style="font-weight:800; font-size:16px; color:#ffffff;">Nessun cliente in archivio</div>
-                        <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">Premi "+ Nuovo Cliente" per registrare la prima scheda.</div>
+        if (items.length === 0) {
+            listEl.innerHTML = `<div class="card" style="text-align:center; padding:20px;">📑 Nessun cliente in archivio</div>`;
+            return;
+        }
+
+        let html = '';
+        items.forEach(item => {
+            html += `
+                <div class="card">
+                    <strong style="color:#ffffff;">${item.client || 'Cliente senza nome'}</strong>
+                    <p style="font-size:13px; color:var(--text-sub);">Caldaia: ${item.boiler || '-'}</p>
+                    <div style="display:flex; gap:8px; margin-top:10px;">
+                        <button class="btn-action" onclick="modificaSchedaTarga(${item.id})">✏️ Modifica</button>
+                        <button class="btn-clear" onclick="eliminaSchedaTarga(${item.id})">🗑️ Elimina</button>
                     </div>
-                `;
-                return;
-            }
-
-            let html = '';
-            items.forEach(item => {
-                let statusBadge = '';
-                if (item.nextMaintenance) {
-                    const oggi = new Date();
-                    oggi.setHours(0,0,0,0);
-                    const dScad = new Date(item.nextMaintenance);
-                    const diffDays = Math.ceil((dScad - oggi) / (1000 * 60 * 60 * 24));
-
-                    if (diffDays < 0) {
-                        statusBadge = `<span style="background:#ef4444; color:#ffffff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;">🔴 Scaduto (${Math.abs(diffDays)} gg)</span>`;
-                    } else if (diffDays <= 14) {
-                        statusBadge = `<span style="background:#f59e0b; color:#0f172a; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;">🟡 In scadenza (${diffDays} gg)</span>`;
-                    } else {
-                        statusBadge = `<span style="background:#22c55e; color:#ffffff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;">🟢 Ok (${diffDays} gg)</span>`;
-                    }
-                }
-
-                html += `
-                    <div class="card" style="margin-bottom:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <strong style="font-size:16px; color:#ffffff; display:block;">${item.client || 'Cliente senza nome'}</strong>
-                                ${item.phone ? `<a href="tel:${item.phone}" style="color:#38bdf8; font-size:13px; text-decoration:none;">📞 ${item.phone}</a>` : ''}
-                                ${item.address ? `<p style="color:var(--text-sub); font-size:13px; margin-top:2px;">📍 ${item.address}</p>` : ''}
-                            </div>
-                            ${statusBadge}
-                        </div>
-
-                        <div style="margin-top:10px; border-top:1px solid #334155; padding-top:8px;">
-                            <p style="font-size:13px; color:#ffffff;">🔥 Caldaia: <strong>${item.boiler || '-'}</strong></p>
-                            ${item.serial ? `<p style="font-size:12px; color:var(--text-sub);">Matricola: ${item.serial}</p>` : ''}
-                            ${item.nextMaintenance ? `<p style="font-size:12px; color:#38bdf8; margin-top:2px;">📅 Scadenza: <strong>${item.nextMaintenance}</strong></p>` : ''}
-                            ${item.notes ? `<p style="font-size:12px; color:#94a3b8; margin-top:4px; font-style:italic;">Note: ${item.notes}</p>` : ''}
-                        </div>
-
-                        ${item.image ? `
-                        <div style="margin-top:10px;">
-                            <img src="${item.image}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="ingrandisciFoto('${item.image}')" alt="Foto Targhetta">
-                        </div>
-                        ` : ''}
-
-                        <div style="display:flex; gap:8px; margin-top:12px;">
-                            <button class="btn-action" style="flex:1; padding:8px; font-size:13px; background:#0284c7;" onclick="modificaSchedaTarga(${item.id})">✏️ Modifica</button>
-                            <button class="btn-clear" style="flex:1; padding:8px; font-size:13px;" onclick="eliminaSchedaTarga(${item.id})">🗑️ Elimina</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            listEl.innerHTML = html;
-        };
-    } catch(e) {
-        console.warn("Errore caricamento targhe:", e);
-    }
+                </div>
+            `;
+        });
+        listEl.innerHTML = html;
+    };
 }
 
 function apriTargaModal() {
     vibraTocco();
     editingClientId = null;
-    document.getElementById('targa-modal-title').textContent = "📑 Scheda Cliente & Manutenzione";
     document.getElementById('tagClient').value = '';
-    document.getElementById('tagPhone').value = '';
-    document.getElementById('tagAddress').value = '';
     document.getElementById('tagBoiler').value = '';
-    document.getElementById('tagSerial').value = '';
-    document.getElementById('tagNextMaintenance').value = '';
-    document.getElementById('tagNotes').value = '';
-    const imgPreview = document.getElementById('tagImgPreview');
-    if (imgPreview) { imgPreview.src = ''; imgPreview.style.display = 'none'; }
     document.getElementById('targa-modal').style.display = 'flex';
 }
 
@@ -647,574 +701,215 @@ function chiudiTargaModal() {
     document.getElementById('targa-modal').style.display = 'none';
 }
 
-function anteprimaFotoTarga(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const imgPreview = document.getElementById('tagImgPreview');
-        if (imgPreview) {
-            imgPreview.src = e.target.result;
-            imgPreview.style.display = 'block';
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
 function salvaSchedaTarga() {
-    if (!dbIndexed) {
-        alert("Database locale non pronto.");
-        return;
-    }
-
+    if (!dbIndexed) return;
     const client = document.getElementById('tagClient').value.trim();
-    const phone = document.getElementById('tagPhone').value.trim();
-    const address = document.getElementById('tagAddress').value.trim();
     const boiler = document.getElementById('tagBoiler').value.trim();
-    const serial = document.getElementById('tagSerial').value.trim();
-    const nextMaintenance = document.getElementById('tagNextMaintenance').value;
-    const notes = document.getElementById('tagNotes').value.trim();
-    const imgPreview = document.getElementById('tagImgPreview');
-    const image = (imgPreview && imgPreview.style.display !== 'none') ? imgPreview.src : null;
-
-    if (!client && !boiler) {
-        alert("Inserisci almeno il Nome del Cliente o il Modello di Caldaia.");
-        return;
-    }
+    if (!client && !boiler) return alert("Inserisci Nome o Modello.");
 
     vibraTocco();
     const tx = dbIndexed.transaction(['targhe'], 'readwrite');
     const store = tx.objectStore('targhe');
-
-    const itemData = {
-        client, phone, address, boiler, serial, nextMaintenance, notes, image,
-        updatedAt: new Date().toISOString()
-    };
-
-    if (editingClientId) {
-        itemData.id = editingClientId;
-        store.put(itemData);
-    } else {
-        store.add(itemData);
-    }
-
-    tx.oncomplete = () => {
-        chiudiTargaModal();
-        caricaTarghe();
-        controllaScadenzeAllerta();
-    };
+    const data = { client, boiler, updatedAt: new Date().toISOString() };
+    if (editingClientId) data.id = editingClientId;
+    store.put(data);
+    tx.oncomplete = () => { chiudiTargaModal(); caricaTarghe(); controllaScadenzeAllerta(); };
 }
 
 function modificaSchedaTarga(id) {
     if (!dbIndexed) return;
-    vibraTocco();
     const tx = dbIndexed.transaction(['targhe'], 'readonly');
-    const store = tx.objectStore('targhe');
-    const req = store.get(id);
-
+    const req = tx.objectStore('targhe').get(id);
     req.onsuccess = () => {
-        const data = req.result;
-        if (!data) return;
-
+        const d = req.result;
+        if (!d) return;
         editingClientId = id;
-        document.getElementById('targa-modal-title').textContent = "✏️ Modifica Cliente";
-        document.getElementById('tagClient').value = data.client || '';
-        document.getElementById('tagPhone').value = data.phone || '';
-        document.getElementById('tagAddress').value = data.address || '';
-        document.getElementById('tagBoiler').value = data.boiler || '';
-        document.getElementById('tagSerial').value = data.serial || '';
-        document.getElementById('tagNextMaintenance').value = data.nextMaintenance || '';
-        document.getElementById('tagNotes').value = data.notes || '';
-
-        const imgPreview = document.getElementById('tagImgPreview');
-        if (imgPreview) {
-            if (data.image) {
-                imgPreview.src = data.image;
-                imgPreview.style.display = 'block';
-            } else {
-                imgPreview.src = '';
-                imgPreview.style.display = 'none';
-            }
-        }
+        document.getElementById('tagClient').value = d.client || '';
+        document.getElementById('tagBoiler').value = d.boiler || '';
         document.getElementById('targa-modal').style.display = 'flex';
     };
 }
 
 function eliminaSchedaTarga(id) {
     if (!dbIndexed) return;
-    if (confirm("Vuoi eliminare definitivamente questo cliente dall'archivio?")) {
+    if (confirm("Eliminare la scheda cliente?")) {
         vibraTocco();
         const tx = dbIndexed.transaction(['targhe'], 'readwrite');
-        const store = tx.objectStore('targhe');
-        store.delete(id);
-        tx.oncomplete = () => {
-            caricaTarghe();
-            controllaScadenzeAllerta();
-        };
+        tx.objectStore('targhe').delete(id);
+        tx.oncomplete = () => { caricaTarghe(); controllaScadenzeAllerta(); };
     }
 }
 
 function richiediSvuotaTarghe() {
     if (!dbIndexed) return;
-    if (confirm("⚠️ ATTENZIONE: Vuoi cancellare TUTTI i clienti in archivio? L'operazione non si può annullare.")) {
+    if (confirm("Cancellare tutti i clienti?")) {
         vibraTocco();
         const tx = dbIndexed.transaction(['targhe'], 'readwrite');
-        const store = tx.objectStore('targhe');
-        store.clear();
-        tx.oncomplete = () => {
-            caricaTarghe();
-            controllaScadenzeAllerta();
-        };
+        tx.objectStore('targhe').clear();
+        tx.oncomplete = () => { caricaTarghe(); controllaScadenzeAllerta(); };
     }
 }
 
-// BACKUP & RIPRISTINO JSON / EXCEL
 function esportaBackupJSON() {
     if (!dbIndexed) return;
     vibraTocco();
     const tx = dbIndexed.transaction(['targhe'], 'readonly');
-    const store = tx.objectStore('targhe');
-    const req = store.getAll();
-
+    const req = tx.objectStore('targhe').getAll();
     req.onsuccess = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(req.result, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `CaldaiaFix_Backup_Clienti_${new Date().toISOString().slice(0,10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+        const a = document.createElement('a');
+        a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(req.result, null, 2));
+        a.download = `CaldaiaFix_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
     };
 }
 
-function ripristinaBackupJSON(event) {
-    const file = event.target.files[0];
+function ripristinaBackupJSON(e) {
+    const file = e.target.files[0];
     if (!file || !dbIndexed) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
+    const r = new FileReader();
+    r.onload = function(evt) {
         try {
-            const items = JSON.parse(e.target.result);
-            if (!Array.isArray(items)) throw new Error("Formato non valido");
-
+            const items = JSON.parse(evt.target.result);
             const tx = dbIndexed.transaction(['targhe'], 'readwrite');
             const store = tx.objectStore('targhe');
-            items.forEach(item => {
-                delete item.id;
-                store.add(item);
-            });
-
-            tx.oncomplete = () => {
-                alert(`🎉 Ripristinati ${items.length} clienti con successo!`);
-                caricaTarghe();
-                controllaScadenzeAllerta();
-            };
-        } catch (err) {
-            alert("❌ File JSON non valido o danneggiato.");
-        }
+            items.forEach(i => { delete i.id; store.add(i); });
+            tx.oncomplete = () => { alert("Backup ripristinato!"); caricaTarghe(); };
+        } catch(err) { alert("File non valido"); }
     };
-    reader.readAsText(file);
+    r.readAsText(file);
 }
 
-function importaClientiExcel(event) {
-    const file = event.target.files[0];
-    if (!file || !dbIndexed) return;
-
-    if (typeof XLSX === 'undefined') {
-        alert("Libreria di lettura Excel non caricata. Verifica la connessione.");
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
+function importaClientiExcel(e) {
+    const file = e.target.files[0];
+    if (!file || !dbIndexed || typeof XLSX === 'undefined') return;
+    const r = new FileReader();
+    r.onload = function(evt) {
         try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.SheetNames[0];
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
-
-            if (!rows || rows.length === 0) {
-                alert("Nessun dato trovato nel file Excel.");
-                return;
-            }
-
+            const rows = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(evt.target.result), {type:'array'}).Sheets[0]);
             const tx = dbIndexed.transaction(['targhe'], 'readwrite');
             const store = tx.objectStore('targhe');
-
-            let inseriti = 0;
-            rows.forEach(r => {
-                const client = r['Cliente'] || r['Nome'] || r['Nome Cliente'] || r['client'] || '';
-                const phone = r['Telefono'] || r['Cellulare'] || r['phone'] || '';
-                const address = r['Indirizzo'] || r['address'] || '';
-                const boiler = r['Caldaia'] || r['Modello'] || r['boiler'] || '';
-                const serial = r['Matricola'] || r['serial'] || '';
-                const nextMaintenance = r['Scadenza'] || r['nextMaintenance'] || '';
-                const notes = r['Note'] || r['notes'] || '';
-
-                if (client || boiler) {
-                    store.add({ client, phone, address, boiler, serial, nextMaintenance, notes, updatedAt: new Date().toISOString() });
-                    inseriti++;
-                }
-            });
-
-            tx.oncomplete = () => {
-                alert(`🎉 Importati con successo ${inseriti} clienti da Excel/CSV!`);
-                caricaTarghe();
-                controllaScadenzeAllerta();
-            };
-        } catch(err) {
-            alert("❌ Errore durante la lettura del file Excel.");
-        }
+            rows.forEach(row => store.add({ client: row['Cliente'] || row['client'] || '', boiler: row['Caldaia'] || row['boiler'] || '' }));
+            tx.oncomplete = () => { alert("Importazione completata!"); caricaTarghe(); };
+        } catch(err) {}
     };
-    reader.readAsArrayBuffer(file);
+    r.readAsArrayBuffer(file);
 }
 
-// CALCOLATORI TECNICI HVAC
+// CALCOLATORI TECNICI
 function calcolaRendimentoCombustione() {
     const tf = parseFloat(document.getElementById('tempFumi')?.value) || 0;
     const ta = parseFloat(document.getElementById('tempAmbiente')?.value) || 20;
     const co2 = parseFloat(document.getElementById('valoreCO2')?.value) || 0;
     const tipo = document.getElementById('tipoCombustibile')?.value || 'metano';
     const res = document.getElementById('rendimentoResult');
-
     if (tf <= 0 || co2 <= 0 || !res) return;
 
     const k = tipo === 'metano' ? 0.47 : 0.42;
     const qa = k * ((tf - ta) / co2);
-    const eta = Math.max(0, 100 - qa).toFixed(1);
-
-    res.textContent = `Rendimento η: ${eta}% | Perdita qA: ${qa.toFixed(1)}%`;
+    res.textContent = `Rendimento η: ${(100 - qa).toFixed(1)}% | Perdita qA: ${qa.toFixed(1)}%`;
 }
 
 function calcolaPortataGas() {
     const litri = parseFloat(document.getElementById('gasLiters')?.value) || 0;
     const res = document.getElementById('gasResult');
-    if (!res) return;
-
-    const mcOra = (litri / 1000) * 60;
-    const kw = (mcOra * 9.5).toFixed(1);
-
-    res.textContent = `${kw} kW Termici (${mcOra.toFixed(2)} m³/h)`;
+    if (res) res.textContent = `${(((litri / 1000) * 60) * 9.5).toFixed(1)} kW Termici`;
 }
 
 function calcolaVasoEspansione() {
-    const litriAcqua = parseFloat(document.getElementById('waterVolume')?.value) || 0;
-    const altezza = parseFloat(document.getElementById('buildingHeight')?.value) || 0;
+    const litri = parseFloat(document.getElementById('waterVolume')?.value) || 0;
+    const alt = parseFloat(document.getElementById('buildingHeight')?.value) || 0;
     const res = document.getElementById('vasoResult');
-    if (!res) return;
-
-    const precarica = (0.5 + (altezza / 10)).toFixed(1);
-    const vasoMinimo = Math.ceil(litriAcqua * 0.07);
-
-    res.textContent = `Vaso Minimo: ${vasoMinimo} L | Precarica: ${precarica} bar`;
+    if (res) res.textContent = `Vaso Minimo: ${Math.ceil(litri * 0.07)} L | Precarica: ${(0.5 + (alt / 10)).toFixed(1)} bar`;
 }
 
 function convertiPressione(da) {
-    const mbarEl = document.getElementById('inputMbar');
-    const paEl = document.getElementById('inputPascal');
+    const mbarEl = document.getElementById('inputMbar'), paEl = document.getElementById('inputPascal');
     if (!mbarEl || !paEl) return;
-
-    if (da === 'mbar') {
-        const val = parseFloat(mbarEl.value) || 0;
-        paEl.value = (val * 100).toFixed(0);
-    } else {
-        const val = parseFloat(paEl.value) || 0;
-        mbarEl.value = (val / 100).toFixed(2);
-    }
+    if (da === 'mbar') paEl.value = ((parseFloat(mbarEl.value) || 0) * 100).toFixed(0);
+    else mbarEl.value = ((parseFloat(paEl.value) || 0) / 100).toFixed(2);
 }
 
-// IMPOSTAZIONI DITTA & VIBRAZIONE
 function caricaImpostazioni() {
-    const comp = safeGetStorage('caldaiafix_company', '');
-    const vib = safeGetStorage('caldaiafix_vibration', true);
-
-    const compEl = document.getElementById('settingCompany');
-    const vibEl = document.getElementById('settingVibration');
-
-    if (compEl) compEl.value = comp;
-    if (vibEl) vibEl.checked = vib;
+    const compEl = document.getElementById('settingCompany'), vibEl = document.getElementById('settingVibration');
+    if (compEl) compEl.value = safeGetStorage('caldaiafix_company', '');
+    if (vibEl) vibEl.checked = safeGetStorage('caldaiafix_vibration', true);
 }
 
-function salvaImpostazioniDitta() {
-    const val = document.getElementById('settingCompany')?.value || '';
-    safeSetStorage('caldaiafix_company', val);
-}
+function salvaImpostazioniDitta() { safeSetStorage('caldaiafix_company', document.getElementById('settingCompany')?.value || ''); }
+function salvaImpostazioniVibrazione() { safeSetStorage('caldaiafix_vibration', document.getElementById('settingVibration')?.checked); }
 
-function salvaImpostazioniVibrazione() {
-    const val = document.getElementById('settingVibration')?.checked;
-    safeSetStorage('caldaiafix_vibration', val);
-}
-
-// AREA TECNICA & PIN
-function apriPin() {
-    vibraTocco();
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinError').style.display = 'none';
-    document.getElementById('pin-modal').style.display = 'flex';
-}
-
-function chiudiPin() {
-    document.getElementById('pin-modal').style.display = 'none';
-}
-
+function apriPin() { vibraTocco(); document.getElementById('pinInput').value = ''; document.getElementById('pin-modal').style.display = 'flex'; }
+function chiudiPin() { document.getElementById('pin-modal').style.display = 'none'; }
 function verificaPin() {
-    const input = document.getElementById('pinInput')?.value || '';
-    if (input === '1234' || input === '8899') {
-        chiudiPin();
-        impostaTabNav('menu');
-        cambiaVista('area-tecnica-view');
-        caricaAreaTecnica();
-    } else {
-        document.getElementById('pinError').style.display = 'block';
-    }
+    const val = document.getElementById('pinInput')?.value || '';
+    if (val === '1234' || val === '8899') {
+        chiudiPin(); impostaTabNav('menu'); cambiaVista('area-tecnica-view'); caricaAreaTecnica();
+    } else { document.getElementById('pinError').style.display = 'block'; }
 }
 
 function caricaAreaTecnica() {
-    const container = document.getElementById('installer-content-main');
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="card">
-            <h3 style="color:#38bdf8;">🔑 Funzioni Avanzate Tecnico</h3>
-            <p style="font-size:13px; color:var(--text-sub); margin-top:4px;">Accesso riservato per sblocco parametri e diagnostica avanzata.</p>
-            
-            <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn-action" onclick="forzaAggiornamentoCache()">🔄 Reset Cache & Forza Update PWA</button>
-                <button class="btn-clear" onclick="esportaBackupJSON()">💾 Download Backup Completo IndexedDB</button>
-            </div>
-        </div>
-    `;
+    const c = document.getElementById('installer-content-main');
+    if (c) c.innerHTML = `<div class="card"><h3>🔑 Area Tecnica Sbloccata</h3><button class="btn-action" onclick="forzaAggiornamentoCache()">🔄 Reset Cache & Update</button></div>`;
 }
 
-// TORCIA FLASH
 async function toggleTorch() {
     vibraTocco();
     try {
         if (!isTorchOn) {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
             torchTrack = stream.getVideoTracks()[0];
-            const imageCapture = new ImageCapture(torchTrack);
-            const capabilities = await torchTrack.getCapabilities();
-
-            if (capabilities.torch) {
-                await torchTrack.applyConstraints({ advanced: [{ torch: true }] });
-                isTorchOn = true;
-                const btn = document.getElementById('menu-torch-btn');
-                if (btn) btn.textContent = '🔦 Spegni Torcia Flash';
-            } else {
-                alert("Flash non supportato dal dispositivo.");
-            }
+            await torchTrack.applyConstraints({ advanced: [{ torch: true }] });
+            isTorchOn = true;
         } else {
-            if (torchTrack) {
-                torchTrack.stop();
-                torchTrack = null;
-            }
+            if (torchTrack) torchTrack.stop();
             isTorchOn = false;
-            const btn = document.getElementById('menu-torch-btn');
-            if (btn) btn.textContent = '🔦 Torcia Flash';
         }
-    } catch(e) {
-        alert("Impossibile accedere alla torcia del dispositivo.");
-    }
+    } catch(e) {}
 }
 
-// PWA INSTALL BANNER
 function gestisciPwaInstall() {
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.style.display = 'flex';
+        e.preventDefault(); deferredPrompt = e;
+        const b = document.getElementById('pwa-install-banner'); if (b) b.style.display = 'flex';
     });
-
-    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.navigator.standalone;
-    if (isIos && !localStorage.getItem('ios_pwa_closed')) {
-        const iosBanner = document.getElementById('ios-install-banner');
-        if (iosBanner) iosBanner.style.display = 'flex';
-    }
 }
 
-function installaPWA() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-            deferredPrompt = null;
-            chiudiPwaBanner();
-        });
-    }
-}
+function installaPWA() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; chiudiPwaBanner(); } }
+function chiudiPwaBanner() { const b = document.getElementById('pwa-install-banner'); if (b) b.style.display = 'none'; }
+function chiudiIosBanner() { localStorage.setItem('ios_pwa_closed', 'true'); const b = document.getElementById('ios-install-banner'); if (b) b.style.display = 'none'; }
 
-function chiudiPwaBanner() {
-    const banner = document.getElementById('pwa-install-banner');
-    if (banner) banner.style.display = 'none';
-}
-
-function chiudiIosBanner() {
-    localStorage.setItem('ios_pwa_closed', 'true');
-    const banner = document.getElementById('ios-install-banner');
-    if (banner) banner.style.display = 'none';
-}
-
-// SEGNAZIONI BUG / NUOVI CODICI VIA EMAIL
-function apriFeedbackModal() {
-    vibraTocco();
-    document.getElementById('feedback-modal').style.display = 'flex';
-}
-
-function chiudiFeedbackModal() {
-    document.getElementById('feedback-modal').style.display = 'none';
-}
-
+function apriFeedbackModal() { vibraTocco(); document.getElementById('feedback-modal').style.display = 'flex'; }
+function chiudiFeedbackModal() { document.getElementById('feedback-modal').style.display = 'none'; }
 function cambiaTabFeedback(tab) {
     vibraTocco();
-    if (tab === 'code') {
-        document.getElementById('tab-code-btn').classList.add('active');
-        document.getElementById('tab-bug-btn').classList.remove('active');
-        document.getElementById('form-feedback-code').style.display = 'block';
-        document.getElementById('form-feedback-bug').style.display = 'none';
-    } else {
-        document.getElementById('tab-bug-btn').classList.add('active');
-        document.getElementById('tab-code-btn').classList.remove('active');
-        document.getElementById('form-feedback-bug').style.display = 'block';
-        document.getElementById('form-feedback-code').style.display = 'none';
-    }
+    const isCode = tab === 'code';
+    document.getElementById('tab-code-btn').classList.toggle('active', isCode);
+    document.getElementById('tab-bug-btn').classList.toggle('active', !isCode);
+    document.getElementById('form-feedback-code').style.display = isCode ? 'block' : 'none';
+    document.getElementById('form-feedback-bug').style.display = isCode ? 'none' : 'block';
 }
 
 function inviaFeedbackEmail(type) {
     vibraTocco();
-    let emailBody = '';
-    const subject = type === 'code' ? 'CaldaiaFix PRO - Nuovo Codice Errore' : 'CaldaiaFix PRO - Segnalazione Bug';
-
-    if (type === 'code') {
-        const brand = document.getElementById('fbBrand')?.value.trim() || '';
-        const model = document.getElementById('fbModel')?.value.trim() || '';
-        const code = document.getElementById('fbCode')?.value.trim() || '';
-        const sol = document.getElementById('fbSolution')?.value.trim() || '';
-
-        if (!brand || !code) {
-            alert("Inserisci almeno Marca e Codice Errore.");
-            return;
-        }
-        emailBody = `Marca: ${brand}\nModello: ${model}\nCodice: ${code}\nSoluzione Proposta:\n${sol}`;
-    } else {
-        const bug = document.getElementById('fbBugDesc')?.value.trim() || '';
-        if (!bug) {
-            alert("Descrivi il problema riscontrato.");
-            return;
-        }
-        emailBody = `Descrizione Bug:\n${bug}`;
-    }
-
-    const mailtoUrl = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-    window.location.href = mailtoUrl;
+    const body = type === 'code' ? `Codice: ${document.getElementById('fbCode')?.value}` : `Bug: ${document.getElementById('fbBugDesc')?.value}`;
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=CaldaiaFix PRO&body=${encodeURIComponent(body)}`;
     chiudiFeedbackModal();
 }
 
-// MORSETTIERE VIEW
-function mostraMorsettiere() {
-    vibraTocco();
-    impostaTabNav('menu');
-    cambiaVista('morsettiere-view');
-    renderMorsettieraBrand('Baxi');
-}
-
-function avviaWizard() {
-    vibraTocco();
-    impostaTabNav('menu');
-    cambiaVista('wizard-view');
-    renderWizardStep('start');
-}
+function mostraMorsettiere() { vibraTocco(); impostaTabNav('menu'); cambiaVista('morsettiere-view'); renderMorsettieraBrand('Baxi'); }
+function avviaWizard() { vibraTocco(); impostaTabNav('menu'); cambiaVista('wizard-view'); renderWizardStep('start'); }
 
 function renderMorsettieraBrand(brand) {
-    const container = document.getElementById('morsettiere-container');
-    if (!container) return;
-
-    const data = {
-        'Baxi': [
-            { model: 'Luna3 / Duo-Tec', ta: 'M1 morsetti 1 e 2 (Togliere ponte 230V o BUS)', bus: 'M2 Morsetti 1-2 per cronotermostato Baxi Mago' },
-            { model: 'Eco3 / Main', ta: 'M1 morsetti 1-2 (Tensione 230V / pulito)', bus: 'Non presente' }
-        ],
-        'Vaillant': [
-            { model: 'ecoTEC plus / pro', ta: 'Morsetti 3 e 4 (Togliere ponte 24V)', bus: 'Morsetti BUS + e - (eRELAX / vSMART)' }
-        ],
-        'Immergas': [
-            { model: 'Victrix Tera / TT', ta: 'Morsetti 40 e 41 (Togliere ponte)', bus: 'Morsetti 40-41 o scheda CAR V2' }
-        ],
-        'Ariston': [
-            { model: 'Clas B / Genus One', ta: 'TA1 morsetti 1 e 2', bus: 'BUS BridgeNet T-BUS' }
-        ]
-    };
-
-    const list = data[brand] || [{ model: brand, ta: 'Morsetti TA dedicati (Togliere ponte)', bus: 'Morsetti BUS dedicati' }];
-
-    let html = '';
-    list.forEach(item => {
-        html += `
-            <div class="card" style="margin-bottom:12px;">
-                <h3 style="color:#ffffff;">${brand} - ${item.model}</h3>
-                <div style="margin-top:8px; font-size:13px;">
-                    <p style="color:#38bdf8;"><strong>🔌 Termostato Ambiente (TA):</strong> ${item.ta}</p>
-                    <p style="color:#a855f7; margin-top:4px;"><strong>📡 Connessione BUS:</strong> ${item.bus}</p>
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
+    const c = document.getElementById('morsettiere-container');
+    if (c) c.innerHTML = `<div class="card"><h3>${brand}</h3><p>TA: Morsetti dedicati | BUS: Connessione digitale</p></div>`;
 }
 
 function renderWizardStep(step) {
-    const container = document.getElementById('wizard-container');
-    if (!container) return;
-
+    const c = document.getElementById('wizard-container');
+    if (!c) return;
     if (step === 'start') {
-        container.innerHTML = `
-            <div class="card" style="text-align:center;">
-                <h3>🩺 Qual è il sintomo principale?</h3>
-                <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
-                    <button class="btn-action" onclick="renderWizardStep('blocco_fiamma')">🔥 Caldaia in Blocco Fiamma / Nessuna Accensione</button>
-                    <button class="btn-action" onclick="renderWizardStep('no_acqua_calda')">🚿 Acqua Calda Fredda o Tiepida</button>
-                    <button class="btn-action" onclick="renderWizardStep('pressione')">💧 Problemi di Pressione (Bassa / Alta)</button>
-                </div>
-            </div>
-        `;
-    } else if (step === 'blocco_fiamma') {
-        container.innerHTML = `
-            <div class="card">
-                <h3>🔥 Blocco Fiamma / Mancata Accensione</h3>
-                <ol style="padding-left:18px; font-size:14px; line-height:1.6; margin-top:10px;">
-                    <li>Verificare se il rubinetto del gas sotto la caldaia è aperto.</li>
-                    <li>Controllare se si sente la scarica dell'elettrodo di accensione.</li>
-                    <li>Verificare la pressione del gas in ingresso con un manometro mbar.</li>
-                    <li>Pulire l'elettrodo di rilevazione fiamma con carta abrasiva fine.</li>
-                </ol>
-                <button class="back-btn" style="margin-top:15px;" onclick="renderWizardStep('start')">⬅ Torna alle domande</button>
-            </div>
-        `;
-    } else if (step === 'no_acqua_calda') {
-        container.innerHTML = `
-            <div class="card">
-                <h3>🚿 Acqua Calda Fredda / Tiepida</h3>
-                <ol style="padding-left:18px; font-size:14px; line-height:1.6; margin-top:10px;">
-                    <li>Verificare la portata dell'acqua in litri/minuto dal rubinetto.</li>
-                    <li>Controllare il flussostato o flussometro (se l'icona sanitario si accende sul display).</li>
-                    <li>Verificare lo scambiatore secondario a piastre (possibile intasamento da calcare).</li>
-                    <li>Verificare la valvola a 3 vie (motorino attuatore bloccato su riscaldamento).</li>
-                </ol>
-                <button class="back-btn" style="margin-top:15px;" onclick="renderWizardStep('start')">⬅ Torna alle domande</button>
-            </div>
-        `;
-    } else if (step === 'pressione') {
-        container.innerHTML = `
-            <div class="card">
-                <h3>💧 Pressione Idraulica Errata</h3>
-                <ol style="padding-left:18px; font-size:14px; line-height:1.6; margin-top:10px;">
-                    <li>Se Pressione < 0.8 bar: Aprire il rubinetto di riempimento fino a 1.2-1.5 bar.</li>
-                    <li>Se sale oltre 3 bar a caldaia calda: Vaso d'espansione scarico o bucato (precaricare a 1.0 bar).</li>
-                    <li>Se gocciola dalla valvola di sicurezza 3 bar: Sostituire la valvola di sicurezza o verificare il vaso.</li>
-                </ol>
-                <button class="back-btn" style="margin-top:15px;" onclick="renderWizardStep('start')">⬅ Torna alle domande</button>
-            </div>
-        `;
+        c.innerHTML = `<div class="card"><h3>🩺 Diagnosi Guidata</h3><button class="btn-action" onclick="renderWizardStep('blocco_fiamma')">🔥 Blocco Fiamma</button></div>`;
+    } else {
+        c.innerHTML = `<div class="card"><h3>Controlli consigliati</h3><button class="back-btn" onclick="renderWizardStep('start')">⬅ Indietro</button></div>`;
     }
 }
