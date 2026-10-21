@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, IMPORTAZIONE EXCEL & PROMEMORIA 1-CLICK
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & SCADENZE ALLERTA
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -38,6 +38,9 @@ let dbIndexed = null;
 let deferredPrompt = null;
 let torchTrack = null;
 let isTorchOn = false;
+
+// ID CLIENTE IN FASE DI MODIFICA (null SE SI STA CREANDO UN NUOVO CLIENTE)
+let editingClientId = null;
 
 // INIZIALIZZAZIONE
 function initApp() {
@@ -104,6 +107,63 @@ function aggiornaContatoreHeader() {
     const countBox = document.getElementById('resultsCount');
     if (countBox) {
         countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
+    }
+}
+
+// CONTROLLO SCADENZE PER BANNER ALLERTA IN HOME
+function controllaScadenzeAllerta() {
+    if (!dbIndexed) return;
+
+    try {
+        const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+        const store = transaction.objectStore('targhe');
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const items = request.result;
+            const banner = document.getElementById('maint-alert-banner');
+            const titleEl = document.getElementById('maint-alert-title');
+            const descEl = document.getElementById('maint-alert-desc');
+
+            if (!banner) return;
+
+            if (!items || items.length === 0) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+
+            let scadute = 0;
+            let imminenti = 0;
+
+            items.forEach(item => {
+                if (item.nextMaintenance) {
+                    const dataScad = new Date(item.nextMaintenance);
+                    const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0) {
+                        scadute++;
+                    } else if (diffDays <= 14) {
+                        imminenti++;
+                    }
+                }
+            });
+
+            if (scadute > 0 || imminenti > 0) {
+                banner.style.display = 'flex';
+                let msgs = [];
+                if (scadute > 0) msgs.push(`🔴 ${scadute} Scadute`);
+                if (imminenti > 0) msgs.push(`🟡 ${imminenti} In Scadenza (14 gg)`);
+
+                if (titleEl) titleEl.textContent = "⚠️ Scadenze Manutenzione Rilevate!";
+                if (descEl) descEl.textContent = msgs.join(' • ') + " — Tocca per visualizzarle";
+            } else {
+                banner.style.display = 'none';
+            }
+        };
+    } catch(e) {
+        console.warn("Errore controllo allerta scadenze:", e);
     }
 }
 
@@ -285,7 +345,7 @@ function calcolaEDisegnaStatistiche() {
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number">${numTarghe}</div>
-                    <div class="stat-label">Targhe Impianto</div>
+                    <div class="stat-label">Clienti in Archivio</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${totalConsultazioni}</div>
@@ -834,7 +894,7 @@ function renderStepWizard(stepKey) {
     container.innerHTML = html;
 }
 
-// BACKUP & RIPRISTINO JSON TARGHE
+// BACKUP & RIPRISTINO JSON CLIENTE
 function esportaBackupJSON() {
     if (!dbIndexed) {
         alert("Banca dati non ancora pronta o non supportata dal browser.");
@@ -849,7 +909,7 @@ function esportaBackupJSON() {
     request.onsuccess = () => {
         const data = request.result;
         if (!data || data.length === 0) {
-            alert("Nessuna targa salvata nell'archivio da esportare.");
+            alert("Nessun cliente salvato nell'archivio da esportare.");
             return;
         }
 
@@ -858,7 +918,7 @@ function esportaBackupJSON() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `CaldaiaFix_Backup_Targhe_${new Date().toISOString().slice(0, 10)}.json`;
+        a.download = `CaldaiaFix_Backup_Clienti_${new Date().toISOString().slice(0, 10)}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -875,11 +935,11 @@ function ripristinaBackupJSON(event) {
         try {
             const importedData = JSON.parse(e.target.result);
             if (!Array.isArray(importedData)) {
-                alert("File di backup non valido: deve contenere un elenco di targhe.");
+                alert("File di backup non valido: deve contenere un elenco di clienti.");
                 return;
             }
 
-            if (!confirm(`Trovate ${importedData.length} targhe nel file. Vuoi aggiungerle all'archivio locale?`)) {
+            if (!confirm(`Trovati ${importedData.length} clienti nel file. Vuoi aggiungerli all'archivio locale?`)) {
                 return;
             }
 
@@ -899,6 +959,7 @@ function ripristinaBackupJSON(event) {
             transaction.oncomplete = () => {
                 alert("Ripristino completato con successo!");
                 mostraTarghe();
+                controllaScadenzeAllerta();
             };
         } catch (err) {
             alert("Errore nel caricamento del file JSON: " + err.message);
@@ -908,7 +969,7 @@ function ripristinaBackupJSON(event) {
     event.target.value = '';
 }
 
-// ARCHIVIO TARGHE, INDEXED DB & SCADENZARIO
+// ARCHIVIO CLIENTI, INDEXED DB & SCADENZARIO
 function initIndexedDB() {
     try {
         const request = indexedDB.open('CaldaiaFixTargheDB', 1);
@@ -922,6 +983,7 @@ function initIndexedDB() {
 
         request.onsuccess = (e) => {
             dbIndexed = e.target.result;
+            controllaScadenzeAllerta();
         };
     } catch(e) {
         console.warn("IndexedDB non disponibile:", e);
@@ -930,6 +992,22 @@ function initIndexedDB() {
 
 function apriTargaModal() {
     vibraTocco();
+    editingClientId = null;
+
+    const modalTitle = document.getElementById('targa-modal-title');
+    if (modalTitle) modalTitle.textContent = "📑 Nuovo Cliente";
+
+    ['tagClient', 'tagPhone', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    const img = document.getElementById('tagImgPreview');
+    if (img) {
+        img.style.display = 'none';
+        img.src = '';
+    }
+
     const modal = document.getElementById('targa-modal');
     if (modal) modal.style.display = 'flex';
 }
@@ -937,6 +1015,8 @@ function apriTargaModal() {
 function chiudiTargaModal() {
     const modal = document.getElementById('targa-modal');
     if (modal) modal.style.display = 'none';
+    editingClientId = null;
+
     ['tagClient', 'tagPhone', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -946,6 +1026,55 @@ function chiudiTargaModal() {
         img.style.display = 'none';
         img.src = '';
     }
+}
+
+function modificaTarga(id) {
+    if (!dbIndexed) return;
+    vibraTocco();
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.get(id);
+
+    request.onsuccess = () => {
+        const item = request.result;
+        if (!item) return;
+
+        editingClientId = id;
+
+        const modalTitle = document.getElementById('targa-modal-title');
+        if (modalTitle) modalTitle.textContent = "✏️ Modifica Scheda Cliente";
+
+        const tagClient = document.getElementById('tagClient');
+        const tagPhone = document.getElementById('tagPhone');
+        const tagAddress = document.getElementById('tagAddress');
+        const tagBoiler = document.getElementById('tagBoiler');
+        const tagSerial = document.getElementById('tagSerial');
+        const tagNotes = document.getElementById('tagNotes');
+        const tagNextMaint = document.getElementById('tagNextMaintenance');
+        const imgPreview = document.getElementById('tagImgPreview');
+
+        if (tagClient) tagClient.value = item.client || '';
+        if (tagPhone) tagPhone.value = item.phone || '';
+        if (tagAddress) tagAddress.value = item.address || '';
+        if (tagBoiler) tagBoiler.value = item.boiler || '';
+        if (tagSerial) tagSerial.value = item.serial || '';
+        if (tagNotes) tagNotes.value = item.notes || '';
+        if (tagNextMaint) tagNextMaint.value = item.nextMaintenance || '';
+
+        if (imgPreview) {
+            if (item.image) {
+                imgPreview.src = item.image;
+                imgPreview.style.display = 'block';
+            } else {
+                imgPreview.src = '';
+                imgPreview.style.display = 'none';
+            }
+        }
+
+        const modal = document.getElementById('targa-modal');
+        if (modal) modal.style.display = 'flex';
+    };
 }
 
 function anteprimaFotoTarga(event) {
@@ -995,11 +1124,18 @@ function salvaSchedaTarga() {
 
     const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
     const store = transaction.objectStore('targhe');
-    store.add(item);
+
+    if (editingClientId) {
+        item.id = editingClientId;
+        store.put(item);
+    } else {
+        store.add(item);
+    }
 
     transaction.oncomplete = () => {
         chiudiTargaModal();
         mostraTarghe();
+        controllaScadenzeAllerta();
     };
 }
 
@@ -1025,7 +1161,7 @@ function caricaTarghe() {
         if (!items || items.length === 0) {
             container.innerHTML = `
                 <div class="card" style="text-align:center; padding:20px;">
-                    <p style="font-size:14px; color:var(--text-sub);">Nessuna targa salvata nell'archivio.</p>
+                    <p style="font-size:14px; color:var(--text-sub);">Nessun cliente salvato nell'archivio.</p>
                 </div>
             `;
             return;
@@ -1063,7 +1199,10 @@ function caricaTarghe() {
                             <div style="font-size:13px; color:#38bdf8; font-weight:600; margin-top:2px;">${phoneDisplay}</div>
                             <div style="font-size:13px; color:var(--text-sub); font-weight:600;">📍 ${item.address || 'Nessun indirizzo'}</div>
                         </div>
-                        <button style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;" onclick="eliminaTarga(${item.id})">🗑️</button>
+                        <div style="display:flex; gap:6px;">
+                            <button style="background:none; border:none; color:#38bdf8; font-size:18px; cursor:pointer;" onclick="modificaTarga(${item.id})" title="Modifica Scheda">✏️</button>
+                            <button style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;" onclick="eliminaTarga(${item.id})" title="Elimina Scheda">🗑️</button>
+                        </div>
                     </div>
 
                     <div style="margin-top:10px; font-size:14px; color:#ffffff;">
@@ -1163,7 +1302,7 @@ function importaClientiExcel(event) {
                 return;
             }
 
-            if (!confirm(`Trovati ${rows.length} clienti nel file Excel. Vuoi importarli nell'archivio targhe?`)) {
+            if (!confirm(`Trovati ${rows.length} clienti nel file Excel. Vuoi importarli nell'archivio clienti?`)) {
                 return;
             }
 
@@ -1228,6 +1367,7 @@ function importaClientiExcel(event) {
             transaction.oncomplete = () => {
                 alert(`Importazione completata con successo! Inseriti ${conteggio} clienti.`);
                 mostraTarghe();
+                controllaScadenzeAllerta();
             };
 
         } catch (err) {
@@ -1240,7 +1380,7 @@ function importaClientiExcel(event) {
 }
 
 function eliminaTarga(id) {
-    if (!confirm("Vuoi davvero eliminare questa scheda targa?")) return;
+    if (!confirm("Vuoi davvero eliminare questa scheda cliente?")) return;
     if (!dbIndexed) return;
 
     const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
@@ -1249,11 +1389,12 @@ function eliminaTarga(id) {
 
     transaction.oncomplete = () => {
         caricaTarghe();
+        controllaScadenzeAllerta();
     };
 }
 
 function richiediSvuotaTarghe() {
-    if (!confirm("Sei sicuro di voler cancellare TUTTA la banca dati delle targhe salvate?")) return;
+    if (!confirm("Sei sicuro di voler cancellare TUTTA la banca dati dei clienti salvati?")) return;
     if (!dbIndexed) return;
 
     const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
@@ -1262,6 +1403,7 @@ function richiediSvuotaTarghe() {
 
     transaction.oncomplete = () => {
         caricaTarghe();
+        controllaScadenzeAllerta();
     };
 }
 
