@@ -11,7 +11,7 @@
     <!-- ICONE PWA E PER SCHERMATA HOME (ANDROID & IOS) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json?v=4.2">
+    <link rel="manifest" href="manifest.json?v=4.3">
 
     <!-- CONFIGURAZIONE PER IPHONE / SAFARI PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
     <meta name="theme-color" content="#0e131f">
 
     <!-- FOGLIO DI STILE -->
-    <link rel="stylesheet" href="style.css?v=4.2">
+    <link rel="stylesheet" href="style.css?v=4.3">
 </head>
 <body>
 
@@ -224,6 +224,12 @@
             <button class="btn-action" onclick="apriTargaModal()">+ Nuovo Cliente</button>
         </div>
 
+        <!-- BARRA RICERCA CLIENTI DINAMICA -->
+        <div class="search-box" style="margin-bottom:14px;">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchClientInput" placeholder="Cerca cliente, telefono, indirizzo, caldaia o matricola..." oninput="caricaTarghe()">
+        </div>
+
         <div class="backup-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px;">
             <button class="btn-backup" style="flex:1;" onclick="esportaBackupJSON()">💾 Esporta JSON</button>
             <button class="btn-restore" style="flex:1;" onclick="document.getElementById('importJsonInput').click()">📥 Importa JSON</button>
@@ -312,7 +318,7 @@
         </div>
 
         <footer class="copyright-footer" style="margin-top:15px;">
-            <p>© 2026 CaldaiaFix PRO - Version 4.2</p>
+            <p>© 2026 CaldaiaFix PRO - Version 4.3</p>
             <p>Tutti i diritti riservati. Prodotto protetto da copyright.</p>
         </footer>
     </section>
@@ -458,9 +464,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON VERSIONING ?v=4.2 -->
-    <script src="db.js?v=4.2"></script>
-    <script src="app.js?v=4.2"></script>
+    <!-- SCRIPT CON VERSIONING ?v=4.3 -->
+    <script src="db.js?v=4.3"></script>
+    <script src="app.js?v=4.3"></script>
 
 </body>
 </html>
