@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & RICERCA DINAMICA
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & SCADENZE 14GG
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -1223,9 +1223,10 @@ function caricaTarghe() {
                 const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
                 dateFormatted = dataScad.toLocaleDateString('it-IT');
 
+                // MODIFICA SOGLIA SCADENZA GIALLA A MAX 14 GIORNI
                 if (diffDays < 0) {
                     statusBadge = `<div class="maint-badge maint-alert">🔴 Manutenzione Scaduta (${dateFormatted})</div>`;
-                } else if (diffDays <= 30) {
+                } else if (diffDays <= 14) {
                     statusBadge = `<div class="maint-badge maint-warn">🟡 In Scadenza (Mancano ${diffDays} gg)</div>`;
                 } else {
                     statusBadge = `<div class="maint-badge maint-ok">🟢 Regolare (Scade il ${dateFormatted})</div>`;
