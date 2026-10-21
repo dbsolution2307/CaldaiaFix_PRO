@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & SCADENZE ALLERTA
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & ZOOM FOTO
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -39,7 +39,7 @@ let deferredPrompt = null;
 let torchTrack = null;
 let isTorchOn = false;
 
-// ID CLIENTE IN FASE DI MODIFICA (null SE SI STA CREANDO UN NUOVO CLIENTE)
+// ID CLIENTE IN FASE DI MODIFICA
 let editingClientId = null;
 
 // INIZIALIZZAZIONE
@@ -108,6 +108,23 @@ function aggiornaContatoreHeader() {
     if (countBox) {
         countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
     }
+}
+
+// INGRANDIMENTO E ZOOM FOTO MATRICOLA / TARGA
+function ingrandisciFoto(src) {
+    if (!src) return;
+    vibraTocco();
+    const modal = document.getElementById('photo-lightbox-modal');
+    const img = document.getElementById('lightbox-img');
+    if (modal && img) {
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+}
+
+function chiudiLightbox() {
+    const modal = document.getElementById('photo-lightbox-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 // CONTROLLO SCADENZE PER BANNER ALLERTA IN HOME
@@ -1224,7 +1241,7 @@ function caricaTarghe() {
                         </button>
                     </div>
 
-                    ${item.image ? `<img src="${item.image}" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; margin-top:10px;" alt="Targa">` : ''}
+                    ${item.image ? `<img src="${item.image}" style="width:100\%; max-height:200px; object-fit:cover; border-radius:12px; margin-top:10px; cursor:pointer;" alt="Targa" onclick="ingrandisciFoto('${item.image}')" title="Clicca per ingrandire">` : ''}
 
                     <div style="font-size:11px; color:var(--text-sub); margin-top:8px; text-align:right;">Salvato il: ${item.date}</div>
                 </div>
@@ -1302,7 +1319,7 @@ function importaClientiExcel(event) {
                 return;
             }
 
-            if (!confirm(`Trovati ${rows.length} clienti nel file Excel. Vuoi importarli nell'archivio clienti?`)) {
+            if (!confirm(`Trovati ${rows.length} clienti nel file Excel. Vuoi aggiungerli all'archivio clienti?`)) {
                 return;
             }
 
