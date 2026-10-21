@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE, ONBOARDING PROGRESSIVO & SCADENZARIO
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, IMPORTAZIONE EXCEL & PROMEMORIA 1-CLICK
    ========================================================================== */
 
 // PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
@@ -29,13 +29,11 @@ function safeSetStorage(key, value) {
     }
 }
 
-// STRUTTURA DATI LOCALE & ONBOARDING
+// STRUTTURA DATI LOCALE
 let currentFilterType = 'all';
 let currentBrand = '';
 let favorites = safeGetStorage('caldaiafix_favs', []);
 let historyGuasti = safeGetStorage('caldaiafix_history', []);
-let onboardingSeen = safeGetStorage('caldaiafix_onboard', {});
-let currentOnboardKey = null;
 let dbIndexed = null;
 let deferredPrompt = null;
 let torchTrack = null;
@@ -50,11 +48,6 @@ function initApp() {
         filtraErrori(false);
         gestisciPwaInstall();
         verificaStatoRete();
-        
-        // Onboarding iniziale in ricerca
-        setTimeout(() => {
-            mostraOnboarding('home_search', 'Ricerca Rapida & Vocale', 'Cerca per codice errore (es. E01, F28) oppure usa il microfono 🎙️ per dettare il guasto a voce!', '🔍');
-        }, 1200);
     } catch (err) {
         console.error("Errore inizializzazione CaldaiaFix:", err);
     }
@@ -78,36 +71,6 @@ function verificaStatoRete() {
     } else {
         netBadge.className = 'net-badge offline';
         netBadge.textContent = '🔴 Offline';
-    }
-}
-
-// GESTIONE ONBOARDING PROGRESSIVO
-function mostraOnboarding(key, title, text, icon = '💡') {
-    if (onboardingSeen[key]) return;
-
-    currentOnboardKey = key;
-    const tooltip = document.getElementById('onboarding-tooltip');
-    const titleEl = document.getElementById('onboarding-title');
-    const textEl = document.getElementById('onboarding-text');
-    const iconEl = document.getElementById('onboarding-icon');
-
-    if (tooltip && titleEl && textEl) {
-        titleEl.textContent = title;
-        textEl.textContent = text;
-        if (iconEl) iconEl.textContent = icon;
-        tooltip.style.display = 'block';
-    }
-}
-
-function chiudiOnboarding() {
-    vibraTocco();
-    const tooltip = document.getElementById('onboarding-tooltip');
-    if (tooltip) tooltip.style.display = 'none';
-
-    if (currentOnboardKey) {
-        onboardingSeen[currentOnboardKey] = true;
-        safeSetStorage('caldaiafix_onboard', onboardingSeen);
-        currentOnboardKey = null;
     }
 }
 
@@ -447,11 +410,6 @@ function mostraDettaglio(id) {
     `;
 
     cambiaVista('detail-view');
-    
-    // Onboarding per report e ricambi
-    setTimeout(() => {
-        mostraOnboarding('detail_report', 'Rapporti & Ricambi', 'Da qui puoi creare un report in PDF o inviarlo al cliente su WhatsApp, oppure cercare il ricambio originale su Amazon!', '📄');
-    }, 600);
 }
 
 function salvaInStorico(item) {
@@ -979,7 +937,7 @@ function apriTargaModal() {
 function chiudiTargaModal() {
     const modal = document.getElementById('targa-modal');
     if (modal) modal.style.display = 'none';
-    ['tagClient', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
+    ['tagClient', 'tagPhone', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -1009,6 +967,7 @@ function salvaSchedaTarga() {
     if (!dbIndexed) return;
 
     const client = document.getElementById('tagClient')?.value.trim() || '';
+    const phone = document.getElementById('tagPhone')?.value.trim() || '';
     const address = document.getElementById('tagAddress')?.value.trim() || '';
     const boiler = document.getElementById('tagBoiler')?.value.trim() || '';
     const serial = document.getElementById('tagSerial')?.value.trim() || '';
@@ -1024,6 +983,7 @@ function salvaSchedaTarga() {
 
     const item = {
         client: client || "Cliente Generico",
+        phone: phone,
         address: address,
         boiler: boiler,
         serial: serial,
@@ -1048,11 +1008,6 @@ function mostraTarghe() {
     impostaTabNav('targhe');
     cambiaVista('targhe-view');
     caricaTarghe();
-
-    // Onboarding per Archivio Targhe
-    setTimeout(() => {
-        mostraOnboarding('targhe_maint', 'Scadenzario Clienti', 'Aggiungi una scheda targa col pulsante "+ Nuova Targa" per tenere traccia delle scadenze dei controlli fumi con avvisi automatici!', '📅');
-    }, 600);
 }
 
 function caricaTarghe() {
@@ -1082,10 +1037,12 @@ function caricaTarghe() {
         let html = '';
         items.reverse().forEach(item => {
             let statusBadge = '';
+            let dateFormatted = '-';
+
             if (item.nextMaintenance) {
                 const dataScad = new Date(item.nextMaintenance);
                 const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
-                const dateFormatted = dataScad.toLocaleDateString('it-IT');
+                dateFormatted = dataScad.toLocaleDateString('it-IT');
 
                 if (diffDays < 0) {
                     statusBadge = `<div class="maint-badge maint-alert">🔴 Manutenzione Scaduta (${dateFormatted})</div>`;
@@ -1096,11 +1053,14 @@ function caricaTarghe() {
                 }
             }
 
+            const phoneDisplay = item.phone ? `📞 ${item.phone}` : '📞 Nessun telefono';
+
             html += `
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
                             <div style="font-size:17px; font-weight:800; color:#ffffff;">${item.client}</div>
+                            <div style="font-size:13px; color:#38bdf8; font-weight:600; margin-top:2px;">${phoneDisplay}</div>
                             <div style="font-size:13px; color:var(--text-sub); font-weight:600;">📍 ${item.address || 'Nessun indirizzo'}</div>
                         </div>
                         <button style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;" onclick="eliminaTarga(${item.id})">🗑️</button>
@@ -1113,6 +1073,18 @@ function caricaTarghe() {
                         ${item.notes ? `<div style="margin-top:6px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
                     </div>
 
+                    <!-- PULSANTI PROMEMORIA 1-CLICK -->
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button class="btn-whatsapp" style="flex:1; padding:10px; font-size:13px;" 
+                            onclick="inviaPromemoriaWhatsApp('${escapeQuotes(item.client)}', '${escapeQuotes(item.boiler)}', '${dateFormatted}', '${item.phone}')">
+                            💬 Avvisa WhatsApp
+                        </button>
+                        <button class="btn-action" style="flex:1; padding:10px; font-size:13px; background:#2563eb;" 
+                            onclick="inviaPromemoriaSMS('${escapeQuotes(item.client)}', '${escapeQuotes(item.boiler)}', '${dateFormatted}', '${item.phone}')">
+                            📱 Avvisa SMS
+                        </button>
+                    </div>
+
                     ${item.image ? `<img src="${item.image}" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; margin-top:10px;" alt="Targa">` : ''}
 
                     <div style="font-size:11px; color:var(--text-sub); margin-top:8px; text-align:right;">Salvato il: ${item.date}</div>
@@ -1122,6 +1094,149 @@ function caricaTarghe() {
 
         container.innerHTML = html;
     };
+}
+
+function escapeQuotes(str) {
+    return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function inviaPromemoriaWhatsApp(client, boiler, dateStr, phone) {
+    vibraTocco();
+    const company = localStorage.getItem('caldaiafix_company') || 'Assistenza Tecnica';
+    const cleanPhone = (phone || '').replace(/\D/g, '');
+
+    const testo = `Gentile ${client},\nLe ricordiamo che il controllo periodico e la manutenzione della Sua caldaia (${boiler}) è in scadenza il ${dateStr}.\n\nPer fissare un appuntamento ci contatti al più presto.\nCordiali saluti,\n*${company}*`;
+
+    let url = '';
+    if (cleanPhone) {
+        const fullPhone = cleanPhone.startsWith('39') ? cleanPhone : `39${cleanPhone}`;
+        url = `https://wa.me/${fullPhone}?text=${encodeURIComponent(testo)}`;
+    } else {
+        url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
+    }
+
+    window.open(url, '_blank');
+}
+
+function inviaPromemoriaSMS(client, boiler, dateStr, phone) {
+    vibraTocco();
+    const company = localStorage.getItem('caldaiafix_company') || 'Assistenza Tecnica';
+    const cleanPhone = (phone || '').replace(/\D/g, '');
+
+    if (!cleanPhone) {
+        alert("Inserisci o importa il numero di telefono del cliente per inviare l'SMS.");
+        return;
+    }
+
+    const testo = `Gentile ${client}, Le ricordiamo che la manutenzione della caldaia (${boiler}) scade il ${dateStr}. Ci contatti per fissare un appuntamento. - ${company}`;
+
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const url = isIos 
+        ? `sms:${cleanPhone}&body=${encodeURIComponent(testo)}`
+        : `sms:${cleanPhone}?body=${encodeURIComponent(testo)}`;
+
+    window.location.href = url;
+}
+
+function importaClientiExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (typeof XLSX === 'undefined') {
+        alert("Libreria di lettura Excel in caricamento... Riprova tra 3 secondi.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+            if (!rows || rows.length === 0) {
+                alert("Il file Excel è vuoto o non contiene dati validi.");
+                return;
+            }
+
+            if (!confirm(`Trovati ${rows.length} clienti nel file Excel. Vuoi importarli nell'archivio targhe?`)) {
+                return;
+            }
+
+            if (!dbIndexed) {
+                alert("Banca dati locale non pronta.");
+                return;
+            }
+
+            const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+            const store = transaction.objectStore('targhe');
+
+            let conteggio = 0;
+
+            rows.forEach(r => {
+                const getVal = (keys) => {
+                    for (let k of keys) {
+                        const foundKey = Object.keys(r).find(keyName => keyName.toLowerCase().trim() === k.toLowerCase());
+                        if (foundKey && r[foundKey]) return String(r[foundKey]).trim();
+                    }
+                    return '';
+                };
+
+                const client = getVal(['cliente', 'nome', 'cognome', 'nominativo', 'ragione sociale']);
+                const phone = getVal(['telefono', 'cellulare', 'tel', 'mobile']);
+                const address = getVal(['indirizzo', 'via', 'citta', 'location']);
+                const boiler = getVal(['caldaia', 'modello', 'marca', 'impianto']);
+                const serial = getVal(['matricola', 'seriale', 'sn']);
+                const nextMaintRaw = getVal(['scadenza', 'prossimo controllo', 'data', 'manutenzione']);
+                const notes = getVal(['note', 'annotazioni', 'dettagli']);
+
+                let formattedDate = '';
+                if (nextMaintRaw) {
+                    if (typeof nextMaintRaw === 'number') {
+                        const parsedDate = XLSX.SSF.parse_date_code(nextMaintRaw);
+                        if (parsedDate) {
+                            formattedDate = `${parsedDate.y}-${String(parsedDate.m).padStart(2, '0')}-${String(parsedDate.d).padStart(2, '0')}`;
+                        }
+                    } else if (nextMaintRaw.includes('/')) {
+                        const parts = nextMaintRaw.split('/');
+                        if (parts.length === 3) formattedDate = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+                    } else if (nextMaintRaw.includes('-')) {
+                        formattedDate = nextMaintRaw;
+                    }
+                }
+
+                if (client || boiler || phone) {
+                    store.add({
+                        client: client || "Cliente da Excel",
+                        phone: phone,
+                        address: address,
+                        boiler: boiler,
+                        serial: serial,
+                        notes: notes,
+                        nextMaintenance: formattedDate,
+                        image: null,
+                        date: new Date().toLocaleDateString('it-IT')
+                    });
+                    conteggio++;
+                }
+            });
+
+            transaction.oncomplete = () => {
+                alert(`Importazione completata con successo! Inseriti ${conteggio} clienti.`);
+                mostraTarghe();
+            };
+
+        } catch (err) {
+            alert("Errore nella lettura del file Excel: " + err.message);
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+    event.target.value = '';
 }
 
 function eliminaTarga(id) {
@@ -1155,11 +1270,6 @@ function mostraCalcolatori() {
     vibraTocco();
     impostaTabNav('calc');
     cambiaVista('calc-view');
-
-    // Onboarding per Calcolatori
-    setTimeout(() => {
-        mostraOnboarding('calc_combustion', 'Calcolatore UNI 10389-1', 'Inserisci la temperatura fumi, ambiente e CO₂ per calcolare istantaneamente il rendimento η% e la perdita qA.', '🔥');
-    }, 600);
 }
 
 function calcolaRendimentoCombustione() {
@@ -1296,84 +1406,6 @@ function inviaRapportoWhatsApp() {
     chiudiReportModal();
 }
 
-// GESTIONE SEGNALAZIONE BUG E NUOVI CODICI VIA EMAIL
-function apriFeedbackModal() {
-    vibraTocco();
-    const modal = document.getElementById('feedback-modal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function chiudiFeedbackModal() {
-    const modal = document.getElementById('feedback-modal');
-    if (modal) modal.style.display = 'none';
-    ['fbBrand', 'fbModel', 'fbCode', 'fbSolution', 'fbBugDesc'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-}
-
-function cambiaTabFeedback(tab) {
-    vibraTocco();
-    const formCode = document.getElementById('form-feedback-code');
-    const formBug = document.getElementById('form-feedback-bug');
-    const btnCode = document.getElementById('tab-code-btn');
-    const btnBug = document.getElementById('tab-bug-btn');
-
-    if (tab === 'code') {
-        formCode.style.display = 'block';
-        formBug.style.display = 'none';
-        btnCode.classList.add('active');
-        btnBug.classList.remove('active');
-    } else {
-        formCode.style.display = 'none';
-        formBug.style.display = 'block';
-        btnBug.classList.add('active');
-        btnCode.classList.remove('active');
-    }
-}
-
-function inviaFeedbackEmail(tipo) {
-    const emailAziendale = "caldaiafixassistenza@libero.it";
-    let subject = "";
-    let body = "";
-
-    if (tipo === 'code') {
-        const brand = document.getElementById('fbBrand')?.value.trim();
-        const model = document.getElementById('fbModel')?.value.trim();
-        const code = document.getElementById('fbCode')?.value.trim();
-        const solution = document.getElementById('fbSolution')?.value.trim();
-
-        if (!brand || !code) {
-            alert("Inserisci almeno la Marca e il Codice Errore.");
-            return;
-        }
-
-        subject = `PROPOSTA NUOVO CODICE GUASTO: ${brand} - ${code}`;
-        body = `PROPOSTA NUOVO CODICE GUASTO - CaldaiaFix PRO\n\n` +
-               `Marca: ${brand}\n` +
-               `Modello: ${model || '-'}\n` +
-               `Codice: ${code}\n` +
-               `Soluzione Proposta:\n${solution || '-'}\n\n` +
-               `Inviato da un tecnico tramite l'app CaldaiaFix PRO`;
-    } else {
-        const bugDesc = document.getElementById('fbBugDesc')?.value.trim();
-
-        if (!bugDesc) {
-            alert("Inserisci una breve descrizione del problema.");
-            return;
-        }
-
-        subject = `SEGNALAZIONE BUG / ANOMALIA - CaldaiaFix PRO`;
-        body = `SEGNALAZIONE BUG / ANOMALIA - CaldaiaFix PRO\n\n` +
-               `Descrizione Problema:\n${bugDesc}\n\n` +
-               `Inviato tramite l'app CaldaiaFix PRO`;
-    }
-
-    const mailtoUrl = `mailto:${emailAziendale}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
-    chiudiFeedbackModal();
-}
-
 // NAVIGAZIONE, VISTE & MENU TENDINA
 function cambiaVista(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1407,11 +1439,6 @@ function toggleMenuTendina() {
     } else {
         overlay.classList.add('active');
         menu.classList.add('active');
-        
-        // Onboarding per Menu
-        setTimeout(() => {
-            mostraOnboarding('menu_tools', 'Strumenti Rapidi', 'In questo menu trovi la Torcia Flash, i codici morsettiere, il reset cache per aggiornamenti e l\'invio di segnalazioni!', '🛠️');
-        }, 300);
     }
 }
 
@@ -1484,6 +1511,68 @@ function chiudiPwaBanner() {
 function chiudiIosBanner() {
     const banner = document.getElementById('ios-install-banner');
     if (banner) banner.style.display = 'none';
+}
+
+// FEEDBACK & BUG REPORTING
+function apriFeedbackModal() {
+    vibraTocco();
+    const modal = document.getElementById('feedback-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function chiudiFeedbackModal() {
+    const modal = document.getElementById('feedback-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function cambiaTabFeedback(tab) {
+    vibraTocco();
+    const tabCodeBtn = document.getElementById('tab-code-btn');
+    const tabBugBtn = document.getElementById('tab-bug-btn');
+    const formCode = document.getElementById('form-feedback-code');
+    const formBug = document.getElementById('form-feedback-bug');
+
+    if (tab === 'code') {
+        if (tabCodeBtn) tabCodeBtn.classList.add('active');
+        if (tabBugBtn) tabBugBtn.classList.remove('active');
+        if (formCode) formCode.style.display = 'block';
+        if (formBug) formBug.style.display = 'none';
+    } else {
+        if (tabCodeBtn) tabCodeBtn.classList.remove('active');
+        if (tabBugBtn) tabBugBtn.classList.add('active');
+        if (formCode) formCode.style.display = 'none';
+        if (formBug) formBug.style.display = 'block';
+    }
+}
+
+function inviaFeedbackEmail(type) {
+    vibraTocco();
+    let emailBody = '';
+    const subject = type === 'code' ? 'CaldaiaFix PRO - Nuovo Codice Errore' : 'CaldaiaFix PRO - Segnalazione Bug';
+
+    if (type === 'code') {
+        const brand = document.getElementById('fbBrand')?.value.trim() || '';
+        const model = document.getElementById('fbModel')?.value.trim() || '';
+        const code = document.getElementById('fbCode')?.value.trim() || '';
+        const sol = document.getElementById('fbSolution')?.value.trim() || '';
+
+        if (!brand || !code) {
+            alert("Inserisci almeno Marca e Codice Errore.");
+            return;
+        }
+        emailBody = `Marca: ${brand}\nModello: ${model}\nCodice: ${code}\nSoluzione Proposta:\n${sol}`;
+    } else {
+        const bug = document.getElementById('fbBugDesc')?.value.trim() || '';
+        if (!bug) {
+            alert("Descrivi il problema riscontrato.");
+            return;
+        }
+        emailBody = `Descrizione Bug:\n${bug}`;
+    }
+
+    const mailtoUrl = `mailto:assistenza@dbsolution.it?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+    window.location.href = mailtoUrl;
+    chiudiFeedbackModal();
 }
 
 // UTILITY & IMPOSTAZIONI DITTA
