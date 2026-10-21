@@ -1,14 +1,13 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - LOGICA APPLICAZIONE (v4.5 Completa)
+   CALDAIAFIX PRO - LOGICA APPLICAZIONE, GESTIONE CLIENTI & SCADENZE 14GG (v4.5)
    ========================================================================== */
 
-const AMAZON_AFFILIATE_TAG = "dbsolution-21";
-const SUPPORT_EMAIL = "caldaiafixassistenza@libero.it";
-
-// PULIZIA AUTOMATICA CACHE SERVICE WORKER
+// PULIZIA AUTOMATICA VECCHIA CACHE SERVICE WORKER PER EVITARE BLOCCHI
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) registration.unregister();
+        for (let registration of registrations) {
+            registration.unregister();
+        }
     }).catch(err => console.warn('PWA SW Cleanup:', err));
 }
 
@@ -16,7 +15,7 @@ if ('serviceWorker' in navigator) {
 function safeGetStorage(key, defaultValue) {
     try {
         const val = localStorage.getItem(key);
-        return val !== null ? JSON.parse(val) : defaultValue;
+        return val ? JSON.parse(val) : defaultValue;
     } catch (e) {
         return defaultValue;
     }
@@ -39,16 +38,17 @@ let dbIndexed = null;
 let deferredPrompt = null;
 let torchTrack = null;
 let isTorchOn = false;
-let currentReportError = null;
+
+// ID CLIENTE IN FASE DI MODIFICA
 let editingClientId = null;
 
 // INIZIALIZZAZIONE
 function initApp() {
     try {
-        filtraErrori(false);
         aggiornaContatoreHeader();
-        caricaImpostazioni();
         initIndexedDB();
+        caricaImpostazioni();
+        filtraErrori(false);
         gestisciPwaInstall();
         verificaStatoRete();
     } catch (err) {
@@ -62,116 +62,129 @@ if (document.readyState === 'loading') {
     initApp();
 }
 
-// FEEDBACK VIBRAZIONE
-function vibraTocco() {
-    const active = safeGetStorage('caldaiafix_vibration', true);
-    if (active && navigator.vibrate) {
-        try { navigator.vibrate(25); } catch (e) {}
+window.addEventListener('online', verificaStatoRete);
+window.addEventListener('offline', verificaStatoRete);
+
+function verificaStatoRete() {
+    const netBadge = document.getElementById('netStatus');
+    if (!netBadge) return;
+    if (navigator.onLine) {
+        netBadge.className = 'net-badge online';
+        netBadge.textContent = '🟢 Online';
+    } else {
+        netBadge.className = 'net-badge offline';
+        netBadge.textContent = '🔴 Offline';
     }
 }
 
-// NAVIGAZIONE E VISTE
-function impostaTabNav(tabId) {
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    const targetNav = document.getElementById(`nav-${tabId}`);
-    if (targetNav) targetNav.classList.add('active');
-}
-
-function cambiaVista(viewId) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    const targetView = document.getElementById(viewId);
-    if (targetView) targetView.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function tornaHome() {
+// FORZA AGGIORNAMENTO CACHE PWA E REFRESH
+async function forzaAggiornamentoCache() {
     vibraTocco();
-    impostaTabNav('home');
-    cambiaVista('home-view');
-    filtraErrori(false);
-}
-
-function mostraTarghe() {
-    vibraTocco();
-    impostaTabNav('targhe');
-    cambiaVista('targhe-view');
-    caricaTarghe();
-}
-
-function mostraCalcolatori() {
-    vibraTocco();
-    impostaTabNav('calc');
-    cambiaVista('calc-view');
-}
-
-function mostraStorico() {
-    vibraTocco();
-    impostaTabNav('history');
-    cambiaVista('history-view');
-    renderStorico();
-}
-
-function mostraImpostazioni() {
-    vibraTocco();
-    impostaTabNav('menu');
-    cambiaVista('settings-view');
-}
-
-function toggleMenuTendina() {
-    vibraTocco();
-    const menu = document.getElementById('dropup-menu');
-    const overlay = document.getElementById('dropup-overlay');
-    if (menu && overlay) {
-        const isVisible = menu.classList.contains('active');
-        if (isVisible) {
-            menu.classList.remove('active');
-            overlay.classList.remove('active');
-        } else {
-            menu.classList.add('active');
-            overlay.classList.add('active');
+    if (confirm("Vuoi svuotare la memoria cache dell'app e scaricare la versione più recente dal server?")) {
+        try {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (let key of keys) {
+                    await caches.delete(key);
+                }
+            }
+            window.location.reload(true);
+        } catch (err) {
+            window.location.reload(true);
         }
     }
 }
 
-// GESTIONE CENTRO HELP (❓ FAQ, NOTE LEGALI GDPR & ASSISTENZA)
-function apriHelpModal() {
-    vibraTocco();
-    const modal = document.getElementById('help-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        cambiaTabHelp('faq');
-    }
-}
-
-function chiudiHelpModal() {
-    const modal = document.getElementById('help-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function cambiaTabHelp(tabName) {
-    vibraTocco();
-    ['faq', 'legal', 'contact'].forEach(t => {
-        const btn = document.getElementById(`tab-${t}-btn`);
-        const sec = document.getElementById(`help-section-${t}`);
-        if (btn) btn.classList.remove('active');
-        if (sec) sec.style.display = 'none';
-    });
-
-    const activeBtn = document.getElementById(`tab-${tabName}-btn`);
-    const activeSec = document.getElementById(`help-section-${tabName}`);
-    if (activeBtn) activeBtn.classList.add('active');
-    if (activeSec) activeSec.style.display = 'block';
-}
-
-// FILTRAGGIO E RENDERING LISTA ERRORI
+// CONTATORE INTESTAZIONE
 function aggiornaContatoreHeader() {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
     const countBox = document.getElementById('resultsCount');
-    if (countBox) countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
+    if (countBox) {
+        countBox.textContent = `${dbData.length} GUASTI PRESENTI NEL DATABASE`;
+    }
 }
 
+// INGRANDIMENTO E ZOOM FOTO MATRICOLA / TARGA
+function ingrandisciFoto(src) {
+    if (!src) return;
+    vibraTocco();
+    const modal = document.getElementById('photo-lightbox-modal');
+    const img = document.getElementById('lightbox-img');
+    if (modal && img) {
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+}
+
+function chiudiLightbox() {
+    const modal = document.getElementById('photo-lightbox-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// CONTROLLO SCADENZE PER BANNER ALLERTA IN HOME
+function controllaScadenzeAllerta() {
+    if (!dbIndexed) return;
+
+    try {
+        const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+        const store = transaction.objectStore('targhe');
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const items = request.result;
+            const banner = document.getElementById('maint-alert-banner');
+            const titleEl = document.getElementById('maint-alert-title');
+            const descEl = document.getElementById('maint-alert-desc');
+
+            if (!banner) return;
+
+            if (!items || items.length === 0) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+
+            let scadute = 0;
+            let imminenti = 0;
+
+            items.forEach(item => {
+                if (item.nextMaintenance) {
+                    const dataScad = new Date(item.nextMaintenance);
+                    const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0) {
+                        scadute++;
+                    } else if (diffDays <= 14) {
+                        imminenti++;
+                    }
+                }
+            });
+
+            if (scadute > 0 || imminenti > 0) {
+                banner.style.display = 'flex';
+                let msgs = [];
+                if (scadute > 0) msgs.push(`🔴 ${scadute} Scadute`);
+                if (imminenti > 0) msgs.push(`🟡 ${imminenti} In Scadenza (14 gg)`);
+
+                if (titleEl) titleEl.textContent = "⚠️ Scadenze Manutenzione Rilevate!";
+                if (descEl) descEl.textContent = msgs.join(' • ') + " — Tocca per visualizzarle";
+            } else {
+                banner.style.display = 'none';
+            }
+        };
+    } catch(e) {
+        console.warn("Errore controllo allerta scadenze:", e);
+    }
+}
+
+// FILTRAGGIO E RENDERING LISTA GUASTI
 function filtraErrori(isFavOnly = false) {
     const searchEl = document.getElementById('searchInput');
     const brandEl = document.getElementById('brandFilter');
@@ -271,23 +284,122 @@ function aggiornaStatoTab(activeBtnId) {
     if (activeBtn) activeBtn.classList.add('active');
 }
 
-function toggleFav(id, event) {
-    if (event) event.stopPropagation();
-    vibraTocco();
-    const index = favorites.indexOf(id);
-    if (index > -1) favorites.splice(index, 1);
-    else favorites.push(id);
-    safeSetStorage('caldaiafix_favs', favorites);
-    filtraErrori(false);
+// ATTREZZI CONSIGLIATI
+function ottieniAttrezziGuasto(item) {
+    const desc = ((item.desc || "") + " " + (item.partName || "")).toLowerCase();
+    let attrezzi = ["🔧 Cacciaviti Isolati 1000V", "🛠️ Chiavi a Forchetta 10-17mm"];
+
+    if (desc.includes("pressione") || desc.includes("vaso") || desc.includes("acqua")) {
+        attrezzi.push("🪠 Pompa con Manometro per Vasi", "⚖️ Manometro Idraulico");
+    }
+    if (desc.includes("gas") || desc.includes("valvola") || desc.includes("fiamma") || desc.includes("elettrodo")) {
+        attrezzi.push("⚡ Multimetro Digitale", "🔥 Manometro Differenziale mbar", "🧹 Carta Abrasiva Fine");
+    }
+    if (desc.includes("fumi") || desc.includes("pressostato") || desc.includes("ventilatore") || desc.includes("venturi")) {
+        attrezzi.push("💨 Pompetta Prova Pressostati", "🪛 Chiave a Pipa / Millerighe");
+    }
+    if (desc.includes("ntc") || desc.includes("sonda") || desc.includes("termostato") || desc.includes("scheda")) {
+        attrezzi.push("⚡ Multimetro Digitale (Profe Ohm)", "🔌 Spray Pulisci Contatti");
+    }
+
+    return Array.from(new Set(attrezzi));
 }
 
-// DETTAGLIO GUASTO E RAPPORTO CLIENTE
+// DASHBOARD STATISTICHE
+function mostraStatistiche() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('stats-view');
+    calcolaEDisegnaStatistiche();
+}
+
+function calcolaEDisegnaStatistiche() {
+    const container = document.getElementById('stats-container');
+    if (!container) return;
+
+    const totalConsultazioni = historyGuasti.length;
+    
+    let brandMap = {};
+    historyGuasti.forEach(h => {
+        if (h.brand) {
+            brandMap[h.brand] = (brandMap[h.brand] || 0) + 1;
+        }
+    });
+
+    let topBrand = '-';
+    let topBrandCount = 0;
+    Object.keys(brandMap).forEach(b => {
+        if (brandMap[b] > topBrandCount) {
+            topBrandCount = brandMap[b];
+            topBrand = b;
+        }
+    });
+
+    const generaHTML = (numTarghe) => {
+        let brandBarsHTML = '';
+        const total = totalConsultazioni || 1;
+
+        Object.keys(brandMap).forEach(b => {
+            const pct = Math.round((brandMap[b] / total) * 100);
+            brandBarsHTML += `
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+                        <span>${b}</span>
+                        <span>${pct}% (${brandMap[b]})</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (!brandBarsHTML) {
+            brandBarsHTML = `<p style="font-size:13px; color:var(--text-sub);">Consulta alcuni guasti per iniziare a generare le statistiche per marca.</p>`;
+        }
+
+        container.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${numTarghe}</div>
+                    <div class="stat-label">Clienti in Archivio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalConsultazioni}</div>
+                    <div class="stat-label">Guasti Consultati</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:15px; font-weight:800; color:#38bdf8; margin-bottom:10px;">🏆 Marca Più Trattata</h3>
+                <div style="font-size:20px; font-weight:900; color:#ffffff;">${topBrand}</div>
+                <div style="font-size:13px; color:var(--text-sub); margin-top:2px;">Basato sullo storico delle tue ricerche recenti.</div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:15px; font-weight:800; color:#ffffff; margin-bottom:12px;">📊 Ripartizione Interventi per Marca</h3>
+                ${brandBarsHTML}
+            </div>
+        `;
+    };
+
+    if (dbIndexed) {
+        const tx = dbIndexed.transaction(['targhe'], 'readonly');
+        const store = tx.objectStore('targhe');
+        const req = store.count();
+        req.onsuccess = () => generaHTML(req.result);
+        req.onerror = () => generaHTML(0);
+    } else {
+        generaHTML(0);
+    }
+}
+
+// DETTAGLIO GUASTO & STORICO
 function mostraDettaglio(id) {
     const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
     const item = dbData.find(e => e.id === id);
     if (!item) return;
 
-    currentReportError = item;
     vibraTocco();
     salvaInStorico(item);
 
@@ -295,43 +407,81 @@ function mostraDettaglio(id) {
     if (!detailContent) return;
 
     const isFav = favorites.includes(item.id);
-    let htmlSteps = item.steps && item.steps.length > 0
-        ? '<ol style="padding-left:20px; font-size:14px; line-height:1.6; margin-top:8px;">' + item.steps.map(s => `<li style="margin-bottom:6px; color:#e2e8f0;">${s}</li>`).join('') + '</ol>'
-        : '<p style="font-size:14px; color:var(--text-sub); margin-top:6px;">Procedura standard di verifica componenti.</p>';
+
+    let htmlSteps = '';
+    if (item.steps && item.steps.length > 0) {
+        htmlSteps = '<ol style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.steps.map(step => `<li style="margin-bottom:6px;">${step}</li>`).join('') + '</ol>';
+    }
+
+    let htmlCauses = '';
+    if (item.causes && item.causes.length > 0) {
+        htmlCauses = '<ul style="padding-left:20px; font-size:15px; line-height:1.5;">' + item.causes.map(c => `<li style="margin-bottom:4px;">${c}</li>`).join('') + '</ul>';
+    }
+
+    const listaAttrezzi = ottieniAttrezziGuasto(item);
+    const htmlAttrezzi = listaAttrezzi.map(attrezzo => {
+        const cleanToolName = attrezzo.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+        const toolSearchQuery = encodeURIComponent(cleanToolName);
+        const toolAmazonUrl = `https://www.amazon.it/s?k=${toolSearchQuery}&tag=dbsolution-21`;
+        return `<a href="${toolAmazonUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" onclick="event.stopPropagation();">${attrezzo} ↗</a>`;
+    }).join('');
 
     const searchQuery = encodeURIComponent(`${item.brand} ${item.partName || item.code} ricambio caldaia`);
-    const amazonUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=${AMAZON_AFFILIATE_TAG}`;
+    const amazonAffiliateUrl = `https://www.amazon.it/s?k=${searchQuery}&tag=dbsolution-21`;
 
     detailContent.innerHTML = `
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
                 <div>
-                    <span class="badge-brand-code" style="font-size:16px;">${item.brand} - ${item.code}</span>
-                    <h2 style="font-size:18px; color:#ffffff; margin-top:8px;">${item.desc}</h2>
-                    <p style="font-size:13px; color:var(--text-sub); margin-top:2px;">Modello: <strong>${item.model}</strong></p>
+                    <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                    <h2 style="font-size:22px; font-weight:800; color:#ffffff; margin-top:8px;">${item.desc}</h2>
+                    <p style="font-size:14px; color:var(--text-sub); font-weight:600; margin-top:2px;">Modelli: ${item.model}</p>
                 </div>
-                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:24px;" onclick="toggleFav(${item.id}, event)">
+                <button class="fav-btn ${isFav ? 'active' : ''}" style="font-size:32px;" onclick="toggleFav(${item.id}, event); mostraDettaglio(${item.id});">
                     ${isFav ? '★' : '☆'}
                 </button>
             </div>
 
-            <div style="margin-top:16px; border-top:1px solid #334155; padding-top:14px;">
-                <h3 style="font-size:15px; color:#38bdf8; margin-bottom:6px;">🛠️ Soluzione & Procedura di Controllo:</h3>
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:6px;">⚠️ Possibili Cause:</h3>
+                ${htmlCauses}
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:800; color:#22c55e; text-transform:uppercase; margin-bottom:6px;">🛠️ Procedura di Risoluzione:</h3>
                 ${htmlSteps}
             </div>
 
-            ${item.partName ? `
-            <div style="margin-top:16px; background:#0f172a; padding:12px; border-radius:10px; border:1px solid #334155;">
-                <strong style="color:#ffffff; font-size:14px;">🔍 Ricambio Probabile:</strong>
-                <p style="color:#cbd5e1; font-size:13px; margin-top:2px;">${item.partName}${item.partCode ? `(Cod. ${item.partCode})` : ''}</p>
-                <a href="${amazonUrl}" target="_blank" rel="noopener" style="display:inline-block; margin-top:8px; background:#f59e0b; color:#0f172a; padding:8px 14px; border-radius:8px; font-weight:800; text-decoration:none; font-size:13px;">
-                    🛒 Cerca Ricambio su Amazon
-                </a>
+            <div class="tools-box">
+                <div style="font-size:12px; font-weight:900; color:#cbd5e1; text-transform:uppercase;">🧰 Attrezzatura Consigliata (Clicca per acquistare su Amazon):</div>
+                <div class="tools-list">
+                    ${htmlAttrezzi}
+                </div>
             </div>
+
+            ${item.partName ? `
+                <div style="background:#064e3b; border:1px solid #059669; padding:14px; border-radius:14px; margin-bottom:16px;">
+                    <div style="font-size:12px; font-weight:800; color:#a7f3d0; text-transform:uppercase;">Ricambio Consigliato:</div>
+                    <div style="font-size:16px; font-weight:800; color:#ffffff; margin-top:2px;">${item.partName}</div>
+                    <div style="font-size:14px; color:#6ee7b7; font-family:monospace; margin-top:2px;">Codice: ${item.partCode}</div>
+                </div>
             ` : ''}
 
-            <div style="display:flex; gap:10px; margin-top:16px;">
-                <button class="btn-action" style="flex:1;" onclick="apriReportModal(${item.id})">💬 Crea Rapporto Cliente</button>
+            <a href="${amazonAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon">
+                🛒 Cerca Ricambio Principale su Amazon
+            </a>
+
+            ${item.gasParams && item.gasParams !== '-' ? `
+                <div style="background:#451a03; border:1px solid #f97316; padding:14px; border-radius:14px; margin-top:16px; font-size:15px; color:#ffedd5;">
+                    🔥 Parametri Combustione / Gas: <br>
+                    <strong>${item.gasParams}</strong>
+                </div>
+            ` : ''}
+
+            <div style="margin-top:16px;">
+                <button class="btn-whatsapp" onclick="apriReportModal('${item.brand}', '${item.code}', '${item.desc}')">
+                    💬 Crea Rapporto Cliente
+                </button>
             </div>
         </div>
     `;
@@ -339,484 +489,843 @@ function mostraDettaglio(id) {
     cambiaVista('detail-view');
 }
 
-// RAPPORTO CLIENTE
-function apriReportModal(id) {
-    vibraTocco();
-    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
-    const item = dbData.find(e => e.id === id) || currentReportError;
-    if (!item) return;
-
-    currentReportError = item;
-    const company = safeGetStorage('caldaiafix_company', '');
-
-    document.getElementById('repCompany').value = company;
-    document.getElementById('repClient').value = '';
-    document.getElementById('repBoiler').value = `${item.brand} ${item.model}`;
-    document.getElementById('repFault').value = `Errore ${item.code} - ${item.desc}`;
-    document.getElementById('repWork').value = '';
-    document.getElementById('repPrice').value = '';
-
-    document.getElementById('report-modal').style.display = 'flex';
-}
-
-function chiudiReportModal() {
-    document.getElementById('report-modal').style.display = 'none';
-}
-
-function inviaRapportoWhatsApp() {
-    vibraTocco();
-    const company = document.getElementById('repCompany')?.value.trim() || 'Assistenza Tecnica';
-    const client = document.getElementById('repClient')?.value.trim() || 'Gentile Cliente';
-    const boiler = document.getElementById('repBoiler')?.value.trim() || '';
-    const fault = document.getElementById('repFault')?.value.trim() || '';
-    const work = document.getElementById('repWork')?.value.trim() || '';
-    const price = document.getElementById('repPrice')?.value.trim() || '';
-
-    let text = `*RAPPORTO INTERVENTO TECNICO*\n`;
-    text += `*Ditta:* ${company}\n`;
-    text += `*Cliente:* ${client}\n`;
-    if (boiler) text += `*Caldaia:* ${boiler}\n`;
-    if (fault) text += `*Anomalia:* ${fault}\n`;
-    if (work) text += `*Intervento Svolto:* ${work}\n`;
-    if (price) text += `*Importo:* € ${price}\n`;
-    text += `\n_Generato con CaldaiaFix PRO_`;
-
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-    chiudiReportModal();
-}
-
-function stampaReportPDF() {
-    vibraTocco();
-    const company = document.getElementById('repCompany')?.value.trim() || 'CaldaiaFix PRO';
-    const client = document.getElementById('repClient')?.value.trim() || 'Cliente';
-    const boiler = document.getElementById('repBoiler')?.value.trim() || '-';
-    const fault = document.getElementById('repFault')?.value.trim() || '-';
-    const work = document.getElementById('repWork')?.value.trim() || '-';
-    const price = document.getElementById('repPrice')?.value.trim() || '-';
-
-    const printWin = window.open('', '_blank');
-    if (!printWin) {
-        alert("Abilita i popup per stampare il report.");
-        return;
-    }
-
-    printWin.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head><title>Rapporto Intervento - ${client}</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 30px; color: #111; }
-            .header { border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 20px; }
-            h1 { color: #0284c7; margin: 0; font-size: 24px; }
-            .row { margin-bottom: 12px; font-size: 15px; }
-            .label { font-weight: bold; color: #334155; }
-            .box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-top: 15px; }
-            .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #64748b; }
-        </style></head>
-        <body>
-            <div class="header"><h1>${company}</h1><p>Rapporto Tecnico Manutenzione & Riparazione</p></div>
-            <div class="row"><span class="label">Cliente:</span> ${client}</div>
-            <div class="row"><span class="label">Caldaia:</span> ${boiler}</div>
-            <div class="row"><span class="label">Guasto / Errore:</span> ${fault}</div>
-            <div class="box"><div class="label">Lavoro Svolto / Note:</div><p style="margin-top:5px; white-space:pre-wrap;">${work}</p></div>
-            ${price ? `<div class="row" style="margin-top:15px; font-size:18px;"><span class="label">Totale Intervento:</span> <strong>€ ${price}</strong></div>` : ''}
-            <div class="footer">Documento informativo generato tramite CaldaiaFix PRO</div>
-            <script>window.onload = function() { window.print(); }</script>
-        </body></html>
-    `);
-    printWin.document.close();
-    chiudiReportModal();
-}
-
-// LIGHTBOX FOTO
-function ingrandisciFoto(src) {
-    if (!src) return;
-    vibraTocco();
-    const modal = document.getElementById('photo-lightbox-modal');
-    const img = document.getElementById('lightbox-img');
-    if (modal && img) {
-        img.src = src;
-        modal.style.display = 'flex';
-    }
-}
-
-function chiudiLightbox() {
-    document.getElementById('photo-lightbox-modal').style.display = 'none';
-}
-
-// STATISTICHE
-function mostraStatistiche() {
-    vibraTocco();
-    impostaTabNav('menu');
-    cambiaVista('stats-view');
-
-    const container = document.getElementById('stats-container');
-    if (!container) return;
-
-    const dbData = (typeof errori !== 'undefined' && Array.isArray(errori)) ? errori : [];
-    container.innerHTML = `
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">${dbData.length}</div>
-                <div class="stat-label">Guasti in Database</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" style="color:#f59e0b;">${favorites.length}</div>
-                <div class="stat-label">Preferiti Salvati</div>
-            </div>
-        </div>
-        <div class="card">
-            <h3>📜 Storico Consultazioni</h3>
-            <p style="font-size:14px; color:var(--text-sub); margin-top:4px;">Hai consultato ${historyGuasti.length} guasti recenti.</p>
-        </div>
-        <div class="card">
-            <h3>🔥 Copertura Marche Caldaia</h3>
-            <p style="font-size:13px; color:var(--text-sub); margin-top:4px;">Baxi, Vaillant, Immergas, Ariston, Beretta, Ferroli, Hermann Saunier Duval, Riello, Bosch, Biasi, Cosmogas, Viessmann, Sime e altri.</p>
-        </div>
-    `;
-}
-
-// VERIFICA CONNETTIVITA'
-function verificaStatoRete() {
-    window.addEventListener('online', () => console.log('Connesso a Internet'));
-    window.addEventListener('offline', () => console.log('Modalità Offline attiva'));
-}
-
-function forzaAggiornamentoCache() {
-    vibraTocco();
-    if (confirm("Vuoi forzare il reset della cache per caricare l'ultima versione dell'app?")) {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let r of registrations) r.unregister();
-            });
-        }
-        localStorage.removeItem('caldaiafix_pwa_cached');
-        location.reload(true);
-    }
-}
-
-// STORICO
 function salvaInStorico(item) {
     historyGuasti = historyGuasti.filter(h => h.id !== item.id);
-    historyGuasti.unshift({
-        id: item.id,
-        brand: item.brand,
-        code: item.code,
-        desc: item.desc,
-        model: item.model,
-        date: new Date().toLocaleDateString('it-IT')
-    });
+    historyGuasti.unshift({ ...item, timestamp: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) });
     if (historyGuasti.length > 20) historyGuasti.pop();
     safeSetStorage('caldaiafix_history', historyGuasti);
 }
 
-function renderStorico() {
-    const listEl = document.getElementById('history-list');
-    if (!listEl) return;
+function mostraStorico() {
+    vibraTocco();
+    impostaTabNav('history');
+    const container = document.getElementById('history-list');
+    if (!container) return;
 
-    if (!historyGuasti || historyGuasti.length === 0) {
-        listEl.innerHTML = `
-            <div class="card" style="text-align:center; padding:30px 15px;">
-                <div style="font-size:32px; margin-bottom:8px;">📜</div>
-                <div style="font-weight:800; font-size:16px; color:#ffffff;">Storico vuoto</div>
-                <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">I guasti che consulterai appariranno qui.</div>
+    if (historyGuasti.length === 0) {
+        container.innerHTML = `
+            <div class="card" style="text-align:center; padding:20px;">
+                <p style="font-size:14px; color:var(--text-sub);">Nessun guasto consultato di recente.</p>
             </div>
         `;
-        return;
+    } else {
+        let html = '';
+        historyGuasti.forEach(item => {
+            html += `
+                <div class="error-item" onclick="mostraDettaglio(${item.id})">
+                    <div class="error-main-info">
+                        <span class="badge-brand-code">${item.brand} - ${item.code}</span>
+                        <div class="error-title">${item.desc}</div>
+                    </div>
+                    <span style="font-size:12px; color:var(--text-sub); font-weight:600;">${item.timestamp}</span>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
     }
 
-    let html = '';
-    historyGuasti.forEach(h => {
-        html += `
-            <div class="error-item" onclick="mostraDettaglio(${h.id})">
-                <div class="error-main-info">
-                    <div class="error-badges-row">
-                        <span class="badge-brand-code">${h.brand} - ${h.code}</span>
-                        <span class="error-model-text">${h.model}</span>
-                    </div>
-                    <div class="error-title">${h.desc}</div>
-                    <small style="color:var(--text-sub); font-size:11px; margin-top:4px; display:block;">Consultato il ${h.date}</small>
-                </div>
-                <div class="error-chevron">›</div>
-            </div>
-        `;
-    });
-    listEl.innerHTML = html;
+    cambiaVista('history-view');
 }
 
 function richiediSvuotaStorico() {
-    if (confirm("Vuoi cancellare lo storico delle ricerche recenti?")) {
-        vibraTocco();
-        historyGuasti = [];
-        safeSetStorage('caldaiafix_history', historyGuasti);
-        renderStorico();
+    historyGuasti = [];
+    localStorage.removeItem('caldaiafix_history');
+    mostraStorico();
+}
+
+function toggleFav(id, event) {
+    if (event) event.stopPropagation();
+    vibraTocco();
+
+    const idx = favorites.indexOf(id);
+    if (idx > -1) {
+        favorites.splice(idx, 1);
+    } else {
+        favorites.push(id);
+    }
+    safeSetStorage('caldaiafix_favs', favorites);
+    filtraErrori(false);
+}
+
+// AREA TECNICA & GESTIONE PIN
+function apriPin() {
+    vibraTocco();
+    const modal = document.getElementById('pin-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const input = document.getElementById('pinInput');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 100);
+        }
     }
 }
 
-// INDEXEDDB CLIENTI
-function initIndexedDB() {
-    const request = indexedDB.open('CaldaiaFixDB', 1);
+function chiudiPin() {
+    const modal = document.getElementById('pin-modal');
+    const err = document.getElementById('pinError');
+    const inp = document.getElementById('pinInput');
 
-    request.onupgradeneeded = (e) => {
-        dbIndexed = e.target.result;
-        if (!dbIndexed.objectStoreNames.contains('targhe')) {
-            const store = dbIndexed.createObjectStore('targhe', { keyPath: 'id', autoIncrement: true });
-            store.createIndex('client', 'client', { unique: false });
+    if (modal) modal.style.display = 'none';
+    if (err) err.style.display = 'none';
+    if (inp) inp.value = '';
+}
+
+function verificaPin() {
+    const pin = document.getElementById('pinInput')?.value.trim() || '';
+    if (pin === '1234' || pin === '0000' || pin.length >= 4) {
+        chiudiPin();
+        renderAreaTecnica();
+        cambiaVista('area-tecnica-view');
+    } else {
+        const err = document.getElementById('pinError');
+        if (err) err.style.display = 'block';
+    }
+}
+
+function renderAreaTecnica() {
+    const container = document.getElementById('installer-content-main');
+    if (!container) return;
+
+    const menus = (typeof installerMenus !== 'undefined' && Array.isArray(installerMenus)) ? installerMenus : [];
+
+    let html = `
+        <div class="card" style="background:#2e1065; border-color:#7c3aed;">
+            <h3 style="color:#d8b4fe; font-size:15px; font-weight:800; text-transform:uppercase; margin-bottom:12px;">🔑 Parametri Tecnici & Menu Segreti</h3>
+    `;
+
+    if (menus.length === 0) {
+        html += `<p style="color:var(--text-sub); font-size:14px;">Nessun menu tecnico presente nel database.</p>`;
+    } else {
+        menus.forEach(m => {
+            html += `
+                <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:14px; margin-bottom:10px;">
+                    <div style="font-size:15px; font-weight:800; color:#c084fc;">${m.brand} (${m.model})</div>
+                    <div style="font-size:14px; color:#ffffff; margin-top:6px; line-height:1.4;"><strong>Procedura:</strong> ${m.sequence}</div>
+                    <div style="font-size:12px; color:var(--text-sub); margin-top:4px;"><em>${m.notes}</em></div>
+                </div>
+            `;
+        });
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// QUICK-VIEWER MORSETTIERE
+const morsettiereData = {
+    "Baxi": {
+        title: "Baxi - Luna3 / Duo-Tec / Eco",
+        pins: [
+            { num: "1 - 2", func: "Termostato Ambiente (TA)", note: "Tensione 230V. Rimuovere ponticello di serie." },
+            { num: "3 - 4", func: "Comando Remoto / BUS OpenTherm", note: "Basso voltaggio (Polarizzato)." },
+            { num: "5 - 6", func: "Sonda Esterna (SE)", note: "NTC 10k Ohm a 25°C." }
+        ]
+    },
+    "Vaillant": {
+        title: "Vaillant - ecoTEC pro / plus / AtmoTEC",
+        pins: [
+            { num: "3 - 4", func: "Termostato Ambiente 230V", note: "Rimuovere il cavetto ponticello rosso." },
+            { num: "7 - 8 - 9", func: "Termostato Analogico Vaillant (24V)", note: "Collegare 7-8-9." },
+            { num: "+ eBUS -", func: "Cronotermostato vRT / eBUS", note: "Polarizzato eBUS digitale." }
+        ]
+    },
+    "Immergas": {
+        title: "Immergas - Victrix TT / Avio / Maior",
+        pins: [
+            { num: "40 - 41", func: "Termostato Ambiente (TA)", note: "Contatto pulito (Rimuovere ponticello)." },
+            { num: "42 - 43", func: "Comando Remoto CAR V2 (BUS)", note: "Basso voltaggio non polarizzato." },
+            { num: "38 - 39", func: "Sonda Esterna", note: "NTC temperatura esterna." }
+        ]
+    },
+    "Ariston": {
+        title: "Ariston - Clas One / Genus / Cares",
+        pins: [
+            { num: "TA1", func: "Termostato Ambiente 1", note: "Contatto pulito. Rimuovere bridge verde." },
+            { num: "B - T", func: "BUS BridgeNet Sensys", note: "Comunicazione digitale Ariston." },
+            { num: "SOLAR", func: "Sonda Collettore Solare", note: "Ingresso sensore dedicato." }
+        ]
+    },
+    "Beretta": {
+        title: "Beretta - Mynute / Ciao / Paros",
+        pins: [
+            { num: "TA - TA", func: "Termostato Ambiente", note: "Morsettiera M2. Rimuovere cavetto." },
+            { num: "OT - OT", func: "OpenTherm / BeSMART", note: "Contatto BUS Basso voltaggio." },
+            { num: "SE - SE", func: "Sonda Esterna", note: "Morsetti sonda climatica." }
+        ]
+    },
+    "Ferroli": {
+        title: "Ferroli - Bluehelix / Divacondens",
+        pins: [
+            { num: "1 - 2", func: "Termostato Ambiente (TA)", note: "Contatto pulito. Rimuovere ponticello." },
+            { num: "3 - 4", func: "Sonda Esterna / OpenTherm", note: "Configurabile da parametro scheda." }
+        ]
+    },
+    "Hermann Saunier Duval": {
+        title: "Hermann Saunier Duval - Thema / Saunier",
+        pins: [
+            { num: "24V = RT", func: "Termostato Ambiente 24V", note: "Togliere il ponte di fabbrica." },
+            { num: "BUS (+ -)", func: "Cronotermostato Exacontrol", note: "Interfaccia BUS eBUS." }
+        ]
+    }
+};
+
+function mostraMorsettiere() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('morsettiere-view');
+    const filter = document.getElementById('morsettiereBrandFilter');
+    if (filter) renderMorsettieraBrand(filter.value);
+}
+
+function renderMorsettieraBrand(brandKey) {
+    const container = document.getElementById('morsettiere-container');
+    if (!container) return;
+
+    const item = morsettiereData[brandKey] || morsettiereData["Baxi"];
+
+    let htmlPins = item.pins.map(p => `
+        <div class="terminal-pin-box">
+            <span class="pin-num">${p.num}</span>
+            <div class="pin-func">${p.func}</div>
+            <div class="pin-note">${p.note}</div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="terminal-card">
+            <h3 style="font-size:18px; font-weight:800; color:#38bdf8; margin-bottom:8px;">${item.title}</h3>
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:14px;">Morsettiera principale di collegamento sulla scheda madre:</p>
+            <div class="terminal-pin-grid">
+                ${htmlPins}
+            </div>
+        </div>
+    `;
+}
+
+// STAMPA & GENERATORE REPORT PDF
+function stampaReportPDF() {
+    vibraTocco();
+
+    const company = document.getElementById('repCompany')?.value.trim() || 'Ditta Assistenza Tecnica';
+    const client = document.getElementById('repClient')?.value.trim() || 'Cliente Generico';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '-';
+    const fault = document.getElementById('repFault')?.value.trim() || '-';
+    const work = document.getElementById('repWork')?.value.trim() || 'Nessuna nota aggiuntiva';
+    const price = document.getElementById('repPrice')?.value.trim() || '0.00';
+    const dateStr = new Date().toLocaleDateString('it-IT');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert("Attiva i pop-up sul browser per generare il PDF.");
+        return;
+    }
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="it">
+        <head>
+            <meta charset="UTF-8">
+            <title>Rapporto_Intervento_${dateStr}.pdf</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; line-height: 1.5; }
+                .header-box { border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+                .company-name { font-size: 22px; font-weight: bold; color: #ea580c; }
+                .doc-title { font-size: 18px; font-weight: bold; text-align: right; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+                .field-label { font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+                .field-value { font-size: 15px; font-weight: bold; color: #0f172a; margin-top: 2px; }
+                .section-title { font-size: 14px; font-weight: bold; color: #ea580c; text-transform: uppercase; margin-top: 20px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+                .work-box { background: #ffffff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 8px; font-size: 14px; min-height: 100px; }
+                .total-box { margin-top: 30px; text-align: right; font-size: 20px; font-weight: bold; color: #166534; }
+                .footer-text { margin-top: 50px; font-size: 11px; text-align: center; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="header-box">
+                <div>
+                    <div class="company-name">${company}</div>
+                    <div style="font-size:12px; color:#64748b;">Rapporto Tecnico di Manutenzione / Riparazione</div>
+                </div>
+                <div class="doc-title">
+                    <div>Data: ${dateStr}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div>
+                    <div class="field-label">Cliente / Riferimento:</div>
+                    <div class="field-value">${client}</div>
+                </div>
+                <div>
+                    <div class="field-label">Caldaia / Impianto:</div>
+                    <div class="field-value">${boiler}</div>
+                </div>
+            </div>
+
+            <div class="section-title">Anomalia / Codice Guasto Riscontrato</div>
+            <div class="work-box" style="min-height:auto;">
+                <strong>${fault}</strong>
+            </div>
+
+            <div class="section-title">Intervento Svolto & Ricambi Sostituiti</div>
+            <div class="work-box">
+                ${work.replace(/\n/g, '<br>')}
+            </div>
+
+            <div class="total-box">
+                IMPORTO TOTALE: € ${price}
+            </div>
+
+            <div class="footer-text">
+                Documento generato tramite CaldaiaFix PRO • Copia Cliente
+            </div>
+
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            </script>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    chiudiReportModal();
+}
+
+// TROUBLESHOOTING WIZARD
+const wizardTree = {
+    start: {
+        title: "Quale sintomo presenta la caldaia?",
+        options: [
+            { text: "💧 Acqua calda sanitaria tiepida o altalenante", next: "sanitaria" },
+            { text: "🔌 Caldaia completamente spenta (Nessun LED/Display)", next: "spenta" },
+            { text: "🔊 Rumori anomali (Ebollizione / Colpi d'ariete / Fischi)", next: "rumori" },
+            { text: "📈 Pressione acqua instabile (Sale alta o cade a 0)", next: "pressione" },
+            { text: "💦 Perdita d'acqua idraulica sotto la caldaia", next: "perdita" }
+        ]
+    },
+    sanitaria: {
+        title: "L'acqua riscalda quando il riscaldamento è acceso?",
+        options: [
+            { text: "Sì, l'acqua scalda bene solo con i termosifoni accesi", solution: "Valvola a 3 vie bloccata in posizione riscaldamento o attuatore guasto. Verificare lo spillo e la cartuccia sferica.", part: "Valvola 3 vie caldaia", tool: "⚡ Multimetro Digitale" },
+            { text: "No, l'acqua cambia continuamente temperatura da calda a fredda", solution: "Scambiatore secondario a piastre intasato da calcare o Sonda NTC Sanitario ritarata.", part: "Scambiatore piastre sanitario", tool: "🛠️ Chiavi per Raccordi" },
+            { text: "Il bruciatore non si accende proprio aprendo il rubinetto", solution: "Flussostato / Flussometro o microinterruttore sanitario guasto. Non rileva il flusso d'acqua.", part: "Flussostato sanitario caldaia", tool: "⚡ Multimetro Digitale" }
+        ]
+    },
+    spenta: {
+        title: "Hai verificato se c'è tensione sulla presa o sull'interruttore bipolare?",
+        options: [
+            { text: "C'è tensione 230V alla presa ma la caldaia è morta", solution: "Fusibile di protezione sulla scheda madre bruciato o scheda di alimentazione guasta a causa di sbalzo di tensione.", part: "Scheda madre caldaia", tool: "⚡ Multimetro Digitale" },
+            { text: "Il salvavita generale di casa scatta subito appena accendo la caldaia", solution: "Dispersione verso terra. Verificare in ordine: Circolatore pompa in corto, Resistenza candeletta o Ventilatore fumi.", part: "Pompa circolatore caldaia", tool: "⚡ Multimetro Digitale" }
+        ]
+    },
+    rumori: {
+        title: "Che tipo di rumore senti durante il funzionamento?",
+        options: [
+            { text: "Ebollizione violenta / Gorgoglio tipo pentola a pressione", solution: "Mancanza di circolazione acqua. Pompa bloccata (sbloccare la vite centrale) o Scambiatore primario ostruito.", part: "Pompa circolatore caldaia", tool: "🪛 Cacciavite a Taglio Grosso" },
+            { text: "Fischio acuto continuo durante la ventilazione", solution: "Cuscinetti del ventilatore esausti o tubetto Venturi / Pressostato fumi ostruito.", part: "Ventilatore fumi caldaia", tool: "💨 Pompetta Prova Pressostati" }
+        ]
+    },
+    pressione: {
+        title: "Cosa fa esattamente il manometro della pressione?",
+        options: [
+            { text: "La pressione sale oltre 2.5 - 3 bar solo quando accendo i termosifoni", solution: "Vaso d'espansione scarico d'aria o membrana bucata. Ripristinare precarica a 1.0 bar o sostituire vaso.", part: "Vaso espansione caldaia", tool: "🪠 Pompa con Manometro per Vasi" },
+            { text: "La pressione scende continuamente a 0 bar ogni giorno", solution: "Perdita sull'impianto di riscaldamento o Scambiatore primario bucato con scarico in camera di combustione.", part: "Valvola sicurezza 3 bar", tool: "⚖️ Manometro Idraulico" }
+        ]
+    },
+    perdita: {
+        title: "Da dove proviene la perdita d'acqua?",
+        options: [
+            { text: "Dalla valvola di sicurezza con il tappino rosso (gocciola)", solution: "Valvola di sicurezza 3 bar sporca di calcare sotto la sede o pressione impianto troppo alta (> 3 bar).", part: "Valvola sicurezza 3 bar caldaia", tool: "🛠️ Chiavi per Raccordi" },
+            { text: "Dal rubinetto di riempimento sotto la caldaia", solution: "Guarnizioni / OR del rubinetto di carico usurate o corpo in plastica crepato.", part: "Rubinetto di carico caldaia", tool: "🛠️ Chiavi per Raccordi" }
+        ]
+    }
+};
+
+function avviaWizard() {
+    vibraTocco();
+    impostaTabNav('home');
+    cambiaVista('wizard-view');
+    renderStepWizard('start');
+}
+
+function renderStepWizard(stepKey) {
+    const container = document.getElementById('wizard-container');
+    if (!container) return;
+
+    const data = wizardTree[stepKey];
+    if (!data) return;
+
+    let html = `
+        <div class="wizard-card">
+            <div class="wizard-step-title">${data.title}</div>
+            <div class="wizard-options-list">
+    `;
+
+    if (data.options) {
+        data.options.forEach(opt => {
+            if (opt.next) {
+                html += `
+                    <button class="wizard-option-btn" onclick="renderStepWizard('${opt.next}')">
+                        <span>${opt.text}</span>
+                        <span>›</span>
+                    </button>
+                `;
+            } else if (opt.solution) {
+                const searchPartUrl = `https://www.amazon.it/s?k=${encodeURIComponent(opt.part || "ricambio caldaia")}&tag=dbsolution-21`;
+                const searchToolUrl = `https://www.amazon.it/s?k=${encodeURIComponent((opt.tool || "").replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim())}&tag=dbsolution-21`;
+
+                html += `
+                    <div class="wizard-solution-box">
+                        <div style="font-size:12px; font-weight:900; color:#34d399; text-transform:uppercase; margin-bottom:6px;">🎯 Risultato Diagnostica:</div>
+                        <div style="font-size:16px; font-weight:700; color:#ffffff; line-height:1.4; margin-bottom:12px;">${opt.solution}</div>
+
+                        ${opt.tool ? `
+                            <div style="margin-top:10px;">
+                                <div style="font-size:12px; font-weight:800; color:#94a3b8;">🧰 Attrezzo Consigliato:</div>
+                                <a href="${searchToolUrl}" target="_blank" rel="noopener noreferrer" class="tool-tag" style="margin-top:4px;">${opt.tool} ↗</a>
+                            </div>
+                        ` : ''}
+
+                        ${opt.part ? `
+                            <a href="${searchPartUrl}" target="_blank" rel="noopener noreferrer" class="btn-amazon" style="margin-top:14px;">
+                                🛒 Cerca "${opt.part}" su Amazon
+                            </a>
+                        ` : ''}
+
+                        <button class="btn-clear" style="width:100%; margin-top:12px;" onclick="renderStepWizard('start')">🔄 Ricomincia Diagnosi</button>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// BACKUP & RIPRISTINO JSON CLIENTE
+function esportaBackupJSON() {
+    if (!dbIndexed) {
+        alert("Banca dati non ancora pronta o non supportata dal browser.");
+        return;
+    }
+    vibraTocco();
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        const data = request.result;
+        if (!data || data.length === 0) {
+            alert("Nessun cliente salvato nell'archivio da esportare.");
+            return;
         }
-    };
 
-    request.onsuccess = (e) => {
-        dbIndexed = e.target.result;
-        caricaTarghe();
-    };
-
-    request.onerror = (e) => {
-        console.warn('IndexedDB non disponibile o errore:', e);
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CaldaiaFix_Backup_Clienti_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 }
 
-function caricaTarghe() {
-    if (!dbIndexed) return;
-    const searchVal = document.getElementById('searchClientInput')?.value.toLowerCase().trim() || '';
+function ripristinaBackupJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    try {
-        const tx = dbIndexed.transaction(['targhe'], 'readonly');
-        const store = tx.objectStore('targhe');
-        const req = store.getAll();
-
-        req.onsuccess = () => {
-            const listEl = document.getElementById('targhe-list');
-            if (!listEl) return;
-
-            let items = req.result || [];
-            if (searchVal !== '') {
-                items = items.filter(item => {
-                    const c = (item.client || '').toLowerCase();
-                    const p = (item.phone || '').toLowerCase();
-                    const a = (item.address || '').toLowerCase();
-                    const b = (item.boiler || '').toLowerCase();
-                    const s = (item.serial || '').toLowerCase();
-                    return c.includes(searchVal) || p.includes(searchVal) || a.includes(searchVal) || b.includes(searchVal) || s.includes(searchVal);
-                });
-            }
-
-            if (items.length === 0) {
-                listEl.innerHTML = `
-                    <div class="card" style="text-align:center; padding:30px 15px;">
-                        <div style="font-size:32px; margin-bottom:8px;">📑</div>
-                        <div style="font-weight:800; font-size:16px; color:#ffffff;">Nessun cliente in archivio</div>
-                        <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">Premi "+ Nuovo" per registrare la prima scheda.</div>
-                    </div>
-                `;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) {
+                alert("File di backup non valido: deve contenere un elenco di clienti.");
                 return;
             }
 
-            let html = '';
-            items.forEach(item => {
-                html += `
-                    <div class="card" style="margin-bottom:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <strong style="font-size:16px; color:#ffffff; display:block;">${item.client || 'Cliente senza nome'}</strong>
-                                ${item.phone ? `<a href="tel:${item.phone}" style="color:#38bdf8; font-size:13px; text-decoration:none;">📞 ${item.phone}</a>` : ''}
-                                ${item.address ? `<p style="color:var(--text-sub); font-size:13px; margin-top:2px;">📍 ${item.address}</p>` : ''}
-                            </div>
-                        </div>
-                        <div style="margin-top:10px; border-top:1px solid #334155; padding-top:8px;">
-                            <p style="font-size:13px; color:#ffffff;">🔥 Caldaia: <strong>${item.boiler || '-'}</strong></p>
-                            ${item.serial ? `<p style="font-size:12px; color:var(--text-sub);">Matricola: ${item.serial}</p>` : ''}
-                            ${item.nextMaintenance ? `<p style="font-size:12px; color:#38bdf8; margin-top:2px;">📅 Scadenza: <strong>${item.nextMaintenance}</strong></p>` : ''}
-                            ${item.notes ? `<p style="font-size:12px; color:#94a3b8; margin-top:4px; font-style:italic;">Note: ${item.notes}</p>` : ''}
-                        </div>
-                        ${item.image ? `<div style="margin-top:10px;"><img src="${item.image}" style="width:100\%; max-height:160px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="ingrandisciFoto('${item.image}')"></div>` : ''}
-                        <div style="display:flex; gap:8px; margin-top:12px;">
-                            <button class="btn-action" style="flex:1; padding:8px; font-size:13px; background:#0284c7;" onclick="modificaSchedaTarga(${item.id})">✏️ Modifica</button>
-                            <button class="btn-clear" style="flex:1; padding:8px; font-size:13px;" onclick="eliminaSchedaTarga(${item.id})">🗑️ Elimina</button>
-                        </div>
-                    </div>
-                `;
+            if (!confirm(`Trovati ${importedData.length} clienti nel file. Vuoi aggiungerli all'archivio locale?`)) {
+                return;
+            }
+
+            if (!dbIndexed) {
+                alert("Banca dati non disponibile.");
+                return;
+            }
+
+            const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+            const store = transaction.objectStore('targhe');
+
+            importedData.forEach(item => {
+                delete item.id;
+                store.add(item);
             });
-            listEl.innerHTML = html;
+
+            transaction.oncomplete = () => {
+                alert("Ripristino completato con successo!");
+                mostraTarghe();
+                controllaScadenzeAllerta();
+            };
+        } catch (err) {
+            alert("Errore nel caricamento del file JSON: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// ARCHIVIO CLIENTI, INDEXED DB, RICERCA & SCADENZARIO
+function initIndexedDB() {
+    try {
+        const request = indexedDB.open('CaldaiaFixTargheDB', 1);
+
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('targhe')) {
+                db.createObjectStore('targhe', { keyPath: 'id', autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = (e) => {
+            dbIndexed = e.target.result;
+            controllaScadenzeAllerta();
         };
     } catch(e) {
-        console.warn("Errore caricamento targhe:", e);
+        console.warn("IndexedDB non disponibile:", e);
     }
 }
 
 function apriTargaModal() {
     vibraTocco();
     editingClientId = null;
-    document.getElementById('targa-modal-title').textContent = "📑 Scheda Cliente & Manutenzione";
-    document.getElementById('tagClient').value = '';
-    document.getElementById('tagPhone').value = '';
-    document.getElementById('tagAddress').value = '';
-    document.getElementById('tagBoiler').value = '';
-    document.getElementById('tagSerial').value = '';
-    document.getElementById('tagNextMaintenance').value = '';
-    document.getElementById('tagNotes').value = '';
-    const imgPreview = document.getElementById('tagImgPreview');
-    if (imgPreview) { imgPreview.src = ''; imgPreview.style.display = 'none'; }
-    document.getElementById('targa-modal').style.display = 'flex';
+
+    const modalTitle = document.getElementById('targa-modal-title');
+    if (modalTitle) modalTitle.textContent = "📑 Nuovo Cliente";
+
+    ['tagClient', 'tagPhone', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    const img = document.getElementById('tagImgPreview');
+    if (img) {
+        img.style.display = 'none';
+        img.src = '';
+    }
+
+    const modal = document.getElementById('targa-modal');
+    if (modal) modal.style.display = 'flex';
 }
 
 function chiudiTargaModal() {
-    document.getElementById('targa-modal').style.display = 'none';
+    const modal = document.getElementById('targa-modal');
+    if (modal) modal.style.display = 'none';
+    editingClientId = null;
+
+    ['tagClient', 'tagPhone', 'tagAddress', 'tagBoiler', 'tagSerial', 'tagNotes', 'tagNextMaintenance'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const img = document.getElementById('tagImgPreview');
+    if (img) {
+        img.style.display = 'none';
+        img.src = '';
+    }
 }
 
-function anteprimaFotoTarga(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const imgPreview = document.getElementById('tagImgPreview');
-        if (imgPreview) {
-            imgPreview.src = e.target.result;
-            imgPreview.style.display = 'block';
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
-function salvaSchedaTarga() {
-    if (!dbIndexed) {
-        alert("Database locale non pronto.");
-        return;
-    }
-
-    const client = document.getElementById('tagClient').value.trim();
-    const phone = document.getElementById('tagPhone').value.trim();
-    const address = document.getElementById('tagAddress').value.trim();
-    const boiler = document.getElementById('tagBoiler').value.trim();
-    const serial = document.getElementById('tagSerial').value.trim();
-    const nextMaintenance = document.getElementById('tagNextMaintenance').value;
-    const notes = document.getElementById('tagNotes').value.trim();
-    const imgPreview = document.getElementById('tagImgPreview');
-    const image = (imgPreview && imgPreview.style.display !== 'none') ? imgPreview.src : null;
-
-    if (!client && !boiler) {
-        alert("Inserisci almeno il Nome del Cliente o il Modello di Caldaia.");
-        return;
-    }
-
-    vibraTocco();
-    const tx = dbIndexed.transaction(['targhe'], 'readwrite');
-    const store = tx.objectStore('targhe');
-
-    const itemData = { client, phone, address, boiler, serial, nextMaintenance, notes, image, updatedAt: new Date().toISOString() };
-
-    if (editingClientId) {
-        itemData.id = editingClientId;
-        store.put(itemData);
-    } else {
-        store.add(itemData);
-    }
-
-    tx.oncomplete = () => {
-        chiudiTargaModal();
-        caricaTarghe();
-    };
-}
-
-function modificaSchedaTarga(id) {
+function modificaTarga(id) {
     if (!dbIndexed) return;
     vibraTocco();
-    const tx = dbIndexed.transaction(['targhe'], 'readonly');
-    const store = tx.objectStore('targhe');
-    const req = store.get(id);
 
-    req.onsuccess = () => {
-        const data = req.result;
-        if (!data) return;
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.get(id);
+
+    request.onsuccess = () => {
+        const item = request.result;
+        if (!item) return;
 
         editingClientId = id;
-        document.getElementById('targa-modal-title').textContent = "✏️ Modifica Cliente";
-        document.getElementById('tagClient').value = data.client || '';
-        document.getElementById('tagPhone').value = data.phone || '';
-        document.getElementById('tagAddress').value = data.address || '';
-        document.getElementById('tagBoiler').value = data.boiler || '';
-        document.getElementById('tagSerial').value = data.serial || '';
-        document.getElementById('tagNextMaintenance').value = data.nextMaintenance || '';
-        document.getElementById('tagNotes').value = data.notes || '';
 
+        const modalTitle = document.getElementById('targa-modal-title');
+        if (modalTitle) modalTitle.textContent = "✏️ Modifica Scheda Cliente";
+
+        const tagClient = document.getElementById('tagClient');
+        const tagPhone = document.getElementById('tagPhone');
+        const tagAddress = document.getElementById('tagAddress');
+        const tagBoiler = document.getElementById('tagBoiler');
+        const tagSerial = document.getElementById('tagSerial');
+        const tagNotes = document.getElementById('tagNotes');
+        const tagNextMaint = document.getElementById('tagNextMaintenance');
         const imgPreview = document.getElementById('tagImgPreview');
+
+        if (tagClient) tagClient.value = item.client || '';
+        if (tagPhone) tagPhone.value = item.phone || '';
+        if (tagAddress) tagAddress.value = item.address || '';
+        if (tagBoiler) tagBoiler.value = item.boiler || '';
+        if (tagSerial) tagSerial.value = item.serial || '';
+        if (tagNotes) tagNotes.value = item.notes || '';
+        if (tagNextMaint) tagNextMaint.value = item.nextMaintenance || '';
+
         if (imgPreview) {
-            if (data.image) {
-                imgPreview.src = data.image;
+            if (item.image) {
+                imgPreview.src = item.image;
                 imgPreview.style.display = 'block';
             } else {
                 imgPreview.src = '';
                 imgPreview.style.display = 'none';
             }
         }
-        document.getElementById('targa-modal').style.display = 'flex';
+
+        const modal = document.getElementById('targa-modal');
+        if (modal) modal.style.display = 'flex';
     };
 }
 
-function eliminaSchedaTarga(id) {
-    if (!dbIndexed) return;
-    if (confirm("Vuoi eliminare definitivamente questo cliente dall'archivio?")) {
-        vibraTocco();
-        const tx = dbIndexed.transaction(['targhe'], 'readwrite');
-        const store = tx.objectStore('targhe');
-        store.delete(id);
-        tx.oncomplete = () => caricaTarghe();
+function anteprimaFotoTarga(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('tagImgPreview');
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
     }
 }
 
-// BACKUP & RIPRISTINO JSON / EXCEL
-function esportaBackupJSON() {
+function salvaSchedaTarga() {
     if (!dbIndexed) return;
-    vibraTocco();
-    const tx = dbIndexed.transaction(['targhe'], 'readonly');
-    const store = tx.objectStore('targhe');
-    const req = store.getAll();
 
-    req.onsuccess = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(req.result, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `CaldaiaFix_Backup_Clienti_${new Date().toISOString().slice(0,10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+    const client = document.getElementById('tagClient')?.value.trim() || '';
+    const phone = document.getElementById('tagPhone')?.value.trim() || '';
+    const address = document.getElementById('tagAddress')?.value.trim() || '';
+    const boiler = document.getElementById('tagBoiler')?.value.trim() || '';
+    const serial = document.getElementById('tagSerial')?.value.trim() || '';
+    const notes = document.getElementById('tagNotes')?.value.trim() || '';
+    const nextMaint = document.getElementById('tagNextMaintenance')?.value || '';
+    const imgEl = document.getElementById('tagImgPreview');
+    const imgSrc = imgEl ? imgEl.src : '';
+
+    if (!client && !boiler) {
+        alert("Inserisci almeno il Nome Cliente o il Modello Caldaia.");
+        return;
+    }
+
+    const item = {
+        client: client || "Cliente Generico",
+        phone: phone,
+        address: address,
+        boiler: boiler,
+        serial: serial,
+        notes: notes,
+        nextMaintenance: nextMaint,
+        image: (imgSrc && imgSrc.startsWith('data:image')) ? imgSrc : null,
+        date: new Date().toLocaleDateString('it-IT')
+    };
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+    const store = transaction.objectStore('targhe');
+
+    if (editingClientId) {
+        item.id = editingClientId;
+        store.put(item);
+    } else {
+        store.add(item);
+    }
+
+    transaction.oncomplete = () => {
+        chiudiTargaModal();
+        mostraTarghe();
+        controllaScadenzeAllerta();
     };
 }
 
-function ripristinaBackupJSON(event) {
-    const file = event.target.files[0];
-    if (!file || !dbIndexed) return;
+function mostraTarghe() {
+    vibraTocco();
+    impostaTabNav('targhe');
+    cambiaVista('targhe-view');
+    caricaTarghe();
+}
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const items = JSON.parse(e.target.result);
-            if (!Array.isArray(items)) throw new Error("Formato non valido");
+function caricaTarghe() {
+    if (!dbIndexed) return;
 
-            const tx = dbIndexed.transaction(['targhe'], 'readwrite');
-            const store = tx.objectStore('targhe');
-            items.forEach(item => {
-                delete item.id;
-                store.add(item);
-            });
+    const container = document.getElementById('targhe-list');
+    if (!container) return;
 
-            tx.oncomplete = () => {
-                alert(`🎉 Ripristinati ${items.length} clienti con successo!`);
-                caricaTarghe();
-            };
-        } catch (err) {
-            alert("❌ File JSON non valido o danneggiato.");
+    const searchEl = document.getElementById('searchClientInput');
+    const query = searchEl ? searchEl.value.toLowerCase().trim() : '';
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readonly');
+    const store = transaction.objectStore('targhe');
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        let items = request.result;
+
+        if (!items || items.length === 0) {
+            container.innerHTML = `
+                <div class="card" style="text-align:center; padding:20px;">
+                    <p style="font-size:14px; color:var(--text-sub);">Nessun cliente salvato nell'archivio.</p>
+                </div>
+            `;
+            return;
         }
+
+        // FILTRAGGIO DINAMICO PER RICERCA CLIENTE
+        if (query !== '') {
+            items = items.filter(item => {
+                const matchClient = item.client ? item.client.toLowerCase().includes(query) : false;
+                const matchPhone = item.phone ? item.phone.toLowerCase().includes(query) : false;
+                const matchAddress = item.address ? item.address.toLowerCase().includes(query) : false;
+                const matchBoiler = item.boiler ? item.boiler.toLowerCase().includes(query) : false;
+                const matchSerial = item.serial ? item.serial.toLowerCase().includes(query) : false;
+                const matchNotes = item.notes ? item.notes.toLowerCase().includes(query) : false;
+                return matchClient || matchPhone || matchAddress || matchBoiler || matchSerial || matchNotes;
+            });
+        }
+
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="card" style="text-align:center; padding:20px;">
+                    <p style="font-size:14px; color:var(--text-sub);">Nessun cliente trovato corrispondente a "${query}".</p>
+                </div>
+            `;
+            return;
+        }
+
+        const oggi = new Date();
+        oggi.setHours(0,0,0,0);
+
+        let html = '';
+        items.reverse().forEach(item => {
+            let statusBadge = '';
+            let dateFormatted = '-';
+
+            if (item.nextMaintenance) {
+                const dataScad = new Date(item.nextMaintenance);
+                const diffDays = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
+                dateFormatted = dataScad.toLocaleDateString('it-IT');
+
+                if (diffDays < 0) {
+                    statusBadge = `<div class="maint-badge maint-alert">🔴 Manutenzione Scaduta (${dateFormatted})</div>`;
+                } else if (diffDays <= 14) {
+                    statusBadge = `<div class="maint-badge maint-warn">🟡 In Scadenza (Mancano ${diffDays} gg)</div>`;
+                } else {
+                    statusBadge = `<div class="maint-badge maint-ok">🟢 Regolare (Scade il ${dateFormatted})</div>`;
+                }
+            }
+
+            const phoneDisplay = item.phone ? `📞 ${item.phone}` : '📞 Nessun telefono';
+
+            html += `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:17px; font-weight:800; color:#ffffff;">${item.client}</div>
+                            <div style="font-size:13px; color:#38bdf8; font-weight:600; margin-top:2px;">${phoneDisplay}</div>
+                            <div style="font-size:13px; color:var(--text-sub); font-weight:600;">📍 ${item.address || 'Nessun indirizzo'}</div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button style="background:none; border:none; color:#38bdf8; font-size:18px; cursor:pointer;" onclick="modificaTarga(${item.id})" title="Modifica Scheda">✏️</button>
+                            <button style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;" onclick="eliminaTarga(${item.id})" title="Elimina Scheda">🗑️</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:10px; font-size:14px; color:#ffffff;">
+                        <div>🔥 Caldaia: <strong>${item.boiler || '-'}</strong></div>
+                        <div>🏷️ Matricola: <strong>${item.serial || '-'}</strong></div>
+                        ${statusBadge}
+                        ${item.notes ? `<div style="margin-top:6px; font-style:italic; color:var(--text-sub);">" ${item.notes} "</div>` : ''}
+                    </div>
+
+                    <!-- PULSANTI PROMEMORIA 1-CLICK -->
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button class="btn-whatsapp" style="flex:1; padding:10px; font-size:13px;" 
+                            onclick="inviaPromemoriaWhatsApp('${escapeQuotes(item.client)}', '${escapeQuotes(item.boiler)}', '${dateFormatted}', '${item.phone}')">
+                            💬 Avvisa WhatsApp
+                        </button>
+                        <button class="btn-action" style="flex:1; padding:10px; font-size:13px; background:#2563eb;" 
+                            onclick="inviaPromemoriaSMS('${escapeQuotes(item.client)}', '${escapeQuotes(item.boiler)}', '${dateFormatted}', '${item.phone}')">
+                            📱 Avvisa SMS
+                        </button>
+                    </div>
+
+                    ${item.image ? `<img src="${item.image}" style="width:100\%; max-height:200px; object-fit:cover; border-radius:12px; margin-top:10px; cursor:pointer;" alt="Targa" onclick="ingrandisciFoto('${item.image}')" title="Clicca per ingrandire">` : ''}
+
+                    <div style="font-size:11px; color:var(--text-sub); margin-top:8px; text-align:right;">Salvato il: ${item.date}</div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
     };
-    reader.readAsText(file);
+}
+
+function escapeQuotes(str) {
+    return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function inviaPromemoriaWhatsApp(client, boiler, dateStr, phone) {
+    vibraTocco();
+    const company = localStorage.getItem('caldaiafix_company') || 'Assistenza Tecnica';
+    const cleanPhone = (phone || '').replace(/\D/g, '');
+
+    const testo = `Gentile ${client},\nLe ricordiamo che il controllo periodico e la manutenzione della Sua caldaia (${boiler}) è in scadenza il ${dateStr}.\n\nPer fissare un appuntamento ci contatti al più presto.\nCordiali saluti,\n*${company}*`;
+
+    let url = '';
+    if (cleanPhone) {
+        const fullPhone = cleanPhone.startsWith('39') ? cleanPhone : `39${cleanPhone}`;
+        url = `https://wa.me/${fullPhone}?text=${encodeURIComponent(testo)}`;
+    } else {
+        url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
+    }
+
+    window.open(url, '_blank');
+}
+
+function inviaPromemoriaSMS(client, boiler, dateStr, phone) {
+    vibraTocco();
+    const company = localStorage.getItem('caldaiafix_company') || 'Assistenza Tecnica';
+    const cleanPhone = (phone || '').replace(/\D/g, '');
+
+    if (!cleanPhone) {
+        alert("Inserisci o importa il numero di telefono del cliente per inviare l'SMS.");
+        return;
+    }
+
+    const testo = `Gentile ${client}, Le ricordiamo che la manutenzione della caldaia (${boiler}) scade il ${dateStr}. Ci contatti per fissare un appuntamento. - ${company}`;
+
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const url = isIos 
+        ? `sms:${cleanPhone}&body=${encodeURIComponent(testo)}`
+        : `sms:${cleanPhone}?body=${encodeURIComponent(testo)}`;
+
+    window.location.href = url;
 }
 
 function importaClientiExcel(event) {
     const file = event.target.files[0];
-    if (!file || !dbIndexed) return;
+    if (!file) return;
 
     if (typeof XLSX === 'undefined') {
-        alert("Libreria di lettura Excel non caricata.");
+        alert("Libreria di lettura Excel in caricamento... Riprova tra 3 secondi.");
         return;
     }
 
@@ -825,220 +1334,399 @@ function importaClientiExcel(event) {
         try {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.SheetNames[0];
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
             if (!rows || rows.length === 0) {
-                alert("Nessun dato trovato nel file Excel.");
+                alert("Il file Excel è vuoto o non contiene dati validi.");
                 return;
             }
 
-            const tx = dbIndexed.transaction(['targhe'], 'readwrite');
-            const store = tx.objectStore('targhe');
-            let inseriti = 0;
+            if (!confirm(`Trovati ${rows.length} clienti nel file Excel. Vuoi aggiungerli all'archivio clienti?`)) {
+                return;
+            }
+
+            if (!dbIndexed) {
+                alert("Banca dati locale non pronta.");
+                return;
+            }
+
+            const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+            const store = transaction.objectStore('targhe');
+
+            let conteggio = 0;
 
             rows.forEach(r => {
-                const client = r['Cliente'] || r['Nome'] || r['Nome Cliente'] || r['client'] || '';
-                const phone = r['Telefono'] || r['Cellulare'] || r['phone'] || '';
-                const address = r['Indirizzo'] || r['address'] || '';
-                const boiler = r['Caldaia'] || r['Modello'] || r['boiler'] || '';
-                const serial = r['Matricola'] || r['serial'] || '';
-                const nextMaintenance = r['Scadenza'] || r['nextMaintenance'] || '';
-                const notes = r['Note'] || r['notes'] || '';
+                const getVal = (keys) => {
+                    for (let k of keys) {
+                        const foundKey = Object.keys(r).find(keyName => keyName.toLowerCase().trim() === k.toLowerCase());
+                        if (foundKey && r[foundKey]) return String(r[foundKey]).trim();
+                    }
+                    return '';
+                };
 
-                if (client || boiler) {
-                    store.add({ client, phone, address, boiler, serial, nextMaintenance, notes, updatedAt: new Date().toISOString() });
-                    inseriti++;
+                const client = getVal(['cliente', 'nome', 'cognome', 'nominativo', 'ragione sociale']);
+                const phone = getVal(['telefono', 'cellulare', 'tel', 'mobile']);
+                const address = getVal(['indirizzo', 'via', 'citta', 'location']);
+                const boiler = getVal(['caldaia', 'modello', 'marca', 'impianto']);
+                const serial = getVal(['matricola', 'seriale', 'sn']);
+                const nextMaintRaw = getVal(['scadenza', 'prossimo controllo', 'data', 'manutenzione']);
+                const notes = getVal(['note', 'annotazioni', 'dettagli']);
+
+                let formattedDate = '';
+                if (nextMaintRaw) {
+                    if (typeof nextMaintRaw === 'number') {
+                        const parsedDate = XLSX.SSF.parse_date_code(nextMaintRaw);
+                        if (parsedDate) {
+                            formattedDate = `${parsedDate.y}-${String(parsedDate.m).padStart(2, '0')}-${String(parsedDate.d).padStart(2, '0')}`;
+                        }
+                    } else if (nextMaintRaw.includes('/')) {
+                        const parts = nextMaintRaw.split('/');
+                        if (parts.length === 3) formattedDate = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+                    } else if (nextMaintRaw.includes('-')) {
+                        formattedDate = nextMaintRaw;
+                    }
+                }
+
+                if (client || boiler || phone) {
+                    store.add({
+                        client: client || "Cliente da Excel",
+                        phone: phone,
+                        address: address,
+                        boiler: boiler,
+                        serial: serial,
+                        notes: notes,
+                        nextMaintenance: formattedDate,
+                        image: null,
+                        date: new Date().toLocaleDateString('it-IT')
+                    });
+                    conteggio++;
                 }
             });
 
-            tx.oncomplete = () => {
-                alert(`🎉 Importati con successo ${inseriti} clienti da Excel/CSV!`);
-                caricaTarghe();
+            transaction.oncomplete = () => {
+                alert(`Importazione completata con successo! Inseriti ${conteggio} clienti.`);
+                mostraTarghe();
+                controllaScadenzeAllerta();
             };
-        } catch(err) {
-            alert("❌ Errore durante la lettura del file Excel.");
+
+        } catch (err) {
+            alert("Errore nella lettura del file Excel: " + err.message);
         }
     };
+
     reader.readAsArrayBuffer(file);
+    event.target.value = '';
 }
 
-// CALCOLATORI HVAC
+function eliminaTarga(id) {
+    if (!confirm("Vuoi davvero eliminare questa scheda cliente?")) return;
+    if (!dbIndexed) return;
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+    const store = transaction.objectStore('targhe');
+    store.delete(id);
+
+    transaction.oncomplete = () => {
+        caricaTarghe();
+        controllaScadenzeAllerta();
+    };
+}
+
+function richiediSvuotaTarghe() {
+    if (!confirm("Sei sicuro di voler cancellare TUTTA la banca dati dei clienti salvati?")) return;
+    if (!dbIndexed) return;
+
+    const transaction = dbIndexed.transaction(['targhe'], 'readwrite');
+    const store = transaction.objectStore('targhe');
+    store.clear();
+
+    transaction.oncomplete = () => {
+        caricaTarghe();
+        controllaScadenzeAllerta();
+    };
+}
+
+// CALCOLATORI TECNICI & RENDIMENTO COMBUSTIONE (UNI 10389-1)
+function mostraCalcolatori() {
+    vibraTocco();
+    impostaTabNav('calc');
+    cambiaVista('calc-view');
+}
+
 function calcolaRendimentoCombustione() {
-    const tf = parseFloat(document.getElementById('tempFumi')?.value) || 0;
-    const ta = parseFloat(document.getElementById('tempAmbiente')?.value) || 20;
-    const co2 = parseFloat(document.getElementById('valoreCO2')?.value) || 0;
-    const tipo = document.getElementById('tipoCombustibile')?.value || 'metano';
-    const res = document.getElementById('rendimentoResult');
+    const tfEl = document.getElementById('tempFumi');
+    const taEl = document.getElementById('tempAmbiente');
+    const co2El = document.getElementById('valoreCO2');
+    const fuelEl = document.getElementById('tipoCombustibile');
+    const resBox = document.getElementById('rendimentoResult');
 
-    if (tf <= 0 || co2 <= 0 || !res) return;
+    if (!tfEl || !taEl || !co2El || !resBox) return;
 
-    const k = tipo === 'metano' ? 0.47 : 0.42;
-    const qa = k * ((tf - ta) / co2);
-    const eta = Math.max(0, 100 - qa).toFixed(1);
+    const Tf = parseFloat(tfEl.value);
+    const Ta = parseFloat(taEl.value) || 20;
+    const CO2 = parseFloat(co2El.value);
+    const fuel = fuelEl ? fuelEl.value : 'metano';
 
-    res.textContent = `Rendimento η: ${eta}% | Perdita qA: ${qa.toFixed(1)}%`;
+    if (isNaN(Tf) || isNaN(CO2) || CO2 <= 0 || Tf <= Ta) {
+        resBox.textContent = 'Rendimento \u03B7: -- % | Perdita qA: -- %';
+        resBox.style.color = '#93c5fd';
+        return;
+    }
+
+    let A2 = 0.37;
+    let B = 0.009;
+
+    if (fuel === 'gpl') {
+        A2 = 0.42;
+        B = 0.008;
+    }
+
+    const qA = (Tf - Ta) * ((A2 / CO2) + B);
+    const eta = 100 - qA;
+
+    const etaFormatted = eta.toFixed(1);
+    const qAFormatted = qA.toFixed(1);
+
+    if (eta >= 90) {
+        resBox.textContent = `Rendimento \u03B7: ${etaFormatted}% (CONFORME) | Perdita qA: ${qAFormatted}%`;
+        resBox.style.color = '#86efac';
+    } else {
+        resBox.textContent = `Rendimento \u03B7: ${etaFormatted}% (NON CONFORME <90%) | Perdita qA: ${qAFormatted}%`;
+        resBox.style.color = '#fca5a5';
+    }
 }
 
 function calcolaPortataGas() {
-    const litri = parseFloat(document.getElementById('gasLiters')?.value) || 0;
-    const res = document.getElementById('gasResult');
-    if (!res) return;
+    const input = document.getElementById('gasLiters');
+    const resultBox = document.getElementById('gasResult');
+    if (!input || !resultBox) return;
 
-    const mcOra = (litri / 1000) * 60;
-    const kw = (mcOra * 9.5).toFixed(1);
+    const litri = parseFloat(input.value);
+    if (isNaN(litri) || litri <= 0) {
+        resultBox.textContent = '0.0 kW Termici';
+        return;
+    }
 
-    res.textContent = `${kw} kW Termici (${mcOra.toFixed(2)} m³/h)`;
+    const kw = (litri * 0.06 * 9.6).toFixed(1);
+    resultBox.textContent = `${kw} kW Termici`;
 }
 
 function calcolaVasoEspansione() {
-    const litriAcqua = parseFloat(document.getElementById('waterVolume')?.value) || 0;
-    const altezza = parseFloat(document.getElementById('buildingHeight')?.value) || 0;
-    const res = document.getElementById('vasoResult');
-    if (!res) return;
+    const volInput = document.getElementById('waterVolume');
+    const heightInput = document.getElementById('buildingHeight');
+    const resultBox = document.getElementById('vasoResult');
+    if (!volInput || !resultBox) return;
 
-    const precarica = (0.5 + (altezza / 10)).toFixed(1);
-    const vasoMinimo = Math.ceil(litriAcqua * 0.07);
+    const vol = parseFloat(volInput.value);
+    const height = parseFloat(heightInput?.value) || 0;
 
-    res.textContent = `Vaso Minimo: ${vasoMinimo} L | Precarica: ${precarica} bar`;
+    if (isNaN(vol) || vol <= 0) {
+        resultBox.textContent = 'Vaso Minimo: 0 L | Precarica: 1.0 bar';
+        return;
+    }
+
+    const vasoLitri = Math.ceil(vol * 0.08);
+    const precaricaBar = (1.0 + (height * 0.1)).toFixed(1);
+
+    resultBox.textContent = `Vaso Minimo: ${vasoLitri} L | Precarica: ${precaricaBar} bar`;
 }
 
-function convertiPressione(da) {
-    const mbarEl = document.getElementById('inputMbar');
-    const paEl = document.getElementById('inputPascal');
-    if (!mbarEl || !paEl) return;
+function convertiPressione(type) {
+    const mbarInput = document.getElementById('inputMbar');
+    const paInput = document.getElementById('inputPascal');
+    if (!mbarInput || !paInput) return;
 
-    if (da === 'mbar') {
-        const val = parseFloat(mbarEl.value) || 0;
-        paEl.value = (val * 100).toFixed(0);
+    if (type === 'mbar') {
+        const val = parseFloat(mbarInput.value);
+        paInput.value = isNaN(val) ? '' : Math.round(val * 100);
     } else {
-        const val = parseFloat(paEl.value) || 0;
-        mbarEl.value = (val / 100).toFixed(2);
+        const val = parseFloat(paInput.value);
+        mbarInput.value = isNaN(val) ? '' : (val / 100).toFixed(2);
     }
 }
 
-// IMPOSTAZIONI
-function caricaImpostazioni() {
-    const comp = safeGetStorage('caldaiafix_company', '');
-    const vib = safeGetStorage('caldaiafix_vibration', true);
-
-    const compEl = document.getElementById('settingCompany');
-    const vibEl = document.getElementById('settingVibration');
-
-    if (compEl) compEl.value = comp;
-    if (vibEl) vibEl.checked = vib;
-}
-
-function salvaImpostazioniDitta() {
-    const val = document.getElementById('settingCompany')?.value || '';
-    safeSetStorage('caldaiafix_company', val);
-}
-
-function salvaImpostazioniVibrazione() {
-    const val = document.getElementById('settingVibration')?.checked;
-    safeSetStorage('caldaiafix_vibration', val);
-}
-
-// PIN AREA TECNICA
-function apriPin() {
+// RAPPORTO INTERVENTO WHATSAPP
+function apriReportModal(brand, code, desc) {
     vibraTocco();
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinError').style.display = 'none';
-    document.getElementById('pin-modal').style.display = 'flex';
+    const company = localStorage.getItem('caldaiafix_company') || '';
+    const repCompany = document.getElementById('repCompany');
+    const repBoiler = document.getElementById('repBoiler');
+    const repFault = document.getElementById('repFault');
+    const modal = document.getElementById('report-modal');
+
+    if (repCompany) repCompany.value = company;
+    if (repBoiler) repBoiler.value = brand;
+    if (repFault) repFault.value = `${code} - ${desc}`;
+    if (modal) modal.style.display = 'flex';
 }
 
-function chiudiPin() {
-    document.getElementById('pin-modal').style.display = 'none';
+function chiudiReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) modal.style.display = 'none';
 }
 
-function verificaPin() {
-    const input = document.getElementById('pinInput')?.value || '';
-    if (input === '1234' || input === '8899') {
-        chiudiPin();
-        impostaTabNav('menu');
-        cambiaVista('area-tecnica-view');
-        caricaAreaTecnica();
+function inviaRapportoWhatsApp() {
+    const company = document.getElementById('repCompany')?.value.trim() || '';
+    const client = document.getElementById('repClient')?.value.trim() || '';
+    const boiler = document.getElementById('repBoiler')?.value.trim() || '';
+    const fault = document.getElementById('repFault')?.value.trim() || '';
+    const work = document.getElementById('repWork')?.value.trim() || '';
+    const price = document.getElementById('repPrice')?.value.trim() || '';
+
+    let testo = `*RAPPORTO INTERVENTO TECNICO*\n`;
+    if (company) testo += `🏢 Ditta: ${company}\n`;
+    if (client) testo += `👤 Cliente: ${client}\n`;
+    if (boiler) testo += `🔥 Caldaia: ${boiler}\n`;
+    if (fault) testo += `⚠️ Guasto: ${fault}\n`;
+    if (work) testo += `🛠️ Lavoro Svolto: ${work}\n`;
+    if (price) testo += `💶 Importo Totale: € ${price}\n`;
+    testo += `\n_Inviato da CaldaiaFix PRO_`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(testo)}`;
+    window.open(url, '_blank');
+    chiudiReportModal();
+}
+
+// NAVIGAZIONE, VISTE & MENU TENDINA
+function cambiaVista(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(viewId);
+    if (target) target.classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function tornaHome() {
+    vibraTocco();
+    impostaTabNav('home');
+    cambiaVista('home-view');
+}
+
+function mostraImpostazioni() {
+    vibraTocco();
+    impostaTabNav('menu');
+    cambiaVista('settings-view');
+}
+
+function toggleMenuTendina() {
+    vibraTocco();
+    const overlay = document.getElementById('dropup-overlay');
+    const menu = document.getElementById('dropup-menu');
+
+    if (!overlay || !menu) return;
+
+    if (menu.classList.contains('active')) {
+        menu.classList.remove('active');
+        overlay.classList.remove('active');
     } else {
-        document.getElementById('pinError').style.display = 'block';
+        overlay.classList.add('active');
+        menu.classList.add('active');
     }
 }
 
-function caricaAreaTecnica() {
-    const container = document.getElementById('installer-content-main');
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="card">
-            <h3 style="color:#38bdf8;">🔑 Funzioni Avanzate Tecnico</h3>
-            <p style="font-size:13px; color:var(--text-sub); margin-top:4px;">Accesso riservato per sblocco parametri e diagnostica avanzata.</p>
-            <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn-action" onclick="forzaAggiornamentoCache()">🔄 Reset Cache & Forza Update PWA</button>
-            </div>
-        </div>
-    `;
+function impostaTabNav(tab) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    const navBtn = document.getElementById(`nav-${tab}`);
+    if (navBtn) navBtn.classList.add('active');
 }
 
-// TORCIA FLASH
-async function toggleTorch() {
+// TORCIA FLASH & PWA
+function toggleTorch() {
     vibraTocco();
-    try {
-        if (!isTorchOn) {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            torchTrack = stream.getVideoTracks()[0];
-            const capabilities = await torchTrack.getCapabilities();
-
-            if (capabilities.torch) {
-                await torchTrack.applyConstraints({ advanced: [{ torch: true }] });
+    if (!isTorchOn) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Torcia non disponibile su questo browser.");
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                torchTrack = stream.getVideoTracks()[0];
+                return torchTrack.applyConstraints({ advanced: [{ torch: true }] });
+            })
+            .then(() => {
                 isTorchOn = true;
                 const btn = document.getElementById('menu-torch-btn');
-                if (btn) btn.textContent = '🔦 Spegni Torcia Flash';
-            } else {
-                alert("Flash non supportato dal dispositivo.");
-            }
-        } else {
-            if (torchTrack) {
-                torchTrack.stop();
-                torchTrack = null;
-            }
-            isTorchOn = false;
-            const btn = document.getElementById('menu-torch-btn');
-            if (btn) btn.textContent = '🔦 Torcia Flash';
-        }
-    } catch(e) {
-        alert("Impossibile accedere alla torcia del dispositivo.");
+                if (btn) btn.style.color = '#f97316';
+            })
+            .catch(err => {
+                alert("Torcia non disponibile o permessi negati.");
+            });
+    } else {
+        if (torchTrack) torchTrack.stop();
+        isTorchOn = false;
+        const btn = document.getElementById('menu-torch-btn');
+        if (btn) btn.style.color = '';
     }
 }
 
-// PWA INSTALL
 function gestisciPwaInstall() {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'flex';
     });
+
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isIos && !isStandalone) {
+        const iosBanner = document.getElementById('ios-install-banner');
+        if (iosBanner) iosBanner.style.display = 'flex';
+    }
 }
 
-// FEEDBACK EMAIL
+function installaPWA() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+            chiudiPwaBanner();
+        });
+    }
+}
+
+function chiudiPwaBanner() {
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+function chiudiIosBanner() {
+    const banner = document.getElementById('ios-install-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+// FEEDBACK & BUG REPORTING
 function apriFeedbackModal() {
     vibraTocco();
-    document.getElementById('feedback-modal').style.display = 'flex';
+    const modal = document.getElementById('feedback-modal');
+    if (modal) modal.style.display = 'flex';
 }
 
 function chiudiFeedbackModal() {
-    document.getElementById('feedback-modal').style.display = 'none';
+    const modal = document.getElementById('feedback-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function cambiaTabFeedback(tab) {
     vibraTocco();
+    const tabCodeBtn = document.getElementById('tab-code-btn');
+    const tabBugBtn = document.getElementById('tab-bug-btn');
+    const formCode = document.getElementById('form-feedback-code');
+    const formBug = document.getElementById('form-feedback-bug');
+
     if (tab === 'code') {
-        document.getElementById('tab-code-btn').classList.add('active');
-        document.getElementById('tab-bug-btn').classList.remove('active');
-        document.getElementById('form-feedback-code').style.display = 'block';
-        document.getElementById('form-feedback-bug').style.display = 'none';
+        if (tabCodeBtn) tabCodeBtn.classList.add('active');
+        if (tabBugBtn) tabBugBtn.classList.remove('active');
+        if (formCode) formCode.style.display = 'block';
+        if (formBug) formBug.style.display = 'none';
     } else {
-        document.getElementById('tab-bug-btn').classList.add('active');
-        document.getElementById('tab-code-btn').classList.remove('active');
-        document.getElementById('form-feedback-bug').style.display = 'block';
-        document.getElementById('form-feedback-code').style.display = 'none';
+        if (tabCodeBtn) tabCodeBtn.classList.remove('active');
+        if (tabBugBtn) tabBugBtn.classList.add('active');
+        if (formCode) formCode.style.display = 'none';
+        if (formBug) formBug.style.display = 'block';
     }
 }
 
@@ -1067,110 +1755,35 @@ function inviaFeedbackEmail(type) {
         emailBody = `Descrizione Bug:\n${bug}`;
     }
 
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+    const mailtoUrl = `mailto:assistenza@dbsolution.it?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+    window.location.href = mailtoUrl;
     chiudiFeedbackModal();
 }
 
-// MORSETTIERE & WIZARD
-function mostraMorsettiere() {
-    vibraTocco();
-    impostaTabNav('menu');
-    cambiaVista('morsettiere-view');
-    renderMorsettieraBrand('Baxi');
+// UTILITY & IMPOSTAZIONI DITTA
+function salvaImpostazioniDitta() {
+    const el = document.getElementById('settingCompany');
+    if (el) localStorage.setItem('caldaiafix_company', el.value.trim());
 }
 
-function avviaWizard() {
-    vibraTocco();
-    impostaTabNav('menu');
-    cambiaVista('wizard-view');
-    renderWizardStep('start');
+function salvaImpostazioniVibrazione() {
+    const el = document.getElementById('settingVibration');
+    if (el) localStorage.setItem('caldaiafix_vibration', el.checked ? 'true' : 'false');
 }
 
-function renderMorsettieraBrand(brand) {
-    const container = document.getElementById('morsettiere-container');
-    if (!container) return;
+function caricaImpostazioni() {
+    const comp = localStorage.getItem('caldaiafix_company');
+    const compEl = document.getElementById('settingCompany');
+    if (comp && compEl) compEl.value = comp;
 
-    const data = {
-        'Baxi': [
-            { model: 'Luna3 / Duo-Tec', ta: 'M1 morsetti 1 e 2 (Togliere ponte)', bus: 'M2 Morsetti 1-2 per cronotermostato' },
-            { model: 'Eco3 / Main', ta: 'M1 morsetti 1-2', bus: 'Non presente' }
-        ],
-        'Vaillant': [
-            { model: 'ecoTEC plus / pro', ta: 'Morsetti 3 e 4 (Togliere ponte 24V)', bus: 'Morsetti BUS + e -' }
-        ],
-        'Immergas': [
-            { model: 'Victrix Tera / TT', ta: 'Morsetti 40 e 41', bus: 'Morsetti 40-41' }
-        ],
-        'Ariston': [
-            { model: 'Clas B / Genus One', ta: 'TA1 morsetti 1 e 2', bus: 'BUS BridgeNet T-BUS' }
-        ]
-    };
-
-    const list = data[brand] || [{ model: brand, ta: 'Morsetti TA dedicati', bus: 'Morsetti BUS dedicati' }];
-    let html = '';
-    list.forEach(item => {
-        html += `
-            <div class="card" style="margin-bottom:12px;">
-                <h3 style="color:#ffffff;">${brand} - ${item.model}</h3>
-                <div style="margin-top:8px; font-size:13px;">
-                    <p style="color:#38bdf8;"><strong>🔌 Termostato Ambiente (TA):</strong> ${item.ta}</p>
-                    <p style="color:#a855f7; margin-top:4px;"><strong>📡 Connessione BUS:</strong> ${item.bus}</p>
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
+    const vib = localStorage.getItem('caldaiafix_vibration');
+    const vibEl = document.getElementById('settingVibration');
+    if (vib !== null && vibEl) vibEl.checked = (vib === 'true');
 }
 
-function renderWizardStep(step) {
-    const container = document.getElementById('wizard-container');
-    if (!container) return;
-
-    if (step === 'start') {
-        container.innerHTML = `
-            <div class="card" style="text-align:center;">
-                <h3>🩺 Qual è il sintomo principale?</h3>
-                <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
-                    <button class="btn-action" onclick="renderWizardStep('blocco_fiamma')">🔥 Caldaia in Blocco Fiamma</button>
-                    <button class="btn-action" onclick="renderWizardStep('no_acqua_calda')">🚿 Acqua Calda Fredda o Tiepida</button>
-                    <button class="btn-action" onclick="renderWizardStep('pressione')">💧 Problemi di Pressione</button>
-                </div>
-            </div>
-        `;
-    } else if (step === 'blocco_fiamma') {
-        container.innerHTML = `
-            <div class="card">
-                <h3>🔥 Blocco Fiamma / Mancata Accensione</h3>
-                <ol style="padding-left:18px; font-size:14px; line-height:1.6; margin-top:10px;">
-                    <li>Verificare apertura rubinetto gas.</li>
-                    <li>Controllare scarica elettrodo di accensione.</li>
-                    <li>Verificare pressione gas in ingresso (mbar).</li>
-                </ol>
-                <button class="back-btn" style="margin-top:15px;" onclick="renderWizardStep('start')">⬅ Torna alle domande</button>
-            </div>
-        `;
-    } else if (step === 'no_acqua_calda') {
-        container.innerHTML = `
-            <div class="card">
-                <h3>🚿 Acqua Calda Fredda / Tiepida</h3>
-                <ol style="padding-left:18px; font-size:14px; line-height:1.6; margin-top:10px;">
-                    <li>Verificare portata litri/minuto.</li>
-                    <li>Controllare flussostato o flussometro.</li>
-                    <li>Verificare scambiatore secondario a piastre.</li>
-                </ol>
-                <button class="back-btn" style="margin-top:15px;" onclick="renderWizardStep('start')">⬅ Torna alle domande</button>
-            </div>
-        `;
-    } else if (step === 'pressione') {
-        container.innerHTML = `
-            <div class="card">
-                <h3>💧 Pressione Idraulica Errata</h3>
-                <ol style="padding-left:18px; font-size:14px; line-height:1.6; margin-top:10px;">
-                    <li>Se Pressione < 0.8 bar: Aprire rubinetto di carico fino a 1.2-1.5 bar.</li>
-                    <li>Se Pressione > 3 bar: Vaso d'espansione scarico o bucato.</li>
-                </ol>
-                <button class="back-btn" style="margin-top:15px;" onclick="renderWizardStep('start')">⬅ Torna alle domande</button>
-            </div>
-        `;
+function vibraTocco() {
+    const enabled = localStorage.getItem('caldaiafix_vibration') !== 'false';
+    if (enabled && navigator.vibrate) {
+        navigator.vibrate(15);
     }
 }
