@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CaldaiaFix PRO</title>
 
+    <!-- LIBRERIA SHEETJS PER IMPORTAZIONE EXCEL & CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- ICONE PWA E PER SCHERMATA HOME (ANDROID & IOS) -->
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=4.0">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=4.0">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json?v=4.0">
 
     <!-- CONFIGURAZIONE PER IPHONE / SAFARI PWA -->
@@ -209,10 +212,13 @@
             <button class="btn-action" onclick="apriTargaModal()">+ Nuova Targa</button>
         </div>
 
-        <div class="backup-bar">
-            <button class="btn-backup" onclick="esportaBackupJSON()">💾 Esporta Backup (JSON)</button>
-            <button class="btn-restore" onclick="document.getElementById('importJsonInput').click()">📥 Ripristina Backup</button>
+        <div class="backup-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px;">
+            <button class="btn-backup" style="flex:1;" onclick="esportaBackupJSON()">💾 Esporta JSON</button>
+            <button class="btn-restore" style="flex:1;" onclick="document.getElementById('importJsonInput').click()">📥 Importa JSON</button>
+            <button class="btn-action" style="flex:1; background:#0284c7; margin:0;" onclick="document.getElementById('importExcelInput').click()">📊 Importa Excel / CSV</button>
+            
             <input type="file" id="importJsonInput" accept=".json" onchange="ripristinaBackupJSON(event)" style="display:none;">
+            <input type="file" id="importExcelInput" accept=".xlsx, .xls, .csv" onchange="importaClientiExcel(event)" style="display:none;">
         </div>
 
         <div id="targhe-list"></div>
@@ -361,6 +367,7 @@
         <div class="modal-content">
             <h3>📑 Scheda Targa & Manutenzione</h3>
             <input type="text" id="tagClient" placeholder="Nome Cliente / Riferimento">
+            <input type="tel" id="tagPhone" placeholder="Cellulare Cliente (es. 3331234567)">
             <input type="text" id="tagAddress" placeholder="Indirizzo">
             <input type="text" id="tagBoiler" placeholder="Marca e Modello Caldaia">
             <input type="text" id="tagSerial" placeholder="Numero Matricola">
