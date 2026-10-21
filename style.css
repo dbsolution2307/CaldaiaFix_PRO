@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CALDAIAFIX PRO - FOGLIO DI STILE COMPLETO (v4.1)
+   CALDAIAFIX PRO - FOGLIO DI STILE COMPLETO (v4.2)
    ========================================================================== */
 
 /* --- VARIABILI GLOBALI E TEMA SCURO --- */
@@ -456,7 +456,7 @@ body {
 .btn-file input { display: none; }
 
 /* ==========================================================================
-   STILI MODALI E POPUP CON SCORRIMENTO FLUIDO PER IPHONE E MOBILE
+   STILI MODALI, POPUP & SCORRIMENTO PER IPHONE
    ========================================================================== */
 
 .modal {
@@ -482,10 +482,10 @@ body {
     width: 100%;
     max-width: 480px;
     
-    /* LIMITA L'ALTEZZA ALL'82% DELLO SCHERMO E ABILITA LO SCROLL SU IPHONE */
+    /* LIMITA L'ALTEZZA ALL'82% DELLO SCHERMO E ABILITA LO SCROLL */
     max-height: 82vh;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Scroll fluido nativo iOS Safari */
+    -webkit-overflow-scrolling: touch; /* Scroll fluido iOS */
     
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
     box-sizing: border-box;
@@ -520,12 +520,13 @@ body {
 /* ANTEPRIMA FOTO TARGA / MATRICOLA COMPATTA */
 .client-img-preview {
     width: 100%;
-    max-height: 200px; /* Riduce l'ingombro della foto per lasciare visibili i tasti */
+    max-height: 200px;
     object-fit: contain;
     border-radius: 10px;
     margin-top: 10px;
     background: #0f172a;
     border: 1px solid #334155;
+    cursor: pointer;
 }
 
 /* --- BARRA NAVIGAZIONE IN BASSO --- */
