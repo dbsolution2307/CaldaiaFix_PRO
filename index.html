@@ -458,6 +458,26 @@
     <!-- SCRIPT CON VERSIONING ?v=4.5 -->
     <script src="db.js?v=4.5"></script>
     <script src="app.js?v=4.5"></script>
+<!-- MODALE ACCETTAZIONE OBBLIGATORIA (CLICKWRAP) -->
+<div id="terms-modal" class="modal" style="display:none; z-index:9999; background:rgba(15,23,42,0.98);">
+    <div class="modal-content" style="max-width:400px; text-align:left;">
+        <h3 style="margin-top:0; color:#38bdf8;">Benvenuto in CaldaiaFix PRO</h3>
+        <p style="font-size:13px; color:#cbd5e1;">Prima di iniziare, è obbligatorio accettare le condizioni di utilizzo e confermare di aver compreso il sistema di archiviazione locale.</p>
+        
+        <div style="margin:20px 0; display:flex; flex-direction:column; gap:12px;">
+            <label style="display:flex; align-items:flex-start; gap:10px; font-size:13px; color:#ffffff; cursor:pointer;">
+                <input type="checkbox" id="check-terms" onchange="validaPulsanteTermini()" style="margin-top:2px; transform:scale(1.2);">
+                <span>Accetto i <strong>Termini d'Uso</strong> e lo scarico di responsabilità.</span>
+            </label>
+            <label style="display:flex; align-items:flex-start; gap:10px; font-size:13px; color:#ffffff; cursor:pointer;">
+                <input type="checkbox" id="check-privacy" onchange="validaPulsanteTermini()" style="margin-top:2px; transform:scale(1.2);">
+                <span>Comprendo che i dati vengono salvati esclusivamente sul mio dispositivo (<strong>Privacy Policy</strong>).</span>
+            </label>
+        </div>
+        
+        <button id="btn-accept-terms" class="btn-action" style="width:100%; opacity:0.5; cursor:not-allowed;" disabled onclick="salvaAccettazioneTermini()">Accetta e Inizia</button>
+    </div>
+</div>
     <!-- MODALE HELP, FAQ, GDPR & NOTE LEGALI -->
     <div id="help-modal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width:550px; max-height:85vh; overflow-y:auto;">
