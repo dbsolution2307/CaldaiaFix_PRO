@@ -561,10 +561,11 @@
         });
     }
 </script>
-    <!-- LOGICA DI BLOCCO FIREBASE E TRACCIAMENTO DISPOSITIVO -->
+  <!-- LOGICA DI BLOCCO FIREBASE E CONTATORE DISPOSITIVI -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCg9WukiJugqxa4FEoGwZQWJaOJBzJ1yO8",
@@ -577,20 +578,62 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
   const loginWall = document.getElementById('login-wall');
   const btnLogin = document.getElementById('btn-login');
   const errorMsg = document.getElementById('login-error');
 
-  onAuthStateChanged(auth, (user) => {
+  // Limite massimo di dispositivi per account
+  const MAX_DISPOSITIVI = 3;
+
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
-      loginWall.style.display = 'none';
+      // 1. Genera o recupera l'ID univoco del telefono
       let deviceId = localStorage.getItem('caldaiafix_device_id');
       if (!deviceId) {
           deviceId = 'DEV-' + Math.floor(Math.random() * 1000000000);
           localStorage.setItem('caldaiafix_device_id', deviceId);
       }
+
+      try {
+        // 2. Controlla il database
+        const userRef = doc(db, "utenti_autorizzati", user.uid);
+        const userSnap = await getDoc(userRef);
+        let dispositivi = [];
+
+        if (userSnap.exists()) {
+            dispositivi = userSnap.data().dispositivi || [];
+        }
+
+        // 3. Logica di sblocco o blocco
+        if (dispositivi.includes(deviceId)) {
+            // Il telefono è già registrato, entra subito
+            loginWall.style.display = 'none';
+        } else if (dispositivi.length >= MAX_DISPOSITIVI) {
+            // LIMITE SUPERATO: Espelle l'utente
+            await signOut(auth);
+            loginWall.style.display = 'flex';
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = "Accesso negato: limite di " + MAX_DISPOSITIVI + " dispositivi raggiunto.";
+        } else {
+            // Registra il nuovo telefono nel database
+            await setDoc(userRef, {
+                email: user.email,
+                dispositivi: arrayUnion(deviceId),
+                ultimoAccesso: new Date().toISOString()
+            }, { merge: true });
+            
+            loginWall.style.display = 'none';
+        }
+      } catch (error) {
+        console.error("Errore Database:", error);
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "Errore di verifica licenza. Riprova.";
+      }
+
     } else {
+      // Nessun utente loggato, mostra il muro
       loginWall.style.display = 'flex';
     }
   });
@@ -601,12 +644,13 @@
     if(!email || !password) return;
     
     btnLogin.innerText = "Verifica in corso...";
+    errorMsg.style.display = 'none';
     
     signInWithEmailAndPassword(auth, email, password)
       .catch((error) => {
         btnLogin.innerText = "Accedi";
         errorMsg.style.display = 'block';
-        errorMsg.innerText = "Credenziali errate o disattivate.";
+        errorMsg.innerText = "Credenziali errate o account inesistente.";
       });
   });
 </script>
