@@ -1,4 +1,4 @@
-const CACHE_NAME = 'caldaiafix-offline-v1';
+const CACHE_NAME = 'caldaiafix-offline-v2';
 
 self.addEventListener('install', event => {
     self.skipWaiting();
