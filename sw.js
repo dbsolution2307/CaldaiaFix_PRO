@@ -1,43 +1,29 @@
-const CACHE_NAME = 'caldaiafix-v7';
-const ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './db.js',
-  './app.js',
-  './manifest.json'
-];
+const CACHE_NAME = 'caldaiafix-offline-v1';
 
-// Installazione Service Worker
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
+self.addEventListener('install', event => {
+    self.skipWaiting();
 });
 
-// Attivazione e pulizia vecchie cache
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+self.addEventListener('activate', event => {
+    event.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(cachedResponse => {
+            const fetchPromise = fetch(event.request).then(networkResponse => {
+                // Aggiorna la cache in background con la versione più recente
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.put(event.request, networkResponse.clone());
+                });
+                return networkResponse;
+            }).catch(() => {
+                // Se offline e non c'è rete, usa la cache
+                return cachedResponse;
+            });
+            
+            // Restituisci subito la cache se esiste, altrimenti aspetta la rete
+            return cachedResponse || fetchPromise;
         })
-      );
-    })
-  );
-  self.clients.claim();
-});
-
-// Strategia NETWORK-FIRST: cerca prima sul web per avere l'ultimo aggiornamento, se offline usa la cache
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    fetch(e.request)
-      .then((response) => {
-        const resClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(e.request, resClone);
-        });
-        return response;
-      })
-      .catch(() => caches.match(e.request))
-  );
+    );
 });
