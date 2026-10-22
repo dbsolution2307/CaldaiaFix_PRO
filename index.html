@@ -561,5 +561,54 @@
         });
     }
 </script>
+    <!-- LOGICA DI BLOCCO FIREBASE E TRACCIAMENTO DISPOSITIVO -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCg9WukiJugqxa4FEoGwZQWJaOJBzJ1yO8",
+    authDomain: "caldaiafix-pro.firebaseapp.com",
+    projectId: "caldaiafix-pro",
+    storageBucket: "caldaiafix-pro.firebasestorage.app",
+    messagingSenderId: "286988671445",
+    appId: "1:286988671445:web:8209ba1cc7871b1c32855c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const loginWall = document.getElementById('login-wall');
+  const btnLogin = document.getElementById('btn-login');
+  const errorMsg = document.getElementById('login-error');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loginWall.style.display = 'none';
+      let deviceId = localStorage.getItem('caldaiafix_device_id');
+      if (!deviceId) {
+          deviceId = 'DEV-' + Math.floor(Math.random() * 1000000000);
+          localStorage.setItem('caldaiafix_device_id', deviceId);
+      }
+    } else {
+      loginWall.style.display = 'flex';
+    }
+  });
+
+  btnLogin.addEventListener('click', () => {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    if(!email || !password) return;
+    
+    btnLogin.innerText = "Verifica in corso...";
+    
+    signInWithEmailAndPassword(auth, email, password)
+      .catch((error) => {
+        btnLogin.innerText = "Accedi";
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "Credenziali errate o disattivate.";
+      });
+  });
+</script>
 </body>
 </html>
