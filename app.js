@@ -1851,3 +1851,39 @@ function salvaAccettazioneTermini() {
 
 // Avvia il controllo un secondo dopo il caricamento dell'app
 setTimeout(controllaAccettazioneTermini, 1000);
+
+// --- GESTIONE AGGIORNAMENTI AUTOMATICI PWA ---
+function controllaNuovaVersione() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (newWorker) {
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            const banner = document.getElementById('pwa-update-banner');
+                            if (banner) banner.style.display = 'block';
+                        }
+                    });
+                }
+            });
+        });
+    }
+}
+
+function applicaAggiornamentoPWA() {
+    if (typeof vibraTocco === 'function') vibraTocco();
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let reg of registrations) {
+                reg.unregister();
+            }
+            window.location.reload(true);
+        });
+    } else {
+        window.location.reload(true);
+    }
+}
+
+// Avvia il controllo aggiornamenti all'apertura dell'app
+setTimeout(controllaNuovaVersione, 2000);
