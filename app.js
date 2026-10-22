@@ -1817,3 +1817,37 @@ function cambiaTabHelp(tabName) {
     if (activeBtn) activeBtn.classList.add('active');
     if (activeSec) activeSec.style.display = 'block';
 }
+
+
+// --- ACCETTAZIONE VINCOLANTE (CLICKWRAP) ---
+function controllaAccettazioneTermini() {
+    if (!localStorage.getItem('caldaiafix_terms_accepted')) {
+        const modal = document.getElementById('terms-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+}
+
+function validaPulsanteTermini() {
+    const t = document.getElementById('check-terms').checked;
+    const p = document.getElementById('check-privacy').checked;
+    const btn = document.getElementById('btn-accept-terms');
+    if (t && p) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    } else {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+    }
+}
+
+function salvaAccettazioneTermini() {
+    localStorage.setItem('caldaiafix_terms_accepted', 'true');
+    const modal = document.getElementById('terms-modal');
+    if (modal) modal.style.display = 'none';
+    if (typeof vibraTocco === 'function') vibraTocco();
+}
+
+// Avvia il controllo un secondo dopo il caricamento dell'app
+setTimeout(controllaAccettazioneTermini, 1000);
