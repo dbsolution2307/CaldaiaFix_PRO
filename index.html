@@ -539,5 +539,16 @@
     <script src="db.js?v=4.8"></script>
     <script src="app.js?v=4.8"></script>
 
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                console.log('Motore Offline Attivato');
+            }).catch(err => {
+                console.error('Errore Motore Offline:', err);
+            });
+        });
+    }
+</script>
 </body>
 </html>
