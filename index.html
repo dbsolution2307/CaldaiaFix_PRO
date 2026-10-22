@@ -327,6 +327,7 @@
         <button class="dropup-item" onclick="avviaWizard(); toggleMenuTendina();">🩺 Diagnosi da Sintomo (Wizard)</button>
         <button id="menu-torch-btn" class="dropup-item" onclick="toggleTorch(); toggleMenuTendina();">🔦 Torcia Flash</button>
         <button class="dropup-item" onclick="mostraTarghe(); toggleMenuTendina();">📑 Gestione Clienti & Scadenzario</button>
+        <button class="dropup-item" onclick="apriHelpModal(); toggleMenuTendina();">⚖️ FAQ, Legale & Privacy</button>
         <button class="dropup-item" onclick="mostraCalcolatori(); toggleMenuTendina();">🧮 Calcolatori HVAC</button>
         <button class="dropup-item" onclick="apriPin(); toggleMenuTendina();">🔑 Area Tecnica / Menu Segreti</button>
         <button class="dropup-item" onclick="mostraImpostazioni(); toggleMenuTendina();">⚙️ Impostazioni Ditta</button>
@@ -457,6 +458,46 @@
     <!-- SCRIPT CON VERSIONING ?v=4.5 -->
     <script src="db.js?v=4.5"></script>
     <script src="app.js?v=4.5"></script>
+    <!-- MODALE HELP, FAQ, GDPR & NOTE LEGALI -->
+<div id="help-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:550px; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:10px; margin-bottom:15px;">
+            <h3 style="margin:0; color:#ffffff; font-size:18px;">⚖️ Note Legali & Assistenza</h3>
+            <button onclick="chiudiHelpModal()" style="background:none; border:none; color:#cbd5e1; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+        
+        <div style="display:flex; gap:6px; margin-bottom:15px;">
+            <button id="tab-faq-btn" class="btn-action active" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('faq')">❓ FAQ</button>
+            <button id="tab-legal-btn" class="btn-action" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('legal')">📜 Privacy</button>
+            <button id="tab-contact-btn" class="btn-action" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('contact')">💬 Aiuto</button>
+        </div>
+        
+        <div id="help-section-faq">
+            <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                <strong style="color:#ffffff; font-size:14px; display:block;">Q: L'applicazione funziona offline?</strong>
+                <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">Sì, tutto il database guasti e le schede clienti risiedono in locale sul dispositivo.</span>
+            </div>
+            <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                <strong style="color:#ffffff; font-size:14px; display:block;">Q: Dove vengono salvati i dati?</strong>
+                <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">In IndexedDB locale. Nessun dato personale viene inviato a server esterni.</span>
+            </div>
+        </div>
+        
+        <div id="help-section-legal" style="display:none; font-size:13px; color:#cbd5e1; line-height:1.5;">
+            <h4 style="color:#38bdf8; margin-top:0;">🔒 Informativa Privacy (GDPR)</h4>
+            <p>L'app conserva i dati esclusivamente in locale. Il titolare non profila dati personali a fini commerciali.</p>
+            <h4 style="color:#38bdf8; margin-top:12px;">⚠️ Esclusione di Responsabilità</h4>
+            <p>Le informazioni sono a scopo informativo. L'utente è l'unico responsabile della sicurezza degli interventi tecnici sugli impianti.</p>
+        </div>
+        
+        <div id="help-section-contact" style="display:none; text-align:center;">
+            <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                <a href="mailto:caldaiafixassistenza@libero.it" class="btn-action" style="text-decoration:none; display:block; padding:12px;">✉️ Email Assistenza</a>
+            </div>
+        </div>
+        <button class="btn-clear" style="width:100%; margin-top:15px;" onclick="chiudiHelpModal()">Chiudi</button>
+    </div>
+</div>
 
 </body>
 </html>
