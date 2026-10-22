@@ -472,23 +472,34 @@
                 <button id="tab-contact-btn" class="btn-action" style="flex:1; padding:8px; font-size:12px;" onclick="cambiaTabHelp('contact')">💬 Aiuto</button>
             </div>
             
-            <div id="help-section-faq">
-                <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
-                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: L'applicazione funziona offline?</strong>
-                    <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">Sì, tutto il database guasti e le schede clienti risiedono in locale sul dispositivo.</span>
-                </div>
-                <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
-                    <strong style="color:#ffffff; font-size:14px; display:block;">Q: Dove vengono salvati i dati?</strong>
-                    <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">In IndexedDB locale. Nessun dato personale viene inviato a server esterni.</span>
-                </div>
+ <div id="help-section-faq">
+            <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                <strong style="color:#ffffff; font-size:14px; display:block;">Q: L'applicazione funziona offline?</strong>
+                <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">Sì, l'applicazione è una PWA. Dopo il primo caricamento, il database dei guasti e l'archivio clienti funzionano al 100% offline senza connessione internet.</span>
             </div>
-            
-            <div id="help-section-legal" style="display:none; font-size:13px; color:#cbd5e1; line-height:1.5;">
-                <h4 style="color:#38bdf8; margin-top:0;">🔒 Informativa Privacy (GDPR)</h4>
-                <p>L'app conserva i dati esclusivamente in locale. Il titolare non profila dati personali a fini commerciali.</p>
-                <h4 style="color:#38bdf8; margin-top:12px;">⚠️ Esclusione di Responsabilità</h4>
-                <p>Le informazioni sono a scopo informativo. L'utente è l'unico responsabile della sicurezza degli interventi tecnici sugli impianti.</p>
+            <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                <strong style="color:#ffffff; font-size:14px; display:block;">Q: Se cambio telefono perdo i dati dei clienti?</strong>
+                <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">I dati sono salvati esclusivamente nella memoria del tuo dispositivo. Prima di cambiare telefono, usa la funzione "Esporta" per salvare un backup da ricaricare sul nuovo terminale.</span>
             </div>
+             <div class="card" style="margin-bottom:10px; background:#0f172a; padding:12px;">
+                <strong style="color:#ffffff; font-size:14px; display:block;">Q: Gli aggiornamenti dei codici guasto sono inclusi?</strong>
+                <span style="color:var(--text-sub); font-size:13px; margin-top:4px; display:block;">Sì, ogni volta che sei connesso a internet e ricarichi l'app, il database si sincronizza automaticamente con gli ultimi codici e manuali disponibili.</span>
+            </div>
+        </div>
+        
+        <div id="help-section-legal" style="display:none; font-size:13px; color:#cbd5e1; line-height:1.5;">
+            <h4 style="color:#38bdf8; margin-top:0; margin-bottom:5px;">⚠️ Termini d'Uso e Scarico di Responsabilità</h4>
+            <p style="margin-top:0;">L'applicazione "CaldaiaFix PRO" è fornita esclusivamente come strumento di supporto tecnico consultivo. I codici di errore e le soluzioni suggerite hanno scopo puramente informativo. L'utente si assume la totale responsabilità per qualsiasi intervento effettuato sugli impianti termici. Il titolare dell'applicazione declina espressamente ogni responsabilità per danni a cose, persone o malfunzionamenti derivanti dall'uso di queste informazioni. Gli interventi devono sempre essere eseguiti da personale abilitato nel rispetto delle normative vigenti (D.M. 37/08).</p>
+
+            <h4 style="color:#38bdf8; margin-top:12px; margin-bottom:5px;">🔒 Informativa Privacy (GDPR)</h4>
+            <p style="margin-top:0;">Nel rispetto del Regolamento UE 2016/679 (GDPR), si informa che questa applicazione non raccoglie, non trasmette a server esterni e non profila alcun dato personale o sensibile dell'utente. Tutti i dati inseriti (es. anagrafiche clienti, scadenze, note tecniche) vengono salvati esclusivamente in locale nella memoria del dispositivo dell'utente. L'utente è l'unico responsabile della gestione, del consenso e della protezione dei dati dei propri clienti inseriti nell'applicazione.</p>
+
+            <h4 style="color:#38bdf8; margin-top:12px; margin-bottom:5px;">🏢 Dati Societari</h4>
+            <p style="margin-top:0;">App sviluppata e distribuita da:<br>
+            <strong>[INSERIRE NOME SOCIETÀ / ES: DB SOLUTION SRLS]</strong><br>
+            P.IVA: [INSERIRE PARTITA IVA]<br>
+            Sede: [INSERIRE INDIRIZZO SEDE LEGALE]</p>
+        </div>
             
             <div id="help-section-contact" style="display:none; text-align:center;">
                 <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
