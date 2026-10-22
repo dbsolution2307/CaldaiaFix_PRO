@@ -24,6 +24,17 @@
 </head>
 <body>
 
+    <!-- MURO DI LOGIN FIREBASE -->
+<div id="login-wall" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0f172a; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; color:white;">
+    <div style="background:#1e293b; padding:30px; border-radius:12px; width:100%; max-width:350px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5); border:1px solid #334155;">
+        <h2 style="color:#38bdf8; margin-top:0; margin-bottom:5px;">CaldaiaFix PRO</h2>
+        <p style="font-size:13px; color:#cbd5e1; margin-bottom:25px;">Accesso riservato ai tecnici autorizzati</p>
+        <input type="email" id="login-email" placeholder="Email tecnico" style="width:100%; box-sizing:border-box; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white; font-size:15px; outline:none;">
+        <input type="password" id="login-password" placeholder="Password" style="width:100%; box-sizing:border-box; padding:12px; margin-bottom:20px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white; font-size:15px; outline:none;">
+        <button id="btn-login" style="width:100%; padding:14px; border-radius:8px; background:#0284c7; color:white; font-weight:bold; border:none; cursor:pointer; font-size:15px; text-transform:uppercase;">Accedi</button>
+        <p id="login-error" style="color:#ef4444; font-size:13px; margin-top:15px; display:none; font-weight:bold;"></p>
+    </div>
+</div>
     <!-- BANNER NOTIFICA NUOVO AGGIORNAMENTO -->
 <div id="pwa-update-banner" style="display:none; position:fixed; top:0; left:0; width:100%; background:#0284c7; color:#ffffff; padding:12px; text-align:center; z-index:10000; font-size:13px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
     🔄 È disponibile un nuovo aggiornamento del database! 
