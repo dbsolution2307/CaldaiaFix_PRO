@@ -1787,3 +1787,33 @@ function vibraTocco() {
         navigator.vibrate(15);
     }
 }
+
+// --- FUNZIONI NOTE LEGALI E FAQ ---
+function apriHelpModal() {
+    vibraTocco();
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        cambiaTabHelp('faq');
+    }
+}
+
+function chiudiHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function cambiaTabHelp(tabName) {
+    vibraTocco();
+    ['faq', 'legal', 'contact'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}-btn`);
+        const sec = document.getElementById(`help-section-${t}`);
+        if (btn) btn.classList.remove('active');
+        if (sec) sec.style.display = 'none';
+    });
+
+    const activeBtn = document.getElementById(`tab-${tabName}-btn`);
+    const activeSec = document.getElementById(`help-section-${tabName}`);
+    if (activeBtn) activeBtn.classList.add('active');
+    if (activeSec) activeSec.style.display = 'block';
+}
